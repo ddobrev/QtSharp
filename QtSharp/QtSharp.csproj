@@ -41,7 +41,9 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CompileInlinesPass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ProcessHelper.cs" />
     <Compile Include="QtSharp.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

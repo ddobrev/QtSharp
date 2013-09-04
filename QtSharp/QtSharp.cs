@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using CppSharp;
 using CppSharp.AST;
 using CppSharp.Generators;
@@ -7,35 +8,33 @@ namespace QtSharp
 {
 	public class QtSharp : ILibrary
 	{
+	    private readonly string qmake;
+	    private readonly string make;
 	    private readonly string includePath;
 	    private readonly string module;
 	    private readonly string libraryPath;
 	    private readonly string library;
 
-	    public QtSharp(string includePath, string module, string libraryPath, string library)
+	    public QtSharp(string qmake, string make, string includePath, string module, string libraryPath, string library)
 	    {
+	        this.qmake = qmake;
 	        this.includePath = includePath;
 	        this.module = module;
 	        this.libraryPath = libraryPath;
 	        this.library = library;
+	        this.make = make;
 	    }
 
 	    public void Preprocess(Driver driver, Library lib)
 	    {
             string qtModule = "Qt" + this.module;
 	        string moduleIncludes = Path.Combine(includePath, qtModule);
-	        foreach (TranslationUnit unit in lib.TranslationUnits)
+	        foreach (TranslationUnit unit in from unit in lib.TranslationUnits
+	                                         where Path.GetDirectoryName(unit.FilePath) != moduleIncludes
+                                             select unit)
 	        {
-	            string unitFileDir = Path.GetDirectoryName(unit.FilePath);
-	            if (unitFileDir != moduleIncludes)
-	            {
-	                unit.ExplicityIgnored = true;
-	            }
-	            else
-	            {
-	                this.GetHashCode();
-	            }
-            }
+	            unit.ExplicityIgnored = true;
+	        }
 		}
 
 		public void Postprocess(Library lib)
@@ -61,6 +60,7 @@ namespace QtSharp
 
 		public void SetupPasses(Driver driver)
 		{
+            driver.TranslationUnitPasses.AddPass(new CompileInlinesPass(this.qmake, this.make));
 		}
 	}
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -12,9 +11,9 @@ namespace QtSharp.CLI
     {
         public static int Main(string[] args)
         {
-            if (args.Length == 0)
+            if (args.Length < 2)
             {
-                Console.WriteLine("Please enter the path to qmake.");
+                Console.WriteLine("Please enter the paths to qmake and make.");
                 return 0;
             }
             string qmake = args[0];
@@ -23,11 +22,18 @@ namespace QtSharp.CLI
                 Console.WriteLine("The specified qmake does not exist.");
                 return -1;
             }
-            int exitCode;
-            string libs = RunQMake(qmake, out exitCode, "QT_INSTALL_LIBS");
-            if (exitCode != 0)
+            string makePath = args[1];
+            if (!File.Exists(makePath))
             {
-                return exitCode;
+                Console.WriteLine("The specified make does not exist.");
+                return -1;
+            }
+            string error;
+            string libs = ProcessHelper.Run(qmake, "-query QT_INSTALL_LIBS", out error);
+            if (!string.IsNullOrEmpty(error))
+            {
+                Console.WriteLine(error);
+                return -1;
             }
             DirectoryInfo libsInfo = new DirectoryInfo(libs);
             if (!libsInfo.Exists)
@@ -38,10 +44,11 @@ namespace QtSharp.CLI
                 return -1;
             }
             IEnumerable<string> libFiles = GetLibFiles(libsInfo);
-            string headers = RunQMake(qmake, out exitCode, "QT_INSTALL_HEADERS");
-            if (exitCode != 0)
+            string headers = ProcessHelper.Run(qmake, "-query QT_INSTALL_HEADERS", out error);
+            if (!string.IsNullOrEmpty(error))
             {
-                return exitCode;
+                Console.WriteLine(error);
+                return -1;
             }
             DirectoryInfo headersInfo = new DirectoryInfo(headers);
             if (!headersInfo.Exists)
@@ -55,7 +62,8 @@ namespace QtSharp.CLI
             {
                 if (libFile == "libQt5Core.a")
                 {
-                    ConsoleDriver.Run(new QtSharp(headers, Regex.Match(libFile, @"Qt\d?(?<module>\w+)\.\w+$").Groups["module"].Value, libs, libFile));                    
+                    string module = Regex.Match(libFile, @"Qt\d?(?<module>\w+)\.\w+$").Groups["module"].Value;
+                    ConsoleDriver.Run(new QtSharp(qmake, makePath, headers, module, libs, libFile));
                 }
             }
             return 0;
@@ -71,36 +79,6 @@ namespace QtSharp.CLI
                 modules.Remove(Path.GetFileNameWithoutExtension(modules[i]) + "d" + Path.GetExtension(modules[i]));
             }
             return modules;
-        }
-
-        private static string RunQMake(string qmake, out int exitCode, string qmakeVariable)
-        {
-            try
-            {
-                using (Process process = new Process())
-                {
-                    process.StartInfo.FileName = qmake;
-                    process.StartInfo.Arguments = string.Format("-query {0}", qmakeVariable);
-                    process.StartInfo.UseShellExecute = false;
-                    process.StartInfo.RedirectStandardOutput = true;
-                    process.Start();
-                    process.WaitForExit(1000);
-                    if (process.ExitCode != 0)
-                    {
-                        Console.WriteLine("qmake failed with exit code {0}.", process.ExitCode);
-                        exitCode = process.ExitCode;
-                        return string.Empty;
-                    }
-                    exitCode = 0;
-                    return process.StandardOutput.ReadToEnd().Trim().Replace(@"\\", @"\");
-                }
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine("Calling qmake caused an exception: {0}.", exception.Message);
-                exitCode = 2;
-                return string.Empty;
-            }
         }
     }
 }
