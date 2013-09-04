@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using CppSharp.AST;
 using CppSharp.Passes;
+using System.Linq;
 
 namespace QtSharp
 {
@@ -16,14 +18,13 @@ namespace QtSharp
             this.make = make;
         }
 
-        public override bool VisitLibrary(CppSharp.AST.Library library)
+        public override bool VisitLibrary(Library library)
         {
             bool result = base.VisitLibrary(library);
             string pro = string.Format("{0}.pro", Driver.Options.InlinesLibraryName);
             string path = Path.Combine(Driver.Options.OutputDir, pro);
             StringBuilder proBuilder = new StringBuilder();
             proBuilder.Append("QMAKE_CXXFLAGS += -fkeep-inline-functions\n");
-            proBuilder.AppendFormat("QMAKE_LFLAGS += -Wl,--retain-symbols-file \"{0}\"\n", Path.ChangeExtension(pro, "txt"));
             proBuilder.AppendFormat("TARGET = {0}\n", Path.GetFileNameWithoutExtension(pro));
             proBuilder.Append("TEMPLATE = lib\n");
             proBuilder.AppendFormat("SOURCES += {0}\n", Path.ChangeExtension(pro, "cpp"));
@@ -44,6 +45,13 @@ namespace QtSharp
             this.Driver.Options.LibraryDirs.Add(Path.Combine(this.Driver.Options.OutputDir, "release"));
             this.Driver.Options.Libraries.Add(string.Format("lib{0}.a", Path.GetFileNameWithoutExtension(pro)));
             this.Driver.ParseLibraries();
+            NativeLibrary inlines = this.Driver.LibrarySymbols.Libraries.Last();
+            foreach (string symbol in this.Driver.LibrarySymbols.Libraries.Take(
+                this.Driver.LibrarySymbols.Libraries.Count - 1).SelectMany(
+                    nativeLibrary => nativeLibrary.Symbols))
+            {
+                inlines.Symbols.Remove(symbol);
+            }
             this.Driver.LibrarySymbols.IndexSymbols();
             return result;
         }
