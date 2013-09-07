@@ -1,8 +1,8 @@
 ﻿using System.IO;
-using System.Linq;
 using CppSharp;
 using CppSharp.AST;
 using CppSharp.Generators;
+using Template = CppSharp.AST.Template;
 
 namespace QtSharp
 {
@@ -29,13 +29,76 @@ namespace QtSharp
 	    {
             string qtModule = "Qt" + this.module;
 	        string moduleIncludes = Path.Combine(includePath, qtModule);
-	        foreach (TranslationUnit unit in from unit in lib.TranslationUnits
-	                                         where Path.GetDirectoryName(unit.FilePath) != moduleIncludes
-                                             select unit)
+	        foreach (TranslationUnit unit in lib.TranslationUnits)
 	        {
-	            unit.ExplicityIgnored = true;
+	            if (Path.GetDirectoryName(unit.FilePath) != moduleIncludes)
+	            {
+	                unit.ExplicityIgnored = true;
+	            }
+	            else
+	            {
+	                IgnorePrivateDeclarations(unit);
+	            }
 	        }
 		}
+
+	    private static void IgnorePrivateDeclarations(DeclarationContext unit)
+	    {
+	        foreach (Namespace ns in unit.Namespaces)
+	        {
+	            IgnorePrivateDeclaration(ns);
+	        }
+	        foreach (Enumeration enumeration in unit.Enums)
+	        {
+	            IgnorePrivateDeclaration(enumeration);
+	        }
+	        foreach (Function function in unit.Functions)
+	        {
+	            IgnorePrivateDeclaration(function);
+	        }
+	        foreach (Class @class in unit.Classes)
+	        {
+	            IgnorePrivateDeclaration(@class);
+	        }
+	        foreach (Template template in unit.Templates)
+	        {
+	            IgnorePrivateDeclaration(template);
+	        }
+	        foreach (TypedefDecl typedefDecl in unit.Typedefs)
+	        {
+	            IgnorePrivateDeclaration(typedefDecl);
+	        }
+	        foreach (Variable variable in unit.Variables)
+	        {
+	            IgnorePrivateDeclaration(variable);
+	        }
+	        foreach (Event @event in unit.Events)
+	        {
+	            IgnorePrivateDeclaration(@event);
+	        }
+	    }
+
+	    private static void IgnorePrivateDeclaration(Declaration declaration)
+	    {
+	        // this will be ignored anyway
+	        if (declaration.Access == AccessSpecifier.Private)
+	        {
+	            return;
+	        }
+	        if (declaration.Name != null &&
+	            (declaration.Name.StartsWith("Private") || declaration.Name.EndsWith("Private")))
+	        {
+	            declaration.ExplicityIgnored = true;
+	        }
+	        else
+	        {
+	            DeclarationContext declarationContext = declaration as DeclarationContext;
+	            if (declarationContext != null)
+	            {
+	                IgnorePrivateDeclarations(declarationContext);
+	            }
+	        }
+	    }
 
 		public void Postprocess(Library lib)
 		{
