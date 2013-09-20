@@ -114,6 +114,7 @@ namespace QtSharp
 			driver.Options.Verbose = true;
 		    driver.Options.GenerateAbstractImpls = true;
             driver.Options.GenerateVirtualTables = true;
+		    driver.Options.GenerateInterfacesForMultipleInheritance = true;
 			driver.Options.IgnoreParseWarnings = true;
             driver.Options.Headers.Add(qtModule);
 			driver.Options.IncludeDirs.Add(includePath);
