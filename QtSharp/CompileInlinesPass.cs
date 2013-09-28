@@ -24,7 +24,7 @@ namespace QtSharp
             string pro = string.Format("{0}.pro", Driver.Options.InlinesLibraryName);
             string path = Path.Combine(Driver.Options.OutputDir, pro);
             StringBuilder proBuilder = new StringBuilder();
-            proBuilder.Append("QMAKE_CXXFLAGS += -fkeep-inline-functions\n");
+            proBuilder.Append("QMAKE_CXXFLAGS += -fkeep-inline-functions -std=c++0x\n");
             proBuilder.AppendFormat("TARGET = {0}\n", Path.GetFileNameWithoutExtension(pro));
             proBuilder.Append("TEMPLATE = lib\n");
             proBuilder.AppendFormat("SOURCES += {0}\n", Path.ChangeExtension(pro, "cpp"));
