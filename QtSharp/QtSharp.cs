@@ -2,6 +2,7 @@
 using CppSharp;
 using CppSharp.AST;
 using CppSharp.Generators;
+using CppSharp.Passes;
 using Template = CppSharp.AST.Template;
 
 namespace QtSharp
@@ -115,6 +116,7 @@ namespace QtSharp
 		    driver.Options.GenerateAbstractImpls = true;
             driver.Options.GenerateVirtualTables = true;
 		    driver.Options.GenerateInterfacesForMultipleInheritance = true;
+		    driver.Options.GenerateProperties = true;
 			driver.Options.IgnoreParseWarnings = true;
             driver.Options.Headers.Add(qtModule);
 			driver.Options.IncludeDirs.Add(includePath);
@@ -127,6 +129,9 @@ namespace QtSharp
 		public void SetupPasses(Driver driver)
 		{
             driver.TranslationUnitPasses.AddPass(new CompileInlinesPass(this.qmake, this.make));
+            driver.TranslationUnitPasses.AddPass(new CaseRenamePass(
+                RenameTargets.Function | RenameTargets.Method | RenameTargets.Property | RenameTargets.Delegate,
+                RenameCasePattern.UpperCamelCase));
 		}
 	}
 }
