@@ -10,12 +10,16 @@ namespace QtSharp
 {
     public class GenerateEventEventsPass : TranslationUnitPass
     {
+        private bool eventAdded;
         private readonly HashSet<Event> events = new HashSet<Event>();
 
         public override bool VisitTranslationUnit(TranslationUnit unit)
         {
-            if (Driver.Generator.OnUnitGenerated != OnUnitGenerated)
-                Driver.Generator.OnUnitGenerated = OnUnitGenerated;
+            if (!eventAdded)
+            {
+                Driver.Generator.OnUnitGenerated += OnUnitGenerated;
+                eventAdded = true;
+            }
             return base.VisitTranslationUnit(unit);
         }
 
@@ -36,7 +40,7 @@ namespace QtSharp
                         Field field = new Field { Name = eventFilters, Namespace = @event.Namespace };
                         field.Access = AccessSpecifier.Private;
                         @class.Fields.Add(field);
-                        block.WriteLine(@"private readonly List<QEventHandler> {0} = new List<QEventHandler>();",
+                        block.WriteLine(@"private readonly System.Collections.Generic.List<QEventHandler> {0} = new System.Collections.Generic.List<QEventHandler>();",
                                         eventFilters);
                         block.NewLine();
                     }
@@ -45,7 +49,7 @@ namespace QtSharp
 {{
 	add
 	{{
-		QEventArgs<{1}> qEventArgs = new QEventArgs<{1}>(new List<QEvent.Type> {{ {3} }});
+		QEventArgs<{1}> qEventArgs = new QEventArgs<{1}>(new System.Collections.Generic.List<QEvent.Type> {{ {3} }});
 		QEventHandler<{1}> qEventHandler = new QEventHandler<{1}>(this{4}, qEventArgs, value);
         foreach (QEventHandler eventFilter in eventFilters)
         {{
