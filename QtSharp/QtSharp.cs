@@ -130,6 +130,7 @@ namespace QtSharp
 		{
             driver.TranslationUnitPasses.AddPass(new CompileInlinesPass(this.qmake, this.make));
             driver.TranslationUnitPasses.AddPass(new GenerateEventEventsPass());
+            driver.TranslationUnitPasses.AddPass(new GenerateSignalEventsPass());
             driver.TranslationUnitPasses.AddPass(new RemoveStaticsFromDerivedTypesPass());
             driver.TranslationUnitPasses.AddPass(new CaseRenamePass(
                 RenameTargets.Function | RenameTargets.Method | RenameTargets.Property | RenameTargets.Delegate,
