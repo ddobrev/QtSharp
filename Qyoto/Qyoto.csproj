@@ -8,8 +8,8 @@
     <ProjectGuid>{861046E1-DA11-4229-B9B6-45426E7A723E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>QtSharp</RootNamespace>
-    <AssemblyName>QtSharp</AssemblyName>
+    <RootNamespace>Qyoto</RootNamespace>
+    <AssemblyName>Qyoto</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -46,10 +46,10 @@
     <Compile Include="GenerateSignalEventsPass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProcessHelper.cs" />
+    <Compile Include="Qyoto.cs" />
     <Compile Include="RemoveStaticsFromDerivedTypesPass.cs" />
     <None Include="QEventArgs.cs" />
     <None Include="QEventHandler.cs" />
-    <Compile Include="QtSharp.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

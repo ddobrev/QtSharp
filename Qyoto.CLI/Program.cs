@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using CppSharp;
 
-namespace QtSharp.CLI
+namespace Qyoto.CLI
 {
     public class Program
     {
@@ -63,7 +63,7 @@ namespace QtSharp.CLI
                 if (libFile == "libQt5Core.a")
                 {
                     string module = Regex.Match(libFile, @"Qt\d?(?<module>\w+)\.\w+$").Groups["module"].Value;
-                    ConsoleDriver.Run(new QtSharp(qmake, makePath, headers, module, libs, libFile));
+                    ConsoleDriver.Run(new Qyoto(qmake, makePath, headers, module, libs, libFile));
                 }
             }
             return 0;

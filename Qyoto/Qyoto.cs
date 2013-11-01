@@ -5,9 +5,9 @@ using CppSharp.Generators;
 using CppSharp.Passes;
 using Template = CppSharp.AST.Template;
 
-namespace QtSharp
+namespace Qyoto
 {
-	public class QtSharp : ILibrary
+	public class Qyoto : ILibrary
 	{
 	    private readonly string qmake;
 	    private readonly string make;
@@ -16,7 +16,7 @@ namespace QtSharp
 	    private readonly string libraryPath;
 	    private readonly string library;
 
-	    public QtSharp(string qmake, string make, string includePath, string module, string libraryPath, string library)
+	    public Qyoto(string qmake, string make, string includePath, string module, string libraryPath, string library)
 	    {
 	        this.qmake = qmake;
 	        this.includePath = includePath;
@@ -29,7 +29,7 @@ namespace QtSharp
 	    public void Preprocess(Driver driver, Library lib)
 	    {
             string qtModule = "Qt" + this.module;
-	        string moduleIncludes = Path.Combine(includePath, qtModule);
+	        string moduleIncludes = Path.Combine(this.includePath, qtModule);
 	        foreach (TranslationUnit unit in lib.TranslationUnits)
 	        {
 	            if (Path.GetDirectoryName(unit.FilePath) != moduleIncludes)
@@ -119,8 +119,8 @@ namespace QtSharp
 		    driver.Options.GenerateProperties = true;
 			driver.Options.IgnoreParseWarnings = true;
             driver.Options.Headers.Add(qtModule);
-			driver.Options.IncludeDirs.Add(includePath);
-            driver.Options.IncludeDirs.Add(Path.Combine(includePath, qtModule));
+			driver.Options.IncludeDirs.Add(this.includePath);
+            driver.Options.IncludeDirs.Add(Path.Combine(this.includePath, qtModule));
             driver.Options.LibraryDirs.Add(this.libraryPath);
             driver.Options.Libraries.Add(this.library);
 			driver.Options.Defines.Add("_MSC_FULL_VER=170050215");

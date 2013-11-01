@@ -1,11 +1,11 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using CppSharp.AST;
 using CppSharp.Passes;
-using System.Linq;
 
-namespace QtSharp
+namespace Qyoto
 {
     public class CompileInlinesPass : TranslationUnitPass
     {
@@ -21,8 +21,8 @@ namespace QtSharp
         public override bool VisitLibrary(Library library)
         {
             bool result = base.VisitLibrary(library);
-            string pro = string.Format("{0}.pro", Driver.Options.InlinesLibraryName);
-            string path = Path.Combine(Driver.Options.OutputDir, pro);
+            string pro = string.Format("{0}.pro", this.Driver.Options.InlinesLibraryName);
+            string path = Path.Combine(this.Driver.Options.OutputDir, pro);
             StringBuilder proBuilder = new StringBuilder();
             proBuilder.Append("QMAKE_CXXFLAGS += -fkeep-inline-functions -std=c++0x\n");
             proBuilder.AppendFormat("TARGET = {0}\n", Path.GetFileNameWithoutExtension(pro));
@@ -30,13 +30,13 @@ namespace QtSharp
             proBuilder.AppendFormat("SOURCES += {0}\n", Path.ChangeExtension(pro, "cpp"));
             File.WriteAllText(path, proBuilder.ToString());
             string error;
-            ProcessHelper.Run(qmake, string.Format("\"{0}\"", path), out error);
+            ProcessHelper.Run(this.qmake, string.Format("\"{0}\"", path), out error);
             if (!string.IsNullOrEmpty(error))
             {
                 Console.WriteLine(error);
                 return false;
             }
-            ProcessHelper.Run(make, "-f Makefile.Release", out error);
+            ProcessHelper.Run(this.make, "-f Makefile.Release", out error);
             if (!string.IsNullOrEmpty(error))
             {
                 Console.WriteLine(error);

@@ -3,13 +3,13 @@ using System.Linq;
 using CppSharp.AST;
 using CppSharp.Passes;
 
-namespace QtSharp
+namespace Qyoto
 {
     public class RemoveStaticsFromDerivedTypesPass : TranslationUnitPass
     {
         public override bool VisitClassDecl(Class @class)
         {
-            if (AlreadyVisited(@class) || @class.Name == "QObject")
+            if (this.AlreadyVisited(@class) || @class.Name == "QObject")
             {
                 return false;
             }

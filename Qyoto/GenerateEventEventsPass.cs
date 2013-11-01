@@ -6,7 +6,7 @@ using CppSharp.Generators;
 using CppSharp.Generators.CSharp;
 using CppSharp.Passes;
 
-namespace QtSharp
+namespace Qyoto
 {
     public class GenerateEventEventsPass : TranslationUnitPass
     {
@@ -15,10 +15,10 @@ namespace QtSharp
 
         public override bool VisitTranslationUnit(TranslationUnit unit)
         {
-            if (!eventAdded)
+            if (!this.eventAdded)
             {
-                Driver.Generator.OnUnitGenerated += OnUnitGenerated;
-                eventAdded = true;
+                this.Driver.Generator.OnUnitGenerated += this.OnUnitGenerated;
+                this.eventAdded = true;
             }
             return base.VisitTranslationUnit(unit);
         }
@@ -30,7 +30,7 @@ namespace QtSharp
                                     select block)
             {
                 Event @event = (Event) block.Declaration;
-                if (events.Contains(@event))
+                if (this.events.Contains(@event))
                 {
                     block.Text.StringBuilder.Clear();
                     const string eventFilters = "eventFilters";
@@ -76,7 +76,7 @@ namespace QtSharp
 	}}
 }}",
                         isQAbstractScrollArea ? "virtual" : "override", @event.Parameters[0].Type, @event.Name,
-                        GetEventTypes(@event), isQAbstractScrollArea ? string.Empty : ".Viewport");
+                        this.GetEventTypes(@event), isQAbstractScrollArea ? string.Empty : ".Viewport");
                 }
             }
         }
@@ -113,7 +113,7 @@ namespace QtSharp
                 @event.Namespace = method.Namespace;
                 @event.Parameters.AddRange(method.Parameters);
                 method.Namespace.Events.Add(@event);
-                events.Add(@event);
+                this.events.Add(@event);
                 if (!method.Name.StartsWith("on"))
                     method.Name = "on" + char.ToUpperInvariant(method.Name[0]) + method.Name.Substring(1);
             }
@@ -148,9 +148,9 @@ namespace QtSharp
         private string GetEventTypes(Event @event)
         {
             string eventName = @event.Name.Substring(0, @event.Name.IndexOf("Event", StringComparison.Ordinal));
-            if (eventTypes.ContainsKey(eventName))
+            if (this.eventTypes.ContainsKey(eventName))
             {
-                return string.Join(", ", from e in eventTypes[eventName]
+                return string.Join(", ", from e in this.eventTypes[eventName]
                                          select string.IsNullOrEmpty(e) ? e : "QEvent.Type." + e);
             }
             if (@event.Parameters[0].Type.ToString() == "QEvent")

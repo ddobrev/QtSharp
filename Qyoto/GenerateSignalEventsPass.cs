@@ -1,5 +1,4 @@
-﻿using System.CodeDom;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CppSharp.AST;
@@ -7,7 +6,7 @@ using CppSharp.Generators;
 using CppSharp.Generators.CSharp;
 using CppSharp.Passes;
 
-namespace QtSharp
+namespace Qyoto
 {
     public class GenerateSignalEventsPass : TranslationUnitPass
     {
@@ -16,10 +15,10 @@ namespace QtSharp
 
         public override bool VisitTranslationUnit(TranslationUnit unit)
         {
-            if (!eventAdded)
+            if (!this.eventAdded)
             {
-                Driver.Generator.OnUnitGenerated += OnUnitGenerated;
-                eventAdded = true;
+                this.Driver.Generator.OnUnitGenerated += this.OnUnitGenerated;
+                this.eventAdded = true;
             }
             return base.VisitTranslationUnit(unit);
         }
@@ -31,7 +30,7 @@ namespace QtSharp
                 select block)
             {
                 Event @event = (Event) block.Declaration;
-                if (events.Contains(@event))
+                if (this.events.Contains(@event))
                 {
                     block.Text.StringBuilder.Clear();
 
@@ -101,7 +100,7 @@ public event {0} {1}
 
         public override bool VisitClassDecl(Class @class)
         {
-            if (AlreadyVisited(@class))
+            if (this.AlreadyVisited(@class))
             {
                 return false;
             }
@@ -140,7 +139,7 @@ public event {0} {1}
                             };
             method.IsGenerated = false;
             @class.Events.Add(@event);
-            events.Add(@event);
+            this.events.Add(@event);
         }
 
         private static string GetSignalEventSuffix(Event signalToUse)
