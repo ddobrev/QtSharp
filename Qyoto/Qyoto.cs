@@ -26,7 +26,7 @@ namespace Qyoto
 	        this.make = make;
 	    }
 
-	    public void Preprocess(Driver driver, Library lib)
+	    public void Preprocess(Driver driver, ASTContext lib)
 	    {
             string qtModule = "Qt" + this.module;
 	        string moduleIncludes = Path.Combine(this.includePath, qtModule);
@@ -101,13 +101,13 @@ namespace Qyoto
 	        }
 	    }
 
-		public void Postprocess(Library lib)
-		{
-		}
+        public void Postprocess(Driver driver, ASTContext lib)
+        {
+        }
 
 		public void Setup(Driver driver)
 		{
-			driver.Options.GeneratorKind = LanguageGeneratorKind.CSharp;
+			driver.Options.GeneratorKind = GeneratorKind.CSharp;
 		    string qtModule = "Qt" + this.module;
             driver.Options.Abi = CppAbi.Itanium;
 		    driver.Options.LibraryName = string.Format("{0}Sharp", qtModule);

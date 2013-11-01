@@ -18,7 +18,7 @@ namespace Qyoto
             this.make = make;
         }
 
-        public override bool VisitLibrary(Library library)
+        public override bool VisitLibrary(ASTContext library)
         {
             bool result = base.VisitLibrary(library);
             string pro = string.Format("{0}.pro", this.Driver.Options.InlinesLibraryName);
@@ -45,14 +45,14 @@ namespace Qyoto
             this.Driver.Options.LibraryDirs.Add(Path.Combine(this.Driver.Options.OutputDir, "release"));
             this.Driver.Options.Libraries.Add(string.Format("lib{0}.a", Path.GetFileNameWithoutExtension(pro)));
             this.Driver.ParseLibraries();
-            NativeLibrary inlines = this.Driver.LibrarySymbols.Libraries.Last();
-            foreach (string symbol in this.Driver.LibrarySymbols.Libraries.Take(
-                this.Driver.LibrarySymbols.Libraries.Count - 1).SelectMany(
+            NativeLibrary inlines = this.Driver.Symbols.Libraries.Last();
+            foreach (string symbol in this.Driver.Symbols.Libraries.Take(
+                this.Driver.Symbols.Libraries.Count - 1).SelectMany(
                     nativeLibrary => nativeLibrary.Symbols))
             {
                 inlines.Symbols.Remove(symbol);
             }
-            this.Driver.LibrarySymbols.IndexSymbols();
+            this.Driver.Symbols.IndexSymbols();
             return result;
         }
     }

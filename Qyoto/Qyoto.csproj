@@ -31,11 +31,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CppSharp">
+      <HintPath>..\References\CppSharp.dll</HintPath>
+    </Reference>
     <Reference Include="CppSharp.AST">
       <HintPath>..\References\CppSharp.AST.dll</HintPath>
     </Reference>
     <Reference Include="CppSharp.Generator">
       <HintPath>..\References\CppSharp.Generator.dll</HintPath>
+    </Reference>
+    <Reference Include="CppSharp.Parser, Version=0.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\CppSharp.Parser.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
