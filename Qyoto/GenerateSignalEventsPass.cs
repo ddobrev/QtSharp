@@ -119,44 +119,39 @@ public event {0} {1}
             {
                 return;
             }
-            Method qtMetacall = (Method) block.Declaration;
-            block.NewLine();
-            block.WriteLine(@"protected readonly System.Collections.Generic.List<Delegate> Slots = new System.Collections.Generic.List<Delegate>();");
             string body = block.Text.StringBuilder.ToString();
-            block.Text.StringBuilder.Insert(body.IndexOf("return", StringComparison.Ordinal), string.Format(@"
-    if (__ret == -1)
+            block.Text.StringBuilder.Clear();
+            block.WriteLine(@"protected readonly System.Collections.Generic.List<Delegate> Slots = new System.Collections.Generic.List<Delegate>();");
+            block.NewLine();
+            block.Text.StringBuilder.Append(body.Substring(0, body.IndexOf("return", StringComparison.Ordinal)));
+            block.Text.StringBuilder.Append(string.Format(@"
+    if (__ret < 0 || {0} != QMetaObject.Call.InvokeMetaMethod)
     {{
         return __ret;
     }}
-    if ({0} == QMetaObject.Call.InvokeMetaMethod)
+    IntPtr ptr = new IntPtr(_3);
+    Delegate @delegate = Slots[__ret];
+    System.Reflection.ParameterInfo[] @params = @delegate.Method.GetParameters();
+    IntPtr[] args = new IntPtr[@params.Length];
+    Marshal.Copy(ptr, args, 0, args.Length);
+    object[] parameters = new object[args.Length];
+    for (int i = 0; i < @params.Length; i++)
     {{
-        QMetaMethod metaMethod = MetaObject.Method(__ret);
-        if (metaMethod.methodType == QMetaMethod.MethodType.Slot)
+        System.Reflection.ParameterInfo parameter = @params[i];
+        object value;
+        if (parameter.ParameterType.IsValueType)
         {{
-            IntPtr ptr = new IntPtr(_3);
-            IntPtr[] args = new IntPtr[metaMethod.ParameterCount];
-            Marshal.Copy(ptr, args, 0, args.Length);
-            object[] parameters = new object[args.Length];
-            Delegate @delegate = Slots[__ret];
-            System.Reflection.ParameterInfo[] @params = @delegate.Method.GetParameters();
-            for (int i = 0; i < @params.Length; i++)
-            {{
-                System.Reflection.ParameterInfo parameter = @params[i];
-                object value;
-                if (parameter.ParameterType.IsValueType)
-                {{
-                    value = Marshal.PtrToStructure(args[i], parameter.ParameterType);
-                }}
-                else
-                {{
-                    value = Activator.CreateInstance(parameter.ParameterType, args[i]);
-                }}
-                parameters[i] = value;
-            }}
-            @delegate.DynamicInvoke(parameters);
-            return -1;
+            value = Marshal.PtrToStructure(args[i], parameter.ParameterType);
         }}
-    }}{1}    ", qtMetacall.Parameters[0].Name, Environment.NewLine));
+        else
+        {{
+            value = Activator.CreateInstance(parameter.ParameterType, args[i]);
+        }}
+        parameters[i] = value;
+    }}
+    @delegate.DynamicInvoke(parameters);
+    return -1;
+}}", ((Method) block.Declaration).Parameters[0].Name));
         }
 
         private static string GetOriginalParameterType(ITypedDecl parameter)
