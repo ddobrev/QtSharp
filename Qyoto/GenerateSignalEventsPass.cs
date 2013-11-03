@@ -190,6 +190,14 @@ public event {0} {1}
                                             Parameters = method.Parameters,
                                             ReturnType = method.ReturnType
                                         };
+            if (functionType.Parameters.Any())
+            {
+                Declaration decl;
+                if (functionType.Parameters.Last().Type.IsTagDecl(out decl) && decl.Name == "QPrivateSignal")
+                {
+                    functionType.Parameters.RemoveAt(functionType.Parameters.Count - 1);
+                }
+            }
 
             Event @event = new Event
                             {
