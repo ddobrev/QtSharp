@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CppSharp.AST;
@@ -25,9 +26,15 @@ namespace Qyoto
 
         private void OnUnitGenerated(GeneratorOutput generatorOutput)
         {
+            this.GenerateSignalEvents(generatorOutput);
+            OverrideQtMetacall(generatorOutput);
+        }
+
+        private void GenerateSignalEvents(GeneratorOutput generatorOutput)
+        {
             foreach (Block block in from template in generatorOutput.Templates
-                from block in template.FindBlocks(CSharpBlockKind.Event)
-                select block)
+                                    from block in template.FindBlocks(CSharpBlockKind.Event)
+                                    select block)
             {
                 Event @event = (Event) block.Declaration;
                 if (this.events.Contains(@event))
@@ -81,15 +88,75 @@ public event {0} {1}
 {{
 	add
 	{{
-        QObject.Connect(this, ""2{2}"", (QObject) value.Target, ""1"" + value.Method.Name + ""{3}"", QtCore.Qt.ConnectionType.AutoConnection);
+        int signalId = MetaObject.IndexOfSignal(QMetaObject.NormalizedSignature(""{2}""));
+        Slots.Add(value);
+        QMetaObject.Connect(this, signalId, (QObject) value.Target, Slots.Count - 1 + MetaObject.MethodCount, 0, null);
 	}}
 	remove
 	{{
-        QObject.Disconnect(this, ""2{2}"", (QObject) value.Target, ""1"" + value.Method.Name + ""{3}"");
+        int i = Slots.IndexOf(value);
+        if (i >= 0)
+        {{
+            int signalId = MetaObject.IndexOfSignal(QMetaObject.NormalizedSignature(""{2}""));
+        	QMetaObject.Disconnect(this, signalId, (QObject) value.Target, i + MetaObject.MethodCount);
+            Slots.RemoveAt(i);
+        }}
 	}}
-}}", fullNameBuilder, char.ToUpperInvariant(@event.Name[0]) + @event.Name.Substring(1), signature, signature.Substring(signature.IndexOf('('))));
+}}", fullNameBuilder, char.ToUpperInvariant(@event.Name[0]) + @event.Name.Substring(1), signature));
                 }
             }
+        }
+
+        private static void OverrideQtMetacall(GeneratorOutput generatorOutput)
+        {
+            Block block = (from template in generatorOutput.Templates
+                           from b in template.FindBlocks(CSharpBlockKind.Method)
+                           where b.Declaration != null
+                           let m = (Method) b.Declaration
+                           where m.Name == "Qt_metacall" && m.Namespace.Name == "QObject"
+                           select b).FirstOrDefault();
+            if (block == null)
+            {
+                return;
+            }
+            Method qtMetacall = (Method) block.Declaration;
+            block.NewLine();
+            block.WriteLine(@"protected readonly System.Collections.Generic.List<Delegate> Slots = new System.Collections.Generic.List<Delegate>();");
+            string body = block.Text.StringBuilder.ToString();
+            block.Text.StringBuilder.Insert(body.IndexOf("return", StringComparison.Ordinal), string.Format(@"
+    if (__ret == -1)
+    {{
+        return __ret;
+    }}
+    if ({0} == QMetaObject.Call.InvokeMetaMethod)
+    {{
+        QMetaMethod metaMethod = MetaObject.Method(__ret);
+        if (metaMethod.methodType == QMetaMethod.MethodType.Slot)
+        {{
+            IntPtr ptr = new IntPtr(_3);
+            IntPtr[] args = new IntPtr[metaMethod.ParameterCount];
+            Marshal.Copy(ptr, args, 0, args.Length);
+            object[] parameters = new object[args.Length];
+            Delegate @delegate = Slots[__ret];
+            System.Reflection.ParameterInfo[] @params = @delegate.Method.GetParameters();
+            for (int i = 0; i < @params.Length; i++)
+            {{
+                System.Reflection.ParameterInfo parameter = @params[i];
+                object value;
+                if (parameter.ParameterType.IsValueType)
+                {{
+                    value = Marshal.PtrToStructure(args[i], parameter.ParameterType);
+                }}
+                else
+                {{
+                    value = Activator.CreateInstance(parameter.ParameterType, args[i]);
+                }}
+                parameters[i] = value;
+            }}
+            @delegate.DynamicInvoke(parameters);
+            return -1;
+        }}
+    }}{1}    ", qtMetacall.Parameters[0].Name, Environment.NewLine));
         }
 
         private static string GetOriginalParameterType(ITypedDecl parameter)
