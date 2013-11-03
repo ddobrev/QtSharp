@@ -77,8 +77,8 @@ namespace Qyoto
                     else
                     {
                         if (@event.Parameters.Count > 0 &&
-                            (@class.Methods.Any(m => m.OriginalName == @event.Name) ||
-                             @class.Properties.Any(p => p.OriginalName == @event.Name)))
+                            (@class.Methods.Any(m => m.IsGenerated && m.OriginalName == @event.Name) ||
+                             @class.Properties.Any(p => p.IsGenerated && p.OriginalName == @event.Name)))
                         {
                             @event.Name += GetSignalEventSuffix(@event);
                         }
