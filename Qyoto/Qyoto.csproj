@@ -55,8 +55,12 @@
     <Compile Include="ProcessHelper.cs" />
     <Compile Include="Qyoto.cs" />
     <Compile Include="RemoveStaticsFromDerivedTypesPass.cs" />
-    <None Include="QEventArgs.cs" />
-    <None Include="QEventHandler.cs" />
+    <None Include="QEventArgs.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="QEventHandler.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

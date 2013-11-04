@@ -58,6 +58,9 @@
     <Reference Include="CppSharp.Generator">
       <HintPath>..\References\CppSharp.Generator.dll</HintPath>
     </Reference>
+    <Reference Include="CppSharp.Runtime">
+      <HintPath>..\References\CppSharp.Runtime.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>

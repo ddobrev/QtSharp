@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Reflection;
 using CppSharp;
 using CppSharp.AST;
 using CppSharp.Generators;
@@ -124,6 +125,9 @@ namespace Qyoto
             driver.Options.LibraryDirs.Add(this.libraryPath);
             driver.Options.Libraries.Add(this.library);
 			driver.Options.Defines.Add("_MSC_FULL_VER=170050215");
+		    string dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            driver.Options.CodeFiles.Add(Path.Combine(dir, "QEventArgs.cs"));
+            driver.Options.CodeFiles.Add(Path.Combine(dir, "QEventHandler.cs"));
 		}
 
 		public void SetupPasses(Driver driver)
