@@ -3,7 +3,7 @@ using System.Linq;
 using CppSharp.AST;
 using CppSharp.Passes;
 
-namespace Qyoto
+namespace QtSharp
 {
     public class RemoveStaticsFromDerivedTypesPass : TranslationUnitPass
     {

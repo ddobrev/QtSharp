@@ -5,7 +5,7 @@ using System.Text;
 using CppSharp.AST;
 using CppSharp.Passes;
 
-namespace Qyoto
+namespace QtSharp
 {
     public class CompileInlinesPass : TranslationUnitPass
     {

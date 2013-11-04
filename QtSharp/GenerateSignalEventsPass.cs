@@ -7,7 +7,7 @@ using CppSharp.Generators;
 using CppSharp.Generators.CSharp;
 using CppSharp.Passes;
 
-namespace Qyoto
+namespace QtSharp
 {
     public class GenerateSignalEventsPass : TranslationUnitPass
     {

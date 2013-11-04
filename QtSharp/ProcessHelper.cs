@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace Qyoto
+namespace QtSharp
 {
     public class ProcessHelper
     {

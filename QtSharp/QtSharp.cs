@@ -6,9 +6,9 @@ using CppSharp.Generators;
 using CppSharp.Passes;
 using Template = CppSharp.AST.Template;
 
-namespace Qyoto
+namespace QtSharp
 {
-	public class Qyoto : ILibrary
+	public class QtSharp : ILibrary
 	{
 	    private readonly string qmake;
 	    private readonly string make;
@@ -17,7 +17,7 @@ namespace Qyoto
 	    private readonly string libraryPath;
 	    private readonly string library;
 
-	    public Qyoto(string qmake, string make, string includePath, string module, string libraryPath, string library)
+	    public QtSharp(string qmake, string make, string includePath, string module, string libraryPath, string library)
 	    {
 	        this.qmake = qmake;
 	        this.includePath = includePath;

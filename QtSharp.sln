@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Qyoto", "Qyoto\Qyoto.csproj", "{861046E1-DA11-4229-B9B6-45426E7A723E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QtSharp", "QtSharp\QtSharp.csproj", "{861046E1-DA11-4229-B9B6-45426E7A723E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Qyoto.CLI", "Qyoto.CLI\Qyoto.CLI.csproj", "{DBDEB3EE-2EB3-4F03-8276-A7D5A350EB95}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QtSharp.CLI", "QtSharp.CLI\QtSharp.CLI.csproj", "{DBDEB3EE-2EB3-4F03-8276-A7D5A350EB95}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
