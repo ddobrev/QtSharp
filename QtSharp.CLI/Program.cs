@@ -58,12 +58,13 @@ namespace QtSharp.CLI
                     headersInfo.Name);
                 return -1;
             }
+            string docs = ProcessHelper.Run(qmake, "-query QT_INSTALL_DOCS", out error);
             foreach (string libFile in libFiles)
             {
                 if (libFile == "libQt5Core.a")
                 {
                     string module = Regex.Match(libFile, @"Qt\d?(?<module>\w+)\.\w+$").Groups["module"].Value;
-                    ConsoleDriver.Run(new QtSharp(qmake, makePath, headers, module, libs, libFile));
+                    ConsoleDriver.Run(new QtSharp(qmake, makePath, headers, module, libs, libFile, docs));
                 }
             }
             return 0;

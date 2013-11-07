@@ -16,15 +16,17 @@ namespace QtSharp
 	    private readonly string module;
 	    private readonly string libraryPath;
 	    private readonly string library;
+	    private readonly string docs;
 
-	    public QtSharp(string qmake, string make, string includePath, string module, string libraryPath, string library)
+	    public QtSharp(string qmake, string make, string includePath, string module, string libraryPath, string library, string docs)
 	    {
 	        this.qmake = qmake;
 	        this.includePath = includePath;
 	        this.module = module;
 	        this.libraryPath = libraryPath;
 	        this.library = library;
-	        this.make = make;
+            this.make = make;
+            this.docs = docs;
 	    }
 
 	    public void Preprocess(Driver driver, ASTContext lib)
@@ -140,6 +142,7 @@ namespace QtSharp
             driver.TranslationUnitPasses.AddPass(new GenerateEventEventsPass());
             driver.TranslationUnitPasses.AddPass(new GenerateSignalEventsPass());
             driver.TranslationUnitPasses.AddPass(new RemoveStaticsFromDerivedTypesPass());
+            driver.TranslationUnitPasses.AddPass(new GetCommentsFromQtDocsPass(this.docs, this.module));
 		}
 	}
 }
