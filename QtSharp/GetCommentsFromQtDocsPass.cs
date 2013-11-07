@@ -16,19 +16,22 @@ namespace QtSharp
         {
             if (@class.Comment == null)
             {
-                this.documentation.CommentType(@class);
+                this.documentation.DocumentType(@class);
             }
             return base.VisitClassDecl(@class);
         }
 
         public override bool VisitEnumDecl(Enumeration @enum)
         {
+            if (@enum.Comment == null)
+            {
+                this.documentation.DocumentEnum(@enum);
+                foreach (Enumeration.Item item in @enum.Items)
+                {
+                    this.documentation.DocumentEnumItem(@enum, item);
+                }
+            }
             return base.VisitEnumDecl(@enum);
-        }
-
-        public override bool VisitEnumItem(Enumeration.Item item)
-        {
-            return base.VisitEnumItem(item);
         }
 
         public override bool VisitFunctionDecl(Function function)

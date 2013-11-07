@@ -410,24 +410,13 @@ namespace QtSharp
         //    }
         //}
 
-        public void CommentType(Class type)
+        public void DocumentType(Class type)
         {
-            StringBuilder fileNameBuilder = new StringBuilder(type.Name.ToLowerInvariant());
-            if (type.IsInterface)
+            string file = GetFileForDeclarationContext(type);
+            if (this.docs.ContainsKey(file))
             {
-                fileNameBuilder.Remove(0, 1);
-            }
-            Class parentClass = type.Namespace as Class;
-            if (parentClass != null)
-            {
-                fileNameBuilder.Insert(0, string.Format("{0}-", parentClass.Name.ToLowerInvariant()));
-            }
-            fileNameBuilder.Append(".html");
-            string fileName = fileNameBuilder.ToString();
-            if (this.docs.ContainsKey(fileName))
-            {
-                string classDocs = StripTags(this.docs[fileName]);
-                Match match = Regex.Match(classDocs, string.Format(@"(?<class>((The {0})|(This class)).+?)More\.\.\..*?\n" +
+                string typeDocs = this.docs[file];
+                Match match = Regex.Match(typeDocs, string.Format(@"(?<class>((The {0})|(This class)).+?)More\.\.\..*?\n" +
                                                                    @"Detailed Description\s+(?<detailed>.*?)(\n){{3,}}", type.Name),
                                           RegexOptions.Singleline | RegexOptions.ExplicitCapture);
                 if (match.Success)
@@ -435,6 +424,156 @@ namespace QtSharp
                     type.Comment = new RawComment();
                     type.Comment.BriefText = match.Groups["class"].Value.Trim();
                     type.Comment.Text = match.Groups["detailed"].Value.Replace(match.Groups["class"].Value.Trim(), string.Empty);
+                }
+            }
+        }
+
+        public void DocumentEnum(Enumeration @enum)
+        {
+            string file = GetFileForDeclarationContext(@enum.Namespace);
+            if (this.docs.ContainsKey(file))
+            {
+                string typeDocs = this.docs[file];
+                const string enumDoc = @"enum {0}(\s*flags {1}::\w+\s+)?(?<docsStart>.*?)(\n){{3}}";
+                string enumName = string.IsNullOrEmpty(@enum.Namespace.Name) ? @enum.Name : (@enum.Namespace.Name + "::" + @enum.Name);
+                Match matchEnum = Regex.Match(typeDocs, string.Format(enumDoc, enumName, @enum.Namespace.Name),
+                                              RegexOptions.Singleline | RegexOptions.ExplicitCapture);
+                if (matchEnum.Success)
+                {
+                    string doc = matchEnum.Groups["docsStart"].Value.Trim();
+                    if (!string.IsNullOrEmpty(doc))
+                    {
+                        doc = Regex.Replace(doc,
+                                            @"(The \S+ type is a typedef for QFlags<\S+>\. It stores an OR combination of \S+ values\.)",
+                                            string.Empty);
+                        doc = Regex.Replace(doc, @"ConstantValue(Description)?.*?(((\n){2})|$)", string.Empty,
+                                            RegexOptions.Singleline | RegexOptions.ExplicitCapture).Trim();
+                        @enum.Comment = new RawComment();
+                        @enum.Comment.BriefText = doc;
+                    }
+                }
+            }
+        }
+
+        public void DocumentEnumItem(Enumeration @enum, Enumeration.Item enumItem)
+        {
+            string file = GetFileForDeclarationContext(@enum.Namespace);
+            if (this.docs.ContainsKey(file))
+            {
+                string typeDocs = this.docs[file];
+                string typeName;
+                string memberName;
+                if (string.IsNullOrEmpty(@enum.Namespace.Name))
+                {
+                    typeName = @enum.Name;
+                    memberName = enumItem.Name;
+                }
+                else
+                {
+                    typeName = @enum.Namespace.Name + "::" + @enum.Name;
+                    memberName = @enum.Namespace.Name + "::" + enumItem.Name;
+                }
+                const string memberDoc = @"enum {0}.*?{1}\t[^\t\n]+\t(?<docs>.*?)(&\w+;)?(\n)";
+                Match match = Regex.Match(typeDocs, string.Format(memberDoc, typeName, memberName),
+                                            RegexOptions.Singleline | RegexOptions.ExplicitCapture);
+                if (match.Success)
+                {
+                    string doc = match.Groups["docs"].Value.Trim();
+                    if (!string.IsNullOrEmpty(doc))
+                    {
+                        enumItem.Comment = doc;
+                    }
+                }
+            }
+        }
+
+        private static string GetFileForDeclarationContext(DeclarationContext declarationContext)
+        {
+            if (string.IsNullOrEmpty(declarationContext.Name))
+            {
+                return "qtglobal.html";
+            }
+            StringBuilder fileNameBuilder = new StringBuilder(declarationContext.Name.ToLowerInvariant());
+            if (declarationContext is Class && ((Class) declarationContext).IsInterface)
+            {
+                fileNameBuilder.Remove(0, 1);
+            }
+            Class parentClass = declarationContext.Namespace as Class;
+            if (parentClass != null)
+            {
+                fileNameBuilder.Insert(0, string.Format("{0}-", parentClass.Name.ToLowerInvariant()));
+            }
+            fileNameBuilder.Append(".html");
+            string fileName = fileNameBuilder.ToString();
+            return fileName;
+        }
+
+        private static IDictionary<string, string> Get(string docsPath, string module)
+        {
+            if (!Directory.Exists(docsPath))
+            {
+                return new Dictionary<string, string>();
+            }
+            try
+            {
+                IDictionary<string, string> documentation = GetFromHtml(docsPath, module);
+                return documentation.Count > 0 ? documentation : GetFromQch(docsPath, module);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine("Documentation generation failed: {0}", ex.Message);
+                return new Dictionary<string, string>();
+            }
+        }
+
+        private static IDictionary<string, string> GetFromHtml(string docsPath, string module)
+        {
+            string docs = Path.Combine(docsPath, string.Format("qt{0}", module.ToLowerInvariant()));
+            if (!Directory.Exists(docs))
+            {
+                return new Dictionary<string, string>();
+            }
+            return Directory.GetFiles(docs, "*.html").ToDictionary(Path.GetFileName,
+                f => StripTags(new StringBuilder(File.ReadAllText(f)).Replace("\r", string.Empty).Replace(@"\", @"\\").ToString()));
+        }
+
+        private static IDictionary<string, string> GetFromQch(string docsPath, string module)
+        {
+            string dataSource = Path.Combine(docsPath, string.Format("qt{0}.qch", module.ToLowerInvariant()));
+            if (!File.Exists(dataSource))
+            {
+                return new Dictionary<string, string>();
+            }
+            SqliteConnectionStringBuilder sqliteConnectionStringBuilder = new SqliteConnectionStringBuilder();
+            sqliteConnectionStringBuilder.DataSource = dataSource;
+            using (SqliteConnection sqliteConnection = new SqliteConnection(sqliteConnectionStringBuilder.ConnectionString))
+            {
+                sqliteConnection.Open();
+                using (SqliteCommand sqliteCommand = new SqliteCommand(
+                    "SELECT Name, Data FROM FileNameTable INNER JOIN FileDataTable ON FileNameTable.FileId = FileDataTable.Id " +
+                    "WHERE Name LIKE '%.html' " +
+                    "ORDER BY Name", sqliteConnection))
+                {
+                    using (SqliteDataReader sqliteDataReader = sqliteCommand.ExecuteReader())
+                    {
+                        Dictionary<string, string> documentation = new Dictionary<string, string>();
+                        while (sqliteDataReader.Read())
+                        {
+                            byte[] blob = new byte[ushort.MaxValue];
+                            int length = (int) sqliteDataReader.GetBytes(1, 0, blob, 0, blob.Length);
+                            using (MemoryStream output = new MemoryStream(length - 4))
+                            {
+                                using (ZOutputStream zOutputStream = new ZOutputStream(output))
+                                {
+                                    zOutputStream.Write(blob, 4, length - 4);
+                                    zOutputStream.Flush();
+                                    documentation.Add(sqliteDataReader.GetString(0),
+                                                      StripTags(Encoding.UTF8.GetString(output.ToArray()).Replace(@"\", @"\\")));
+                                }
+                            }
+                        }
+                        return documentation;
+                    }
                 }
             }
         }
@@ -474,75 +613,6 @@ namespace QtSharp
                 }
             }
             return HtmlEncoder.HtmlDecode(new string(array, 0, arrayIndex));
-        }
-
-        private static IDictionary<string, string> Get(string docsPath, string module)
-        {
-            if (!Directory.Exists(docsPath))
-            {
-                return new Dictionary<string, string>();
-            }
-            try
-            {
-                IDictionary<string, string> documentation = GetFromHtml(docsPath, module);
-                return documentation.Count > 0 ? documentation : GetFromQch(docsPath, module);
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine("Documentation generation failed: {0}", ex.Message);
-                return new Dictionary<string, string>();
-            }
-        }
-
-        private static IDictionary<string, string> GetFromHtml(string docsPath, string module)
-        {
-            string docs = Path.Combine(docsPath, string.Format("qt{0}", module.ToLowerInvariant()));
-            if (!Directory.Exists(docs))
-            {
-                return new Dictionary<string, string>();
-            }
-            return Directory.GetFiles(docs, "*.html").ToDictionary(Path.GetFileName,
-                f => new StringBuilder(File.ReadAllText(f)).Replace("\r", string.Empty).Replace(@"\", @"\\").ToString());
-        }
-
-        private static IDictionary<string, string> GetFromQch(string docsPath, string module)
-        {
-            string dataSource = Path.Combine(docsPath, string.Format("qt{0}.qch", module.ToLowerInvariant()));
-            if (!File.Exists(dataSource))
-            {
-                return new Dictionary<string, string>();
-            }
-            SqliteConnectionStringBuilder sqliteConnectionStringBuilder = new SqliteConnectionStringBuilder();
-            sqliteConnectionStringBuilder.DataSource = dataSource;
-            using (SqliteConnection sqliteConnection = new SqliteConnection(sqliteConnectionStringBuilder.ConnectionString))
-            {
-                sqliteConnection.Open();
-                using (SqliteCommand sqliteCommand = new SqliteCommand(
-                    "SELECT Name, Data FROM FileNameTable INNER JOIN FileDataTable ON FileNameTable.FileId = FileDataTable.Id " +
-                    "WHERE Name LIKE '%.html' " +
-                    "ORDER BY Name", sqliteConnection))
-                {
-                    using (SqliteDataReader sqliteDataReader = sqliteCommand.ExecuteReader())
-                    {
-                        Dictionary<string, string> documentation = new Dictionary<string, string>();
-                        while (sqliteDataReader.Read())
-                        {
-                            byte[] blob = new byte[ushort.MaxValue];
-                            int length = (int) sqliteDataReader.GetBytes(1, 0, blob, 0, blob.Length);
-                            using (MemoryStream output = new MemoryStream(length - 4))
-                            {
-                                using (ZOutputStream zOutputStream = new ZOutputStream(output))
-                                {
-                                    zOutputStream.Write(blob, 4, length - 4);
-                                    zOutputStream.Flush();
-                                    documentation.Add(sqliteDataReader.GetString(0), Encoding.UTF8.GetString(output.ToArray()).Replace(@"\", @"\\"));
-                                }
-                            }
-                        }
-                        return documentation;
-                    }
-                }
-            }
         }
 
         //private static void FormatComment(string docs, CodeTypeMember cmp, bool obsolete = false, string tag = "summary")
