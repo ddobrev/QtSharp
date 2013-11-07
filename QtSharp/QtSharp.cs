@@ -106,6 +106,7 @@ namespace QtSharp
 
         public void Postprocess(Driver driver, ASTContext lib)
         {
+            new GetCommentsFromQtDocsPass(this.docs, this.module).VisitLibrary(driver.ASTContext);
             new CaseRenamePass(
                 RenameTargets.Function | RenameTargets.Method | RenameTargets.Property | RenameTargets.Delegate,
                 RenameCasePattern.UpperCamelCase).VisitLibrary(driver.ASTContext);
@@ -142,7 +143,6 @@ namespace QtSharp
             driver.TranslationUnitPasses.AddPass(new GenerateEventEventsPass());
             driver.TranslationUnitPasses.AddPass(new GenerateSignalEventsPass());
             driver.TranslationUnitPasses.AddPass(new RemoveStaticsFromDerivedTypesPass());
-            driver.TranslationUnitPasses.AddPass(new GetCommentsFromQtDocsPass(this.docs, this.module));
 		}
 	}
 }

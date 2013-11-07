@@ -1,20 +1,23 @@
-﻿using System.Collections.Generic;
-using CppSharp.AST;
+﻿using CppSharp.AST;
 using CppSharp.Passes;
 
 namespace QtSharp
 {
     public class GetCommentsFromQtDocsPass : TranslationUnitPass
     {
-        private IDictionary<string, string> docs;
+        private readonly Documentation documentation;
 
         public GetCommentsFromQtDocsPass(string docsPath, string module)
         {
-            this.docs = Documentation.Get(docsPath, module);
+            this.documentation = new Documentation(docsPath, module);
         }
 
         public override bool VisitClassDecl(Class @class)
         {
+            if (@class.Comment == null)
+            {
+                this.documentation.CommentType(@class);
+            }
             return base.VisitClassDecl(@class);
         }
 
@@ -31,6 +34,11 @@ namespace QtSharp
         public override bool VisitFunctionDecl(Function function)
         {
             return base.VisitFunctionDecl(function);
+        }
+
+        public override bool VisitProperty(Property property)
+        {
+            return base.VisitProperty(property);
         }
     }
 }
