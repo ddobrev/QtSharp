@@ -122,6 +122,7 @@ namespace QtSharp
 		    driver.Options.GenerateInterfacesForMultipleInheritance = true;
 		    driver.Options.GenerateProperties = true;
 			driver.Options.IgnoreParseWarnings = true;
+		    driver.Options.CheckSymbols = true;
             driver.Options.Headers.Add(qtModule);
 			driver.Options.IncludeDirs.Add(this.includePath);
             driver.Options.IncludeDirs.Add(Path.Combine(this.includePath, qtModule));
