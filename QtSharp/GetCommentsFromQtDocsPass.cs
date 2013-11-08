@@ -1,4 +1,5 @@
-﻿using CppSharp.AST;
+﻿using System.Collections.Generic;
+using CppSharp.AST;
 using CppSharp.Passes;
 
 namespace QtSharp
@@ -7,9 +8,9 @@ namespace QtSharp
     {
         private readonly Documentation documentation;
 
-        public GetCommentsFromQtDocsPass(string docsPath, string module)
+        public GetCommentsFromQtDocsPass(string docsPath, string module, Dictionary<Type, List<TypedefDecl>> typeDefsPerType)
         {
-            this.documentation = new Documentation(docsPath, module);
+            this.documentation = new Documentation(docsPath, module, typeDefsPerType);
         }
 
         public override bool VisitClassDecl(Class @class)
@@ -36,6 +37,10 @@ namespace QtSharp
 
         public override bool VisitFunctionDecl(Function function)
         {
+            if (function.Comment == null && !function.ExplicityIgnored)
+            {
+                this.documentation.DocumentFunction(function);
+            }
             return base.VisitFunctionDecl(function);
         }
 

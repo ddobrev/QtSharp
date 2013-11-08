@@ -6,14 +6,17 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.Util;
 using CppSharp.AST;
+using CppSharp.Types;
 using Mono.Data.Sqlite;
 using zlib;
+using Type = CppSharp.AST.Type;
 
 namespace QtSharp
 {
     public class Documentation
     {
-        private IDictionary<string, string> docs;
+        private readonly IDictionary<string, string> documentation;
+        private readonly Dictionary<string, List<TypedefDecl>> typeDefsPerType;
 
         private readonly Dictionary<Class, List<string>> memberDocumentation = new Dictionary<Class, List<string>>();
         private readonly List<string> staticDocumentation = new List<string>();
@@ -28,78 +31,24 @@ namespace QtSharp
         private static readonly Regex regexStaticDocs = new Regex("Related Non-Members(?<static>.+)",
             RegexOptions.Singleline | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
 
-        public Documentation(string docsPath, string module)
+        public Documentation(string docsPath, string module, Dictionary<Type, List<TypedefDecl>> typeDefsPerType)
         {
-            this.docs = Get(docsPath, module);
+            this.documentation = Get(docsPath, module);
+            CppTypePrinter cppTypePrinter = new CppTypePrinter(new TypeMapDatabase());
+            cppTypePrinter.PrintLocalName = true;
+            this.typeDefsPerType = new Dictionary<string, List<TypedefDecl>>();
+            foreach (KeyValuePair<Type, List<TypedefDecl>> typeTypeDefs in typeDefsPerType)
+            {
+                if (!(typeTypeDefs.Key is DependentNameType) && !(typeTypeDefs.Key is InjectedClassNameType))
+                {
+                    string typeName = typeTypeDefs.Key.Visit(cppTypePrinter);
+                    if (!this.typeDefsPerType.ContainsKey(typeName))
+                    {
+                        this.typeDefsPerType.Add(typeName, typeTypeDefs.Value);                        
+                    }
+                }
+            }
         }
-
-        //public Documentation(GeneratorData data, Translator translator)
-        //{
-        //    this.data = data;
-        //    this.translator = translator;
-        //    this.GatherDocs();
-        //}
-
-        //public void DocumentEnumMember(Smoke* smoke, Smoke.Method* smokeMethod, CodeMemberField cmm, CodeTypeDeclaration type)
-        //{
-        //    CodeTypeDeclaration parentType = this.memberDocumentation.Keys.FirstOrDefault(t => t.Name == (string) type.UserData["parent"]);
-        //    IList<string> docs;
-        //    string typeName;
-        //    string parentName;
-        //    if (parentType == null)
-        //    {
-        //        docs = this.staticDocumentation;
-        //        typeName = type.Name;
-        //        parentName = string.Empty;
-        //    }
-        //    else
-        //    {
-        //        docs = this.memberDocumentation[parentType];
-        //        typeName = Regex.Escape(parentType.Name) + "::" + Regex.Escape(type.Name);
-        //        parentName = parentType.Name;
-        //    }
-        //    if (type.Comments.Count == 0)
-        //    {
-        //        for (int i = 0; i < docs.Count; i++)
-        //        {
-        //            const string enumDoc = @"enum {0}(\s*flags {1}::\w+\s+)?(?<docsStart>.*?)(\n){{3}}";
-        //            Match matchEnum = Regex.Match(docs[i], string.Format(enumDoc, typeName, parentName),
-        //                                          RegexOptions.Singleline | RegexOptions.ExplicitCapture);
-        //            if (matchEnum.Success)
-        //            {
-        //                string doc = (matchEnum.Groups["docsStart"].Value + matchEnum.Groups["docsEnd1"].Value).Trim();
-        //                doc = Regex.Replace(doc,
-        //                                    @"(The \S+ type is a typedef for QFlags<\S+>\. It stores an OR combination of \S+ values\.)",
-        //                                    string.Empty);
-        //                doc = Regex.Replace(doc,
-        //                                    @"ConstantValue(Description)?.*?(((\n){2})|$)",
-        //                                    string.Empty, RegexOptions.Singleline | RegexOptions.ExplicitCapture).Trim();
-        //                if (!string.IsNullOrEmpty(doc))
-        //                {
-        //                    FormatComment(doc, type, i > 0 && parentType != null);
-        //                    break;
-        //                }
-        //            }
-        //        }
-        //    }
-        //    string memberName = (parentType == null ? parentName : Regex.Escape(parentName) + "::") +
-        //                        Regex.Escape(ByteArrayManager.GetString(smoke->methodNames[smokeMethod->name]));
-        //    const string memberDoc = @"enum {0}.*{1}\t[^\t\n]+\t(?<docs>.*?)(&\w+;)?(\n)";
-        //    for (int i = 0; i < docs.Count; i++)
-        //    {
-        //        Match match = Regex.Match(docs[i], string.Format(memberDoc, typeName, memberName),
-        //                                  RegexOptions.Singleline | RegexOptions.ExplicitCapture);
-        //        if (match.Success)
-        //        {
-        //            string doc = match.Groups["docs"].Value.Trim();
-        //            if (!string.IsNullOrEmpty(doc))
-        //            {
-        //                FormatComment(Char.ToUpper(doc[0]) + doc.Substring(1), cmm, i > 0 && parentType != null);
-        //                break;
-        //            }
-        //        }
-        //    }
-        //}
 
         //public void DocumentProperty(CodeTypeDeclaration type, string propertyName, string propertyType, CodeMemberProperty cmp)
         //{
@@ -115,27 +64,6 @@ namespace QtSharp
         //            if (match.Success)
         //            {
         //                FormatComment(match.Groups["docs"].Value, cmp, i > 0);
-        //                break;
-        //            }
-        //        }
-        //    }
-        //}
-
-        //public void DocumentAttributeProperty(CodeTypeMember cmm, CodeTypeDeclaration type)
-        //{
-        //    if (this.memberDocumentation.ContainsKey(type))
-        //    {
-        //        IList<string> docs = this.memberDocumentation[type];
-        //        string typeName = Regex.Escape(type.Name);
-        //        string originalName = Char.ToLowerInvariant(cmm.Name[0]) + cmm.Name.Substring(1);
-        //        const string memberDoc = @"{0}::{1}\n\W*(?<docs>.*?)(\n\s*){{3}}";
-        //        for (int i = 0; i < docs.Count; i++)
-        //        {
-        //            Match match = Regex.Match(docs[i], string.Format(memberDoc, typeName, originalName),
-        //                                      RegexOptions.Singleline | RegexOptions.ExplicitCapture);
-        //            if (match.Success)
-        //            {
-        //                FormatComment(match.Groups["docs"].Value, cmm, i > 0);
         //                break;
         //            }
         //        }
@@ -177,169 +105,195 @@ namespace QtSharp
         //    docs.Where((t, i) => this.TryMatch(type, methodName, cmm, t, i > 0 && markObsolete, argTypes)).Any();
         //}
 
-        //private bool TryMatch(string type, string methodName, CodeTypeMember cmm, string docs, bool markObsolete,
-        //                      IEnumerable<string> argTypes, bool completeSignature = true)
-        //{
-        //    const string memberDoc = @"(^|( --)|\n)\n([\w :*&<>,]+)?(({0}(\s*&)?::)| ){1}(const)?( \[(\w+\s*)+\])?\n\W*(?<docs>.*?)(\n\s*){{1,2}}((&?\S* --)|((\n\s*){{2}}))";
-        //    const string separator = @",\s*";
-        //    StringBuilder signatureRegex = new StringBuilder(methodName).Append(@"\s*\(\s*(");
-        //    bool anyArgs = false;
-        //    foreach (string argType in argTypes)
-        //    {
-        //        if (!anyArgs)
-        //        {
-        //            signatureRegex.Append("?<args>");
-        //            anyArgs = true;
-        //        }
-        //        signatureRegex.Append(this.GetTypeRegex(argType, completeSignature)).Append(@"(\s+\w+(\s*=\s*[^,\r\n]+(\(\s*\))?)?)?");
-        //        signatureRegex.Append(separator);
-        //    }
-        //    if (anyArgs)
-        //    {
-        //        signatureRegex.Insert(signatureRegex.Length - separator.Length, '(');
-        //    }
-        //    else
-        //    {
-        //        signatureRegex.Append('(');
-        //    }
-        //    signatureRegex.Append(@"[\w :*&<>]+\s*=\s*[^,\r\n]+(\(\s*\))?(,\s*)?)*)\s*\)\s*");
-        //    Match match = Regex.Match(docs, string.Format(memberDoc, type, signatureRegex),
-        //                              RegexOptions.Singleline | RegexOptions.ExplicitCapture);
-        //    if (match.Success)
-        //    {
-        //        FormatComment(match.Groups["docs"].Value, cmm, markObsolete);
-        //        FillMissingParameterNames(cmm, match.Groups["args"].Value);
-        //        return true;
-        //    }
-        //    return false;
-        //}
+        public void DocumentFunction(Function function)
+        {
+            string file = GetFileForDeclarationContext(function.Namespace);
+            if (this.documentation.ContainsKey(file) && this.TryMatch(function, this.documentation[file], false))
+            {
+                return;
+            }
+            file = file.Replace(".html", "-obsolete.html");
+            if (this.documentation.ContainsKey(file))
+            {
+                this.TryMatch(function, this.documentation[file], true);
+            }
+        }
 
-        //private string GetTypeRegex(string argType, bool completeSignature = true)
-        //{
-        //    string typeName = regexTypeName.Match(argType).Groups["name"].Value;
-        //    StringBuilder typeBuilder = new StringBuilder(typeName);
-        //    this.FormatType(typeBuilder);
-        //    typeBuilder.Insert(0, "(const +)?((");
-        //    typeBuilder.Append(')');
-        //    if (this.data.TypeDefsPerType.ContainsKey(typeName))
-        //    {
-        //        foreach (StringBuilder typeDefBuilder in from typedef in this.data.TypeDefsPerType[typeName]
-        //                                                 select new StringBuilder(typedef))
-        //        {
-        //            this.FormatType(typeDefBuilder);
-        //            typeBuilder.Append("|(").Append(typeDefBuilder).Append(')');
-        //        }
-        //    }
-        //    typeBuilder.Append(@")");
-        //    if (completeSignature)
-        //    {
-        //        if (argType.EndsWith("&", StringComparison.Ordinal) && !typeName.EndsWith("&", StringComparison.Ordinal))
-        //        {
-        //            typeBuilder.Append(@" *& *");
-        //        }
-        //        else
-        //        {
-        //            if (argType.EndsWith("*", StringComparison.Ordinal) && !typeName.EndsWith("*", StringComparison.Ordinal))
-        //            {
-        //                typeBuilder.Append(@" *(\*|(\[\]))+ *");
-        //            }
-        //        }
-        //    }
-        //    else
-        //    {
-        //        typeBuilder.Append(@"( *(&|((\*|(\[\]))+)) *)?");	
-        //    }
-        //    return typeBuilder.ToString();
-        //}
+        private bool TryMatch(Function function, string docs, bool markObsolete, bool completeSignature = true)
+        {
+            const string memberDoc = @"(^|( --)|\n)\n([\w :*&<>,]+)?(({0}(\s*&)?::)| ){1}(const)?( \[(\w+\s*)+\])?\n\W*(?<docs>.*?)(\n\s*){{1,2}}((&?\S* --)|((\n\s*){{2}}))";
+            const string separator = @",\s*";
+            StringBuilder signatureRegex = new StringBuilder(Regex.Escape(function.Name)).Append(@"\s*\(\s*(");
+            bool anyArgs = false;
+            CppTypePrinter cppTypePrinter = new CppTypePrinter(new TypeMapDatabase());
+            cppTypePrinter.PrintLocalName = true;
+            foreach (string argType in function.Parameters.Where(p => p.Kind != ParameterKind.IndirectReturnType).Select(p => p.Type.Visit(cppTypePrinter)))
+            {
+                if (!anyArgs)
+                {
+                    signatureRegex.Append("?<args>");
+                    anyArgs = true;
+                }
+                signatureRegex.Append(this.GetTypeRegex(argType, completeSignature)).Append(@"(\s+\w+(\s*=\s*[^,\r\n]+(\(\s*\))?)?)?");
+                signatureRegex.Append(separator);
+            }
+            if (anyArgs)
+            {
+                signatureRegex.Insert(signatureRegex.Length - separator.Length, '(');
+            }
+            else
+            {
+                signatureRegex.Append('(');
+            }
+            signatureRegex.Append(@"[\w :*&<>]+\s*=\s*[^,\r\n]+(\(\s*\))?(,\s*)?)*)\s*\)\s*");
+            Match match = Regex.Match(docs, string.Format(memberDoc, function.Namespace.Name, signatureRegex),
+                                      RegexOptions.Singleline | RegexOptions.ExplicitCapture);
+            if (match.Success)
+            {
+                function.Comment = new RawComment();
+                function.Comment.BriefText = match.Groups["docs"].Value;
+                FillMissingParameterNames(function, match.Groups["args"].Value);
+                return true;
+            }
+            return false;
+        }
 
-        //private void FormatType(StringBuilder typeBuilder)
-        //{
-        //    int indexOfLt = Int32.MinValue;
-        //    int indexOfGt = Int32.MinValue;
-        //    int indexOfColon = Int32.MinValue;
-        //    int firstColonIndex = Int32.MinValue;
-        //    List<int> commas = new List<int>();
-        //    List<char> templateType = new List<char>(typeBuilder.Length);
-        //    for (int i = typeBuilder.Length - 1; i >= 0; i--)
-        //    {
-        //        char @char = typeBuilder[i];
-        //        switch (@char)
-        //        {
-        //            case '<':
-        //                indexOfLt = i;
-        //                break;
-        //            case '>':
-        //                indexOfGt = i;
-        //                break;
-        //            case ':':
-        //                if (firstColonIndex < 0)
-        //                {
-        //                    firstColonIndex = i;
-        //                }
-        //                else
-        //                {
-        //                    if (i == firstColonIndex - 1)
-        //                    {
-        //                        indexOfColon = firstColonIndex;
-        //                        firstColonIndex = Int32.MinValue;
-        //                    }
-        //                }
-        //                break;
-        //            case ',':
-        //                commas.Add(i);
-        //                break;
-        //        }
-        //        if (i > indexOfLt && i < indexOfGt)
-        //        {
-        //            typeBuilder.Remove(i, 1);
-        //            templateType.Insert(0, @char);
-        //        }
-        //    }
-        //    if (indexOfGt > indexOfLt)
-        //    {
-        //        typeBuilder.Replace("(", @"\(").Replace(")", @"\)");
-        //        typeBuilder.Replace(@"*", @"\s*(\*|(\[\]))").Replace(@"&", @"\s*&").Replace(",", @",\s*");
-        //        typeBuilder.Insert(indexOfLt + 1, this.GetTypeRegex(new string(templateType.ToArray())));
-        //    }
-        //    else
-        //    {
-        //        if (indexOfColon > 0)
-        //        {
-        //            int comma = int.MinValue;
-        //            IEnumerable<int> last = commas.Where(i => i < indexOfColon).ToList();
-        //            if (last.Any())
-        //            {
-        //                comma = last.Last();
-        //            }
-        //            int parentTypeStart = Math.Max(Math.Max(indexOfLt + 1, 0), comma + 1);
-        //            typeBuilder.Remove(parentTypeStart, indexOfColon + 1 - parentTypeStart);
-        //            typeBuilder.Insert(parentTypeStart, @"(\w+::)?");
-        //            typeBuilder.Replace(@"*", @"\s*(\*|(\[\]))").Replace(@"&", @"\s*&").Replace(",", @",\s*");
-        //        }
-        //        else
-        //        {
-        //            typeBuilder.Replace("(", @"\(").Replace(")", @"\)");
-        //            typeBuilder.Replace(@"*", @"\s*(\*|(\[\]))").Replace(@"&", @"\s*&").Replace(",", @",\s*");
-        //        }
-        //    }
-        //}
+        private string GetTypeRegex(string argType, bool completeSignature = true)
+        {
+            string typeName = regexTypeName.Match(argType).Groups["name"].Value;
+            StringBuilder typeBuilder = new StringBuilder(typeName);
+            this.FormatType(typeBuilder);
+            typeBuilder.Insert(0, "(const +)?((");
+            typeBuilder.Append(')');
+            if (this.typeDefsPerType.ContainsKey(typeName))
+            {
+                foreach (StringBuilder typeDefBuilder in from typedef in this.typeDefsPerType[typeName]
+                                                         select new StringBuilder(typedef.OriginalName))
+                {
+                    this.FormatType(typeDefBuilder);
+                    typeBuilder.Append("|(").Append(typeDefBuilder).Append(')');
+                }
+            }
+            typeBuilder.Append(@")");
+            if (completeSignature)
+            {
+                if (argType.EndsWith("&", StringComparison.Ordinal) && !typeName.EndsWith("&", StringComparison.Ordinal))
+                {
+                    typeBuilder.Append(@" *& *");
+                }
+                else
+                {
+                    if (argType.EndsWith("*", StringComparison.Ordinal) && !typeName.EndsWith("*", StringComparison.Ordinal))
+                    {
+                        typeBuilder.Append(@" *(\*|(\[\]))+ *");
+                    }
+                }
+            }
+            else
+            {
+                typeBuilder.Append(@"( *(&|((\*|(\[\]))+)) *)?");
+            }
+            return typeBuilder.ToString();
+        }
 
-        //private static void FillMissingParameterNames(CodeTypeMember cmm, string signature)
-        //{
-        //    CodeMemberMethod method = cmm as CodeMemberMethod;
-        //    if (method == null)
-        //    {
-        //        return;
-        //    }
-        //    List<string> args = new List<string>(signature.Split(','));
-        //    if (args.Count < method.Parameters.Count)
-        //    {
-        //        // operator
-        //        args.Insert(0, "one");
-        //    }
-        //    MethodsGenerator.RenameParameters(method, (from arg in args
-        //                                               select regexArg.Match(arg).Groups["name"].Value).ToList());
-        //}
+        private void FormatType(StringBuilder typeBuilder)
+        {
+            int indexOfLt = Int32.MinValue;
+            int indexOfGt = Int32.MinValue;
+            int indexOfColon = Int32.MinValue;
+            int firstColonIndex = Int32.MinValue;
+            List<int> commas = new List<int>();
+            List<char> templateType = new List<char>(typeBuilder.Length);
+            for (int i = typeBuilder.Length - 1; i >= 0; i--)
+            {
+                char @char = typeBuilder[i];
+                switch (@char)
+                {
+                    case '<':
+                        indexOfLt = i;
+                        break;
+                    case '>':
+                        indexOfGt = i;
+                        break;
+                    case ':':
+                        if (firstColonIndex < 0)
+                        {
+                            firstColonIndex = i;
+                        }
+                        else
+                        {
+                            if (i == firstColonIndex - 1)
+                            {
+                                indexOfColon = firstColonIndex;
+                                firstColonIndex = Int32.MinValue;
+                            }
+                        }
+                        break;
+                    case ',':
+                        commas.Add(i);
+                        break;
+                }
+                if (i > indexOfLt && i < indexOfGt)
+                {
+                    typeBuilder.Remove(i, 1);
+                    templateType.Insert(0, @char);
+                }
+            }
+            if (indexOfGt > indexOfLt)
+            {
+                typeBuilder.Replace("(", @"\(").Replace(")", @"\)");
+                typeBuilder.Replace(@"*", @"\s*(\*|(\[\]))").Replace(@"&", @"\s*&").Replace(",", @",\s*");
+                typeBuilder.Insert(indexOfLt + 1, this.GetTypeRegex(new string(templateType.ToArray())));
+            }
+            else
+            {
+                if (indexOfColon > 0)
+                {
+                    int comma = int.MinValue;
+                    IEnumerable<int> last = commas.Where(i => i < indexOfColon).ToList();
+                    if (last.Any())
+                    {
+                        comma = last.Last();
+                    }
+                    int parentTypeStart = Math.Max(Math.Max(indexOfLt + 1, 0), comma + 1);
+                    typeBuilder.Remove(parentTypeStart, indexOfColon + 1 - parentTypeStart);
+                    typeBuilder.Insert(parentTypeStart, @"(\w+::)?");
+                    typeBuilder.Replace(@"*", @"\s*(\*|(\[\]))").Replace(@"&", @"\s*&").Replace(",", @",\s*");
+                }
+                else
+                {
+                    typeBuilder.Replace("(", @"\(").Replace(")", @"\)");
+                    typeBuilder.Replace(@"*", @"\s*(\*|(\[\]))").Replace(@"&", @"\s*&").Replace(",", @",\s*");
+                }
+            }
+        }
+
+        private static void FillMissingParameterNames(Function function, string signature)
+        {
+            List<string> args = new List<string>(signature.Split(','));
+            if (args.Count < function.Parameters.Count)
+            {
+                // operator
+                args.Insert(0, "one");
+            }
+            List<string> argNames = (from arg in args
+                                     select regexArg.Match(arg).Groups["name"].Value).ToList();
+            for (int i = 0; i < function.Parameters.Count; i++)
+            {
+                Parameter parameter = function.Parameters[i];
+                string oldArgName = parameter.Name;
+                int index = oldArgName.IndexOf(" = ", StringComparison.Ordinal);
+                string nameOnly = index > 0 ? oldArgName.Substring(0, index) : oldArgName;
+                if (nameOnly.StartsWith("_", StringComparison.Ordinal) && char.IsDigit(nameOnly[1]))
+                {
+                    string name = argNames[i];
+                    if (!string.IsNullOrEmpty(name))
+                    {
+                        parameter.Name = name + (index > 0 ? oldArgName.Substring(index) : string.Empty);
+                    }
+                }
+            }
+        }
 
         //private void GatherDocs()
         //{
@@ -413,9 +367,9 @@ namespace QtSharp
         public void DocumentType(Class type)
         {
             string file = GetFileForDeclarationContext(type);
-            if (this.docs.ContainsKey(file))
+            if (this.documentation.ContainsKey(file))
             {
-                string typeDocs = this.docs[file];
+                string typeDocs = this.documentation[file];
                 Match match = Regex.Match(typeDocs, string.Format(@"(?<class>((The {0})|(This class)).+?)More\.\.\..*?\n" +
                                                                    @"Detailed Description\s+(?<detailed>.*?)(\n){{3,}}", type.Name),
                                           RegexOptions.Singleline | RegexOptions.ExplicitCapture);
@@ -431,9 +385,9 @@ namespace QtSharp
         public void DocumentEnum(Enumeration @enum)
         {
             string file = GetFileForDeclarationContext(@enum.Namespace);
-            if (this.docs.ContainsKey(file))
+            if (this.documentation.ContainsKey(file))
             {
-                string typeDocs = this.docs[file];
+                string typeDocs = this.documentation[file];
                 const string enumDoc = @"enum {0}(\s*flags {1}::\w+\s+)?(?<docsStart>.*?)(\n){{3}}";
                 string enumName = string.IsNullOrEmpty(@enum.Namespace.Name) ? @enum.Name : (@enum.Namespace.Name + "::" + @enum.Name);
                 Match matchEnum = Regex.Match(typeDocs, string.Format(enumDoc, enumName, @enum.Namespace.Name),
@@ -458,9 +412,9 @@ namespace QtSharp
         public void DocumentEnumItem(Enumeration @enum, Enumeration.Item enumItem)
         {
             string file = GetFileForDeclarationContext(@enum.Namespace);
-            if (this.docs.ContainsKey(file))
+            if (this.documentation.ContainsKey(file))
             {
-                string typeDocs = this.docs[file];
+                string typeDocs = this.documentation[file];
                 string typeName;
                 string memberName;
                 if (string.IsNullOrEmpty(@enum.Namespace.Name))
