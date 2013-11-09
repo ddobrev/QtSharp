@@ -227,7 +227,7 @@ namespace QtSharp
                 }
                 const string memberDoc = @"enum {0}.*?{1}\t[^\t\n]+\t(?<docs>.*?)(&\w+;)?(\n)";
                 Match match = Regex.Match(typeDocs, string.Format(memberDoc, typeName, memberName),
-                                            RegexOptions.Singleline | RegexOptions.ExplicitCapture);
+                                          RegexOptions.Singleline | RegexOptions.ExplicitCapture);
                 if (match.Success)
                 {
                     string doc = match.Groups["docs"].Value.Trim();
@@ -239,10 +239,19 @@ namespace QtSharp
             }
         }
 
-        private static string GetFileForDeclarationContext(DeclarationContext declarationContext)
+        private string GetFileForDeclarationContext(DeclarationContext declarationContext)
         {
             if (string.IsNullOrEmpty(declarationContext.Name))
             {
+                TranslationUnit unit = declarationContext as TranslationUnit;
+                if (unit != null)
+                {
+                    string file = unit.FileNameWithoutExtension + ".html";
+                    if (this.documentation.ContainsKey(file))
+                    {
+                        return file;
+                    }
+                }
                 return "qtglobal.html";
             }
             StringBuilder fileNameBuilder = new StringBuilder(declarationContext.Name.ToLowerInvariant());
@@ -256,8 +265,7 @@ namespace QtSharp
                 fileNameBuilder.Insert(0, string.Format("{0}-", parentClass.Name.ToLowerInvariant()));
             }
             fileNameBuilder.Append(".html");
-            string fileName = fileNameBuilder.ToString();
-            return fileName;
+            return fileNameBuilder.ToString();
         }
 
         private static IDictionary<string, string> Get(string docsPath, string module)
