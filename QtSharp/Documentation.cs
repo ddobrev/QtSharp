@@ -18,9 +18,6 @@ namespace QtSharp
         private readonly IDictionary<string, string> documentation;
         private readonly Dictionary<string, List<TypedefDecl>> typeDefsPerType;
 
-        private readonly Dictionary<Class, List<string>> memberDocumentation = new Dictionary<Class, List<string>>();
-        private readonly List<string> staticDocumentation = new List<string>();
-
         private static readonly Regex regexTypeName =
             new Regex(@"^(const +)?(?<name>((un)?signed +)?.+?(__\*)?)( *(&|((\*|(\[\]))+)) *)?$",
                 RegexOptions.ExplicitCapture | RegexOptions.Compiled);
@@ -49,26 +46,6 @@ namespace QtSharp
                 }
             }
         }
-
-        //public void DocumentProperty(CodeTypeDeclaration type, string propertyName, string propertyType, CodeMemberProperty cmp)
-        //{
-        //    if (this.memberDocumentation.ContainsKey(type))
-        //    {
-        //        IList<string> docs = this.memberDocumentation[type];
-        //        for (int i = 0; i < docs.Count; i++)
-        //        {
-        //            Match match = Regex.Match(docs[i],
-        //                                      propertyName + " : (const )?" + propertyType.Replace("*", @"\s*\*") +
-        //                                      @"\n(?<docs>.*?)\nAccess functions:",
-        //                                      RegexOptions.Singleline | RegexOptions.ExplicitCapture);
-        //            if (match.Success)
-        //            {
-        //                FormatComment(match.Groups["docs"].Value, cmp, i > 0);
-        //                break;
-        //            }
-        //        }
-        //    }
-        //}
 
         //public void DocumentMember(Smoke* smoke, Smoke.Method* smokeMethod, CodeTypeMember cmm, CodeTypeDeclaration type)
         //{
@@ -119,250 +96,71 @@ namespace QtSharp
             }
         }
 
-        private bool TryMatch(Function function, string docs, bool markObsolete, bool completeSignature = true)
+        public void DocumentProperty(Property property)
         {
-            const string memberDoc = @"(^|( --)|\n)\n([\w :*&<>,]+)?(({0}(\s*&)?::)| ){1}(const)?( \[(\w+\s*)+\])?\n\W*(?<docs>.*?)(\n\s*){{1,2}}((&?\S* --)|((\n\s*){{2}}))";
-            const string separator = @",\s*";
-            StringBuilder signatureRegex = new StringBuilder(Regex.Escape(function.Name)).Append(@"\s*\(\s*(");
-            bool anyArgs = false;
-            CppTypePrinter cppTypePrinter = new CppTypePrinter(new TypeMapDatabase());
-            cppTypePrinter.PrintLocalName = true;
-            foreach (string argType in function.Parameters.Where(p => p.Kind != ParameterKind.IndirectReturnType).Select(p => p.Type.Visit(cppTypePrinter)))
+            var expansions = property.Namespace.PreprocessedEntities.OfType<MacroExpansion>();
+
+            var properties = expansions.Where(e => e.Text.Contains("Q_PROPERTY"));
+            string propertyDeclaration = string.Format(" {0} READ", property.Name);
+            if (properties.Any(p => p.Text.Contains(propertyDeclaration)))
             {
-                if (!anyArgs)
-                {
-                    signatureRegex.Append("?<args>");
-                    anyArgs = true;
-                }
-                signatureRegex.Append(this.GetTypeRegex(argType, completeSignature)).Append(@"(\s+\w+(\s*=\s*[^,\r\n]+(\(\s*\))?)?)?");
-                signatureRegex.Append(separator);
-            }
-            if (anyArgs)
-            {
-                signatureRegex.Insert(signatureRegex.Length - separator.Length, '(');
+                this.DocumentQtProperty(property);
             }
             else
             {
-                signatureRegex.Append('(');
-            }
-            signatureRegex.Append(@"[\w :*&<>]+\s*=\s*[^,\r\n]+(\(\s*\))?(,\s*)?)*)\s*\)\s*");
-            Match match = Regex.Match(docs, string.Format(memberDoc, function.Namespace.Name, signatureRegex),
-                                      RegexOptions.Singleline | RegexOptions.ExplicitCapture);
-            if (match.Success)
-            {
-                function.Comment = new RawComment();
-                function.Comment.BriefText = match.Groups["docs"].Value;
-                FillMissingParameterNames(function, match.Groups["args"].Value);
-                return true;
-            }
-            return false;
-        }
-
-        private string GetTypeRegex(string argType, bool completeSignature = true)
-        {
-            string typeName = regexTypeName.Match(argType).Groups["name"].Value;
-            StringBuilder typeBuilder = new StringBuilder(typeName);
-            this.FormatType(typeBuilder);
-            typeBuilder.Insert(0, "(const +)?((");
-            typeBuilder.Append(')');
-            if (this.typeDefsPerType.ContainsKey(typeName))
-            {
-                foreach (StringBuilder typeDefBuilder in from typedef in this.typeDefsPerType[typeName]
-                                                         select new StringBuilder(typedef.OriginalName))
+                if (property.Field != null)
                 {
-                    this.FormatType(typeDefBuilder);
-                    typeBuilder.Append("|(").Append(typeDefBuilder).Append(')');
-                }
-            }
-            typeBuilder.Append(@")");
-            if (completeSignature)
-            {
-                if (argType.EndsWith("&", StringComparison.Ordinal) && !typeName.EndsWith("&", StringComparison.Ordinal))
-                {
-                    typeBuilder.Append(@" *& *");
                 }
                 else
                 {
-                    if (argType.EndsWith("*", StringComparison.Ordinal) && !typeName.EndsWith("*", StringComparison.Ordinal))
+                    Method getter = property.GetMethod;
+                    if (getter.Comment == null)
                     {
-                        typeBuilder.Append(@" *(\*|(\[\]))+ *");
+                        this.DocumentFunction(getter);
                     }
-                }
-            }
-            else
-            {
-                typeBuilder.Append(@"( *(&|((\*|(\[\]))+)) *)?");
-            }
-            return typeBuilder.ToString();
-        }
-
-        private void FormatType(StringBuilder typeBuilder)
-        {
-            int indexOfLt = Int32.MinValue;
-            int indexOfGt = Int32.MinValue;
-            int indexOfColon = Int32.MinValue;
-            int firstColonIndex = Int32.MinValue;
-            List<int> commas = new List<int>();
-            List<char> templateType = new List<char>(typeBuilder.Length);
-            for (int i = typeBuilder.Length - 1; i >= 0; i--)
-            {
-                char @char = typeBuilder[i];
-                switch (@char)
-                {
-                    case '<':
-                        indexOfLt = i;
-                        break;
-                    case '>':
-                        indexOfGt = i;
-                        break;
-                    case ':':
-                        if (firstColonIndex < 0)
+                    if (getter.Comment != null)
+                    {
+                        var comment = new RawComment();
+                        comment.Kind = getter.Comment.Kind;
+                        comment.BriefText = getter.Comment.BriefText;
+                        comment.Text = getter.Comment.Text;
+                        Method setter = property.SetMethod;
+                        if (setter != null)
                         {
-                            firstColonIndex = i;
-                        }
-                        else
-                        {
-                            if (i == firstColonIndex - 1)
+                            if (setter.Comment == null)
                             {
-                                indexOfColon = firstColonIndex;
-                                firstColonIndex = Int32.MinValue;
+                                this.DocumentFunction(setter);
+                            }
+                            if (setter.Comment != null)
+                            {
+                                comment.BriefText += Environment.NewLine + setter.Comment.BriefText;
+                                comment.Text += Environment.NewLine + setter.Comment.Text;
                             }
                         }
-                        break;
-                    case ',':
-                        commas.Add(i);
-                        break;
-                }
-                if (i > indexOfLt && i < indexOfGt)
-                {
-                    typeBuilder.Remove(i, 1);
-                    templateType.Insert(0, @char);
-                }
-            }
-            if (indexOfGt > indexOfLt)
-            {
-                typeBuilder.Replace("(", @"\(").Replace(")", @"\)");
-                typeBuilder.Replace(@"*", @"\s*(\*|(\[\]))").Replace(@"&", @"\s*&").Replace(",", @",\s*");
-                typeBuilder.Insert(indexOfLt + 1, this.GetTypeRegex(new string(templateType.ToArray())));
-            }
-            else
-            {
-                if (indexOfColon > 0)
-                {
-                    int comma = int.MinValue;
-                    IEnumerable<int> last = commas.Where(i => i < indexOfColon).ToList();
-                    if (last.Any())
-                    {
-                        comma = last.Last();
+                        property.Comment = comment;
                     }
-                    int parentTypeStart = Math.Max(Math.Max(indexOfLt + 1, 0), comma + 1);
-                    typeBuilder.Remove(parentTypeStart, indexOfColon + 1 - parentTypeStart);
-                    typeBuilder.Insert(parentTypeStart, @"(\w+::)?");
-                    typeBuilder.Replace(@"*", @"\s*(\*|(\[\]))").Replace(@"&", @"\s*&").Replace(",", @",\s*");
-                }
-                else
-                {
-                    typeBuilder.Replace("(", @"\(").Replace(")", @"\)");
-                    typeBuilder.Replace(@"*", @"\s*(\*|(\[\]))").Replace(@"&", @"\s*&").Replace(",", @",\s*");
                 }
             }
         }
 
-        private static void FillMissingParameterNames(Function function, string signature)
+        private void DocumentQtProperty(Property property)
         {
-            List<string> args = new List<string>(signature.Split(','));
-            if (args.Count < function.Parameters.Count)
+            string file = GetFileForDeclarationContext(property.Namespace);
+            if (this.documentation.ContainsKey(file))
             {
-                // operator
-                args.Insert(0, "one");
-            }
-            List<string> argNames = (from arg in args
-                                     select regexArg.Match(arg).Groups["name"].Value).ToList();
-            for (int i = 0; i < function.Parameters.Count; i++)
-            {
-                Parameter parameter = function.Parameters[i];
-                string oldArgName = parameter.Name;
-                int index = oldArgName.IndexOf(" = ", StringComparison.Ordinal);
-                string nameOnly = index > 0 ? oldArgName.Substring(0, index) : oldArgName;
-                if (nameOnly.StartsWith("_", StringComparison.Ordinal) && char.IsDigit(nameOnly[1]))
+                string docs = this.documentation[file];
+                CppTypePrinter cppTypePrinter = new CppTypePrinter(new TypeMapDatabase());
+                cppTypePrinter.PrintLocalName = true;
+                string type = property.Type.Visit(cppTypePrinter);
+                Match match = Regex.Match(docs, "Property Documentation.*" + property.Name + @" : (const )?(\w+::)?" + type.Replace("*", @"\s*\*") +
+                                          @"\n(?<docs>.*?)\nAccess functions:", RegexOptions.Singleline | RegexOptions.ExplicitCapture);
+                if (match.Success)
                 {
-                    string name = argNames[i];
-                    if (!string.IsNullOrEmpty(name))
-                    {
-                        parameter.Name = name + (index > 0 ? oldArgName.Substring(index) : string.Empty);
-                    }
+                    property.Comment = new RawComment();
+                    property.Comment.BriefText = match.Groups["docs"].Value;
                 }
             }
         }
-
-        //private void GatherDocs()
-        //{
-        //    IDictionary<string, string> documentation = Get(this.data.Docs);
-        //    foreach (CodeTypeDeclaration type in from smokeType in this.data.SmokeTypeMap
-        //                                         where string.IsNullOrEmpty((string) smokeType.Value.UserData["parent"])
-        //                                         select smokeType.Value)
-        //    {
-        //        foreach (CodeTypeDeclaration nestedType in type.Members.OfType<CodeTypeDeclaration>().Where(t => !t.IsEnum))
-        //        {
-        //            this.GetClassDocs(nestedType, string.Format("{0}::{1}", type.Name, nestedType.Name),
-        //                              string.Format("{0}-{1}", type.Name, nestedType.Name), documentation);
-        //        }
-        //        this.GetClassDocs(type, type.Name, type.Name, documentation);
-        //    }
-        //    this.staticDocumentation.AddRange(from k in this.translator.TypeStringMap.Keys.SelectMany(k => new[] { k + ".html", k + "-obsolete.html", k + "-qt3.html" })
-        //                                      let key = k.ToLowerInvariant()
-        //                                      where documentation.ContainsKey(key)
-        //                                      select StripTags(documentation[key]));
-        //    this.staticDocumentation.AddRange(from pair in documentation
-        //                                      where (pair.Key.StartsWith("q", StringComparison.Ordinal) &&
-        //                                             pair.Key.EndsWith("-h.html", StringComparison.Ordinal)) ||
-        //                                            pair.Key == "qtglobal.html"
-        //                                      select StripTags(pair.Value));
-        //}
-
-        //private void GetClassDocs(Class type, string typeName, string fileName, IDictionary<string, string> documentation)
-        //{
-        //    List<string> docs = new List<string>();
-        //    CodeTypeDeclaration @interface = null;
-        //    if (this.data.InterfaceTypeMap.ContainsKey(typeName))
-        //    {
-        //        @interface = this.data.InterfaceTypeMap[typeName];
-        //    }
-        //    foreach (string docFile in new[] { fileName + ".html", fileName + "-obsolete.html", fileName + "-qt3.html" })
-        //    {
-        //        if (documentation.ContainsKey(docFile.ToLowerInvariant()))
-        //        {
-        //            string classDocs = StripTags(documentation[docFile.ToLowerInvariant()]);
-        //            Match match = Regex.Match(classDocs, string.Format(@"(?<class>((The {0})|(This class)).+?)More\.\.\..*?\n" +
-        //                                                               @"Detailed Description\s+(?<detailed>.*?)(\n){{3,}}" +
-        //                                                               @"((\w+ )*\w+ Documentation\n(?<members>.+))", typeName),
-        //                                      RegexOptions.Singleline | RegexOptions.ExplicitCapture);
-        //            if (match.Success)
-        //            {
-        //                string members = CommentType(type, match);
-        //                docs.Add(members);
-        //                if (@interface != null)
-        //                {
-        //                    CommentType(@interface, match);
-        //                }
-        //                Match matchStatic = regexStaticDocs.Match(members);
-        //                if (matchStatic.Success)
-        //                {
-        //                    this.staticDocumentation.Add(matchStatic.Groups["static"].Value);
-        //                }
-        //            }
-        //            else
-        //            {
-        //                docs.Add(classDocs);
-        //            }
-        //        }
-        //    }
-        //    this.memberDocumentation[type] = docs;
-        //    if (@interface != null)
-        //    {
-        //        this.memberDocumentation[@interface] = docs;
-        //    }
-        //}
 
         public void DocumentType(Class type)
         {
@@ -567,6 +365,182 @@ namespace QtSharp
                 }
             }
             return HtmlEncoder.HtmlDecode(new string(array, 0, arrayIndex));
+        }
+
+        private bool TryMatch(Function function, string docs, bool markObsolete, bool completeSignature = true)
+        {
+            const string memberDoc = @"(^|( --)|\n)\n([\w :*&<>,]+)?(({0}(\s*&)?::)| ){1}(const)?( \[(\w+\s*)+\])?\n\W*(?<docs>.*?)(\n\s*){{1,2}}((&?\S* --)|((\n\s*){{2}}))";
+            const string separator = @",\s*";
+            StringBuilder signatureRegex = new StringBuilder(Regex.Escape(function.Name)).Append(@"\s*\(\s*(");
+            bool anyArgs = false;
+            CppTypePrinter cppTypePrinter = new CppTypePrinter(new TypeMapDatabase());
+            cppTypePrinter.PrintLocalName = true;
+            foreach (string argType in function.Parameters.Where(p => p.Kind != ParameterKind.IndirectReturnType).Select(p => p.Type.Visit(cppTypePrinter)))
+            {
+                if (!anyArgs)
+                {
+                    signatureRegex.Append("?<args>");
+                    anyArgs = true;
+                }
+                signatureRegex.Append(this.GetTypeRegex(argType, completeSignature)).Append(@"(\s+\w+(\s*=\s*[^,\r\n]+(\(\s*\))?)?)?");
+                signatureRegex.Append(separator);
+            }
+            if (anyArgs)
+            {
+                signatureRegex.Insert(signatureRegex.Length - separator.Length, '(');
+            }
+            else
+            {
+                signatureRegex.Append('(');
+            }
+            signatureRegex.Append(@"[\w :*&<>]+\s*=\s*[^,\r\n]+(\(\s*\))?(,\s*)?)*)\s*\)\s*");
+            Match match = Regex.Match(docs, string.Format(memberDoc, function.Namespace.Name, signatureRegex),
+                                      RegexOptions.Singleline | RegexOptions.ExplicitCapture);
+            if (match.Success)
+            {
+                function.Comment = new RawComment();
+                function.Comment.BriefText = match.Groups["docs"].Value;
+                FillMissingParameterNames(function, match.Groups["args"].Value);
+                return true;
+            }
+            return false;
+        }
+
+        private string GetTypeRegex(string argType, bool completeSignature = true)
+        {
+            string typeName = regexTypeName.Match(argType).Groups["name"].Value;
+            StringBuilder typeBuilder = new StringBuilder(typeName);
+            this.FormatType(typeBuilder);
+            typeBuilder.Insert(0, "(const +)?((");
+            typeBuilder.Append(')');
+            if (this.typeDefsPerType.ContainsKey(typeName))
+            {
+                foreach (StringBuilder typeDefBuilder in from typedef in this.typeDefsPerType[typeName]
+                                                         select new StringBuilder(typedef.OriginalName))
+                {
+                    this.FormatType(typeDefBuilder);
+                    typeBuilder.Append("|(").Append(typeDefBuilder).Append(')');
+                }
+            }
+            typeBuilder.Append(@")");
+            if (completeSignature)
+            {
+                if (argType.EndsWith("&", StringComparison.Ordinal) && !typeName.EndsWith("&", StringComparison.Ordinal))
+                {
+                    typeBuilder.Append(@" *& *");
+                }
+                else
+                {
+                    if (argType.EndsWith("*", StringComparison.Ordinal) && !typeName.EndsWith("*", StringComparison.Ordinal))
+                    {
+                        typeBuilder.Append(@" *(\*|(\[\]))+ *");
+                    }
+                }
+            }
+            else
+            {
+                typeBuilder.Append(@"( *(&|((\*|(\[\]))+)) *)?");
+            }
+            return typeBuilder.ToString();
+        }
+
+        private void FormatType(StringBuilder typeBuilder)
+        {
+            int indexOfLt = Int32.MinValue;
+            int indexOfGt = Int32.MinValue;
+            int indexOfColon = Int32.MinValue;
+            int firstColonIndex = Int32.MinValue;
+            List<int> commas = new List<int>();
+            List<char> templateType = new List<char>(typeBuilder.Length);
+            for (int i = typeBuilder.Length - 1; i >= 0; i--)
+            {
+                char @char = typeBuilder[i];
+                switch (@char)
+                {
+                    case '<':
+                        indexOfLt = i;
+                        break;
+                    case '>':
+                        indexOfGt = i;
+                        break;
+                    case ':':
+                        if (firstColonIndex < 0)
+                        {
+                            firstColonIndex = i;
+                        }
+                        else
+                        {
+                            if (i == firstColonIndex - 1)
+                            {
+                                indexOfColon = firstColonIndex;
+                                firstColonIndex = Int32.MinValue;
+                            }
+                        }
+                        break;
+                    case ',':
+                        commas.Add(i);
+                        break;
+                }
+                if (i > indexOfLt && i < indexOfGt)
+                {
+                    typeBuilder.Remove(i, 1);
+                    templateType.Insert(0, @char);
+                }
+            }
+            if (indexOfGt > indexOfLt)
+            {
+                typeBuilder.Replace("(", @"\(").Replace(")", @"\)");
+                typeBuilder.Replace(@"*", @"\s*(\*|(\[\]))").Replace(@"&", @"\s*&").Replace(",", @",\s*");
+                typeBuilder.Insert(indexOfLt + 1, this.GetTypeRegex(new string(templateType.ToArray())));
+            }
+            else
+            {
+                if (indexOfColon > 0)
+                {
+                    int comma = int.MinValue;
+                    IEnumerable<int> last = commas.Where(i => i < indexOfColon).ToList();
+                    if (last.Any())
+                    {
+                        comma = last.Last();
+                    }
+                    int parentTypeStart = Math.Max(Math.Max(indexOfLt + 1, 0), comma + 1);
+                    typeBuilder.Remove(parentTypeStart, indexOfColon + 1 - parentTypeStart);
+                    typeBuilder.Insert(parentTypeStart, @"(\w+::)?");
+                    typeBuilder.Replace(@"*", @"\s*(\*|(\[\]))").Replace(@"&", @"\s*&").Replace(",", @",\s*");
+                }
+                else
+                {
+                    typeBuilder.Replace("(", @"\(").Replace(")", @"\)");
+                    typeBuilder.Replace(@"*", @"\s*(\*|(\[\]))").Replace(@"&", @"\s*&").Replace(",", @",\s*");
+                }
+            }
+        }
+
+        private static void FillMissingParameterNames(Function function, string signature)
+        {
+            List<string> args = new List<string>(signature.Split(','));
+            if (args.Count < function.Parameters.Count)
+            {
+                // operator
+                args.Insert(0, "one");
+            }
+            List<string> argNames = (from arg in args
+                                     select regexArg.Match(arg).Groups["name"].Value).ToList();
+            for (int i = 0; i < function.Parameters.Count; i++)
+            {
+                Parameter parameter = function.Parameters[i];
+                string oldArgName = parameter.Name;
+                int index = oldArgName.IndexOf(" = ", StringComparison.Ordinal);
+                string nameOnly = index > 0 ? oldArgName.Substring(0, index) : oldArgName;
+                if (nameOnly.StartsWith("_", StringComparison.Ordinal) && char.IsDigit(nameOnly[1]))
+                {
+                    string name = argNames[i];
+                    if (!string.IsNullOrEmpty(name))
+                    {
+                        parameter.Name = name + (index > 0 ? oldArgName.Substring(index) : string.Empty);
+                    }
+                }
+            }
         }
 
         //private static void FormatComment(string docs, CodeTypeMember cmp, bool obsolete = false, string tag = "summary")

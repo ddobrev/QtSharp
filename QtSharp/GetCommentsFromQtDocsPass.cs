@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CppSharp.AST;
 using CppSharp.Passes;
 using Type = CppSharp.AST.Type;
@@ -48,38 +49,9 @@ namespace QtSharp
 
         public override bool VisitProperty(Property property)
         {
-            if (property.Field != null)
+            if (property.Comment == null)
             {
-                
-            }
-            else
-            {
-                Method getter = property.GetMethod;
-                if (getter.Comment == null)
-                {
-                    this.VisitFunctionDecl(getter);
-                }
-                if (getter.Comment != null)
-                {
-                    var comment = new RawComment();
-                    comment.Kind = getter.Comment.Kind;
-                    comment.BriefText = getter.Comment.BriefText;
-                    comment.Text = getter.Comment.Text;
-                    Method setter = property.SetMethod;
-                    if (setter != null)
-                    {
-                        if (setter.Comment == null)
-                        {
-                            this.VisitFunctionDecl(setter);
-                        }
-                        if (setter.Comment != null)
-                        {
-                            comment.BriefText += Environment.NewLine + setter.Comment.BriefText;
-                            comment.Text += Environment.NewLine + setter.Comment.Text;
-                        }
-                    }
-                    property.Comment = comment;
-                }
+                this.documentation.DocumentProperty(property);
             }
             return base.VisitProperty(property);
         }
