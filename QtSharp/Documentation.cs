@@ -118,26 +118,30 @@ namespace QtSharp
                     {
                         this.DocumentFunction(getter);
                     }
+                    var comment = new RawComment();
                     if (getter.Comment != null)
                     {
-                        var comment = new RawComment();
-                        comment.Kind = getter.Comment.Kind;
                         comment.BriefText = getter.Comment.BriefText;
-                        comment.Text = getter.Comment.Text;
-                        Method setter = property.SetMethod;
-                        if (setter != null)
+                    }
+                    Method setter = property.SetMethod;
+                    if (setter != null)
+                    {
+                        if (setter.Comment == null)
                         {
-                            if (setter.Comment == null)
-                            {
-                                this.DocumentFunction(setter);
-                            }
-                            if (setter.Comment != null)
-                            {
-                                comment.BriefText += Environment.NewLine + setter.Comment.BriefText;
-                                comment.Text += Environment.NewLine + setter.Comment.Text;
-                            }
+                            this.DocumentFunction(setter);
                         }
-                        property.Comment = comment;
+                        if (setter.Comment != null)
+                        {
+                            if (!string.IsNullOrEmpty(comment.BriefText))
+                            {
+                                comment.BriefText += Environment.NewLine;
+                            }
+                            comment.BriefText += setter.Comment.BriefText;
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(comment.BriefText))
+                    {
+                        property.Comment = comment;                        
                     }
                 }
             }
