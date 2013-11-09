@@ -153,7 +153,7 @@ namespace QtSharp
                 cppTypePrinter.PrintLocalName = true;
                 string type = property.Type.Visit(cppTypePrinter);
                 Match match = Regex.Match(docs, "Property Documentation.*" + property.Name + @" : (const )?(\w+::)?" + type.Replace("*", @"\s*\*") +
-                                          @"\n(?<docs>.*?)\nAccess functions:", RegexOptions.Singleline | RegexOptions.ExplicitCapture);
+                                          @"(\s+const)?\n(?<docs>.*?)\nAccess functions:", RegexOptions.Singleline | RegexOptions.ExplicitCapture);
                 if (match.Success)
                 {
                     property.Comment = new RawComment();
