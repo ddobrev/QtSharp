@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using CppSharp.AST;
 using CppSharp.Passes;
 using Type = CppSharp.AST.Type;
@@ -54,6 +52,17 @@ namespace QtSharp
                 this.documentation.DocumentProperty(property);
             }
             return base.VisitProperty(property);
+        }
+
+        public override bool VisitEvent(Event @event)
+        {
+            Function function = @event.OriginalDeclaration as Function;
+            if (function != null)
+            {
+                function.ExplicityIgnored = false;
+                this.VisitFunctionDecl(function);
+            }
+            return base.VisitEvent(@event);
         }
     }
 }

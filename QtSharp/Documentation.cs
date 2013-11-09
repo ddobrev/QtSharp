@@ -371,7 +371,7 @@ namespace QtSharp
         {
             const string memberDoc = @"(^|( --)|\n)\n([\w :*&<>,]+)?(({0}(\s*&)?::)| ){1}(const)?( \[(\w+\s*)+\])?\n\W*(?<docs>.*?)(\n\s*){{1,2}}((&?\S* --)|((\n\s*){{2}}))";
             const string separator = @",\s*";
-            StringBuilder signatureRegex = new StringBuilder(Regex.Escape(function.Name)).Append(@"\s*\(\s*(");
+            StringBuilder signatureRegex = new StringBuilder(Regex.Escape(function.OriginalName)).Append(@"\s*\(\s*(");
             bool anyArgs = false;
             CppTypePrinter cppTypePrinter = new CppTypePrinter(new TypeMapDatabase());
             cppTypePrinter.PrintLocalName = true;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web.Util;
 using CppSharp.AST;
 using CppSharp.Generators;
 using CppSharp.Generators.CSharp;
@@ -45,6 +46,16 @@ namespace QtSharp
                         block.NewLine();
                     }
                     bool isQAbstractScrollArea = @class.Name != "QAbstractScrollArea";
+                    if (@event.OriginalDeclaration.Comment != null)
+                    {
+                        block.WriteLine("/// <summary>");
+                        foreach (string line in HtmlEncoder.HtmlEncode(@event.OriginalDeclaration.Comment.BriefText).Split(
+                                                    Environment.NewLine.ToCharArray()))
+                        {
+                            block.WriteLine("/// <para>{0}</para>", line);
+                        }
+                        block.WriteLine("/// </summary>");
+                    }
                     block.WriteLine(@"public {0} event EventHandler<QEventArgs<{1}>> {2}
 {{
 	add
@@ -110,6 +121,7 @@ namespace QtSharp
                 {
                     @event.Name = method.Name;
                 }
+                @event.OriginalDeclaration = method;
                 @event.Namespace = method.Namespace;
                 @event.Parameters.AddRange(method.Parameters);
                 method.Namespace.Events.Add(@event);

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Web.Util;
 using CppSharp.AST;
 using CppSharp.Generators;
 using CppSharp.Generators.CSharp;
@@ -83,8 +84,17 @@ namespace QtSharp
                             @event.Name += GetSignalEventSuffix(@event);
                         }
                     }
-                    block.WriteLine(string.Format(@"
-public event {0} {1}
+                    if (@event.OriginalDeclaration.Comment != null)
+                    {
+                        block.WriteLine("/// <summary>");
+                        foreach (string line in HtmlEncoder.HtmlEncode(@event.OriginalDeclaration.Comment.BriefText).Split(
+                                                    Environment.NewLine.ToCharArray()))
+                        {
+                            block.WriteLine("/// <para>{0}</para>", line);
+                        }
+                        block.WriteLine("/// </summary>");
+                    }
+                    block.WriteLine(string.Format(@"public event {0} {1}
 {{
 	add
 	{{
@@ -124,12 +134,13 @@ public event {0} {1}
             block.WriteLine(@"protected readonly System.Collections.Generic.List<Delegate> Slots = new System.Collections.Generic.List<Delegate>();");
             block.NewLine();
             block.Text.StringBuilder.Append(body.Substring(0, body.IndexOf("return", StringComparison.Ordinal)));
+            Method method = (Method) block.Declaration;
             block.Text.StringBuilder.Append(string.Format(@"
     if (__ret < 0 || {0} != QMetaObject.Call.InvokeMetaMethod)
     {{
         return __ret;
     }}
-    IntPtr ptr = new IntPtr(_3);
+    IntPtr ptr = new IntPtr({1});
     Delegate @delegate = Slots[__ret];
     System.Reflection.ParameterInfo[] @params = @delegate.Method.GetParameters();
     IntPtr[] args = new IntPtr[@params.Length];
@@ -151,7 +162,7 @@ public event {0} {1}
     }}
     @delegate.DynamicInvoke(parameters);
     return -1;
-}}", ((Method) block.Declaration).Parameters[0].Name));
+}}", method.Parameters[0].Name, method.Parameters[2].Name));
         }
 
         private static string GetOriginalParameterType(ITypedDecl parameter)
@@ -201,6 +212,7 @@ public event {0} {1}
 
             Event @event = new Event
                             {
+                                OriginalDeclaration = method,
                                 Name = method.Name,
                                 OriginalName = method.OriginalName,
                                 Namespace = method.Namespace,
