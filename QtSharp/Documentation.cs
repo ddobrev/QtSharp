@@ -100,7 +100,7 @@ namespace QtSharp
         {
             var expansions = property.Namespace.PreprocessedEntities.OfType<MacroExpansion>();
 
-            var properties = expansions.Where(e => e.Text.Contains("Q_PROPERTY"));
+            var properties = expansions.Where(e => e.Text.Contains("Q_PROPERTY") || e.Text.Contains("QDOC_PROPERTY"));
             string propertyDeclaration = string.Format(" {0} READ", property.Name);
             if (properties.Any(p => p.Text.Contains(propertyDeclaration)))
             {
