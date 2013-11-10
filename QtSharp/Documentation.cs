@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.Util;
+using CppSharp;
 using CppSharp.AST;
 using CppSharp.Types;
 using Mono.Data.Sqlite;
@@ -25,9 +26,6 @@ namespace QtSharp
         private static readonly Regex regexArg = new Regex(@"^(.+?\s+)(?<name>\w+)(\s*=\s*[^\(,\s]+(\(\s*\))?)?\s*$",
             RegexOptions.ExplicitCapture | RegexOptions.Compiled);
 
-        private static readonly Regex regexStaticDocs = new Regex("Related Non-Members(?<static>.+)",
-            RegexOptions.Singleline | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
-
         public Documentation(string docsPath, string module, Dictionary<Type, List<TypedefDecl>> typeDefsPerType)
         {
             this.documentation = Get(docsPath, module);
@@ -46,41 +44,6 @@ namespace QtSharp
                 }
             }
         }
-
-        //public void DocumentMember(Smoke* smoke, Smoke.Method* smokeMethod, CodeTypeMember cmm, CodeTypeDeclaration type)
-        //{
-        //    if (type.Name == this.data.GlobalSpaceClassName || this.translator.NamespacesAsClasses.Contains(type.Name))
-        //    {
-        //        this.DocumentMember(smoke, smokeMethod, cmm, @"\w+", this.staticDocumentation, false);
-        //    }
-        //    else
-        //    {
-        //        if (this.memberDocumentation.ContainsKey(type))
-        //        {
-        //            this.DocumentMember(smoke, smokeMethod, cmm, type.Name.Substring(type.IsInterface ? 1 : 0),
-        //                                this.memberDocumentation[type]);
-        //        }
-        //    }
-        //}
-
-        //public void DocumentMember(string signature, CodeTypeMember cmm, CodeTypeDeclaration type)
-        //{
-        //    if (this.memberDocumentation.ContainsKey(type))
-        //    {
-        //        int index = signature.IndexOf('(');
-        //        string methodName = signature.Substring(0, signature.IndexOf('('));
-        //        string[] argTypes = signature.Substring(index + 1, signature.Length - index - 2)
-        //                                     .Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
-        //        this.memberDocumentation[type].Where((t, i) => this.TryMatch(type.Name, methodName, cmm, t, i > 0, argTypes, false)).Any();
-        //    }
-        //}
-
-        //private void DocumentMember(Smoke* smoke, Smoke.Method* smokeMethod, CodeTypeMember cmm, string type, IEnumerable<string> docs, bool markObsolete = true)
-        //{
-        //    string methodName = Regex.Escape(ByteArrayManager.GetString(smoke->methodNames[smokeMethod->name]));
-        //    string[] argTypes = smoke->GetArgs(smokeMethod).Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
-        //    docs.Where((t, i) => this.TryMatch(type, methodName, cmm, t, i > 0 && markObsolete, argTypes)).Any();
-        //}
 
         public void DocumentFunction(Function function)
         {
@@ -102,7 +65,7 @@ namespace QtSharp
 
             var properties = expansions.Where(e => e.Text.Contains("Q_PROPERTY") || e.Text.Contains("QDOC_PROPERTY"));
             string alternativeName = property.Name.Length == 1 ? property.Name :
-                                     "is" + char.ToUpperInvariant(property.Name[0]) + property.Name.Substring(1);
+                                     "is" + StringHelpers.UppercaseFirst(property.Name);
             foreach (string name in from macroExpansion in properties
                                     let name = macroExpansion.Text.Split(new[] { ' ' })[1]
                                     where name == property.Name || name == alternativeName
@@ -567,40 +530,5 @@ namespace QtSharp
                 }
             }
         }
-
-        //private static void FormatComment(string docs, CodeTypeMember cmp, bool obsolete = false, string tag = "summary")
-        //{
-        //    StringBuilder obsoleteMessageBuilder = new StringBuilder();
-        //    cmp.Comments.Add(new CodeCommentStatement(string.Format("<{0}>", tag), true));
-        //    foreach (string line in HtmlEncoder.HtmlEncode(docs).Split(Environment.NewLine.ToCharArray()))
-        //    {
-        //        cmp.Comments.Add(new CodeCommentStatement(string.Format("<para>{0}</para>", line), true));
-        //        if (obsolete && (line.Contains("instead") || line.Contains("deprecated")))
-        //        {
-        //            obsoleteMessageBuilder.Append(HtmlEncoder.HtmlDecode(line));
-        //            obsoleteMessageBuilder.Append(' ');
-        //        }
-        //    }
-        //    cmp.Comments.Add(new CodeCommentStatement(string.Format("</{0}>", tag), true));
-        //    if (obsolete)
-        //    {
-        //        if (obsoleteMessageBuilder.Length > 0)
-        //        {
-        //            obsoleteMessageBuilder.Remove(obsoleteMessageBuilder.Length - 1, 1);
-        //        }
-        //        CodeSnippetTypeMember snippet = cmp as CodeSnippetTypeMember;
-        //        if (snippet != null)
-        //        {
-        //            const string template = "        [System.ObsoleteAttribute(\"{0}\")]{1}";
-        //            snippet.Text = snippet.Text.Insert(0, string.Format(template, obsoleteMessageBuilder, Environment.NewLine));
-        //        }
-        //        else
-        //        {
-        //            CodeTypeReference obsoleteAttribute = new CodeTypeReference(typeof(ObsoleteAttribute));
-        //            CodePrimitiveExpression obsoleteMessage = new CodePrimitiveExpression(obsoleteMessageBuilder.ToString());
-        //            cmp.CustomAttributes.Add(new CodeAttributeDeclaration(obsoleteAttribute, new CodeAttributeArgument(obsoleteMessage)));
-        //        }
-        //    }
-        //}
     }
 }

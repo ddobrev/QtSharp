@@ -59,7 +59,7 @@ namespace QtSharp
                     {
                         fullNameBuilder[fullNameBuilder.Length - 1] = '>';
                     }
-                    string signature = string.Format("{0}({1})", @event.Name,
+                    string signature = string.Format("{0}({1})", @event.OriginalName,
                         string.Join(", ",
                             from e in @event.Parameters
                             select GetOriginalParameterType(e)));
