@@ -387,7 +387,7 @@ namespace QtSharp
             bool anyArgs = false;
             CppTypePrinter cppTypePrinter = new CppTypePrinter(new TypeMapDatabase());
             cppTypePrinter.PrintLocalName = true;
-            foreach (string argType in function.Parameters.Where(p => p.Kind != ParameterKind.IndirectReturnType).Select(p => p.Type.Visit(cppTypePrinter)))
+            foreach (string argType in function.Parameters.Where(p => p.Kind == ParameterKind.Regular).Select(p => p.Type.Visit(cppTypePrinter)))
             {
                 if (!anyArgs)
                 {
