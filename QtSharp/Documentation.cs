@@ -427,12 +427,25 @@ namespace QtSharp
             typeBuilder.Append(')');
             if (this.typeDefsPerType.ContainsKey(typeName))
             {
-                foreach (StringBuilder typeDefBuilder in from typedef in this.typeDefsPerType[typeName]
-                                                         select new StringBuilder(typedef.OriginalName))
+                foreach (string typeDef in (from typedef in this.typeDefsPerType[typeName]
+                                            select typedef.OriginalName).Distinct())
                 {
+                    StringBuilder typeDefBuilder = new StringBuilder(typeDef);
                     this.FormatType(typeDefBuilder);
                     typeBuilder.Append("|(").Append(typeDefBuilder).Append(')');
                 }
+            }
+            // C++ long is mapped to int
+            switch (argType)
+            {
+                case "int":
+                case "int*":
+                    typeBuilder.Append(@"|(long)");
+                    break;
+                case "unsigned int":
+                case "unsigned int*":
+                    typeBuilder.Append(@"|(unsigned\s+long)");
+                    break;
             }
             typeBuilder.Append(@")");
             if (completeSignature)
