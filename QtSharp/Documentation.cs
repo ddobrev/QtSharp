@@ -423,7 +423,7 @@ namespace QtSharp
             string typeName = regexTypeName.Match(argType).Groups["name"].Value;
             StringBuilder typeBuilder = new StringBuilder(typeName);
             this.FormatType(typeBuilder);
-            typeBuilder.Insert(0, "(const +)?((");
+            typeBuilder.Insert(0, @"(const +)?(((\w+::)?");
             typeBuilder.Append(')');
             if (this.typeDefsPerType.ContainsKey(typeName))
             {
