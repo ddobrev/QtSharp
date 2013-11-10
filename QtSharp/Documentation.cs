@@ -101,48 +101,48 @@ namespace QtSharp
             var expansions = property.Namespace.PreprocessedEntities.OfType<MacroExpansion>();
 
             var properties = expansions.Where(e => e.Text.Contains("Q_PROPERTY") || e.Text.Contains("QDOC_PROPERTY"));
-            string propertyDeclaration = string.Format(" {0} READ", property.Name);
-            if (properties.Any(p => p.Text.Contains(propertyDeclaration)))
+            string alternativeName = property.Name.Length == 1 ? property.Name :
+                                     "is" + char.ToUpperInvariant(property.Name[0]) + property.Name.Substring(1);
+            foreach (string name in from macroExpansion in properties
+                                    let name = macroExpansion.Text.Split(new[] { ' ' })[1]
+                                    where name == property.Name || name == alternativeName
+                                    select name)
             {
+                property.Name = name;
                 this.DocumentQtProperty(property);
+                return;
             }
-            else
+            if (property.Field == null)
             {
-                if (property.Field != null)
+                Method getter = property.GetMethod;
+                if (getter.Comment == null)
                 {
+                    this.DocumentFunction(getter);
                 }
-                else
+                var comment = new RawComment();
+                if (getter.Comment != null)
                 {
-                    Method getter = property.GetMethod;
-                    if (getter.Comment == null)
+                    comment.BriefText = getter.Comment.BriefText;
+                }
+                Method setter = property.SetMethod;
+                if (setter != null)
+                {
+                    if (setter.Comment == null)
                     {
-                        this.DocumentFunction(getter);
+                        this.DocumentFunction(setter);
                     }
-                    var comment = new RawComment();
-                    if (getter.Comment != null)
+                    if (setter.Comment != null)
                     {
-                        comment.BriefText = getter.Comment.BriefText;
-                    }
-                    Method setter = property.SetMethod;
-                    if (setter != null)
-                    {
-                        if (setter.Comment == null)
+                        if (!string.IsNullOrEmpty(comment.BriefText))
                         {
-                            this.DocumentFunction(setter);
+                            comment.BriefText += Environment.NewLine;
                         }
-                        if (setter.Comment != null)
-                        {
-                            if (!string.IsNullOrEmpty(comment.BriefText))
-                            {
-                                comment.BriefText += Environment.NewLine;
-                            }
-                            comment.BriefText += setter.Comment.BriefText;
-                        }
+                        comment.BriefText += setter.Comment.BriefText;
                     }
-                    if (!string.IsNullOrEmpty(comment.BriefText))
-                    {
-                        property.Comment = comment;                        
-                    }
+                }
+                if (!string.IsNullOrEmpty(comment.BriefText))
+                {
+                    property.Comment = comment;
                 }
             }
         }
