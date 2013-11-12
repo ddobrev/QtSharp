@@ -55,6 +55,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClearCommentsPass.cs" />
+    <Compile Include="CollectTypeDefsPerTypePass.cs" />
     <Compile Include="CompileInlinesPass.cs" />
     <Compile Include="Documentation.cs" />
     <Compile Include="GenerateEventEventsPass.cs" />

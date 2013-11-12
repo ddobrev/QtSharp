@@ -39,7 +39,7 @@ namespace QtSharp
                     string typeName = typeTypeDefs.Key.Visit(cppTypePrinter);
                     if (!this.typeDefsPerType.ContainsKey(typeName))
                     {
-                        this.typeDefsPerType.Add(typeName, typeTypeDefs.Value);                        
+                        this.typeDefsPerType.Add(typeName, typeTypeDefs.Value);
                     }
                 }
             }
