@@ -64,6 +64,9 @@
     <Compile Include="GetCommentsFromQtDocsPass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProcessHelper.cs" />
+    <Compile Include="QFlags.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="QtSharp.cs" />
     <Compile Include="RemoveStaticsFromDerivedTypesPass.cs" />
     <None Include="QEventArgs.cs">
