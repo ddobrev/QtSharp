@@ -367,6 +367,10 @@ namespace QtSharp
                 function.Comment = new RawComment();
                 function.Comment.BriefText = match.Groups["docs"].Value;
                 FillMissingParameterNames(function, match.Groups["args"].Value);
+                if (markObsolete)
+                {
+                    AddObsoleteAttribute(function);
+                }
                 return true;
             }
             return false;
@@ -485,13 +489,12 @@ namespace QtSharp
                     int parentTypeStart = Math.Max(Math.Max(indexOfLt + 1, 0), comma + 1);
                     typeBuilder.Remove(parentTypeStart, indexOfColon + 1 - parentTypeStart);
                     typeBuilder.Insert(parentTypeStart, @"(\w+::)?");
-                    typeBuilder.Replace(@"*", @"\s*(\*|(\[\]))").Replace(@"&", @"\s*&").Replace(",", @",\s*");
                 }
                 else
                 {
                     typeBuilder.Replace("(", @"\(").Replace(")", @"\)");
-                    typeBuilder.Replace(@"*", @"\s*(\*|(\[\]))").Replace(@"&", @"\s*&").Replace(",", @",\s*");
                 }
+                typeBuilder.Replace(@"*", @"\s*(\*|(\[\]))").Replace(@"&", @"\s*&").Replace(",", @",\s*");
             }
         }
 
@@ -520,6 +523,17 @@ namespace QtSharp
                     }
                 }
             }
+        }
+
+        private static void AddObsoleteAttribute(Declaration function)
+        {
+            StringBuilder obsoleteMessageBuilder = new StringBuilder();
+            obsoleteMessageBuilder.Append(HtmlEncoder.HtmlDecode(HtmlEncoder.HtmlEncode(function.Comment.BriefText).Split(
+                Environment.NewLine.ToCharArray()).FirstOrDefault(line => line.Contains("instead") || line.Contains("deprecated"))));
+            Annotation annotation = new Annotation();
+            annotation.Type = typeof(ObsoleteAttribute);
+            annotation.Value = string.Format("\"{0}\"", obsoleteMessageBuilder);
+            function.Annotations.Add(annotation);
         }
     }
 }
