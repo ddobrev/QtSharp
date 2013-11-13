@@ -206,19 +206,10 @@ namespace QtSharp
             }
         }
 
-        private string GetFileForDeclarationContext(DeclarationContext declarationContext)
+        private static string GetFileForDeclarationContext(DeclarationContext declarationContext)
         {
             if (string.IsNullOrEmpty(declarationContext.Name))
             {
-                TranslationUnit unit = declarationContext as TranslationUnit;
-                if (unit != null)
-                {
-                    string file = unit.FileNameWithoutExtension + ".html";
-                    if (this.documentation.ContainsKey(file))
-                    {
-                        return file;
-                    }
-                }
                 return "qtglobal.html";
             }
             StringBuilder fileNameBuilder = new StringBuilder(declarationContext.Name.ToLowerInvariant());
