@@ -27,7 +27,10 @@ namespace QtSharp
             proBuilder.Append("QMAKE_CXXFLAGS += -fkeep-inline-functions -std=c++0x\n");
             proBuilder.AppendFormat("TARGET = {0}\n", Path.GetFileNameWithoutExtension(pro));
             proBuilder.Append("TEMPLATE = lib\n");
-            proBuilder.AppendFormat("SOURCES += {0}\n", Path.ChangeExtension(pro, "cpp"));
+            string cpp = Path.ChangeExtension(pro, "cpp");
+            string inlinesCode = File.ReadAllText(cpp);
+            File.WriteAllText(cpp, inlinesCode.Replace("#include \"qatomic_msvc.h\"", string.Empty));
+            proBuilder.AppendFormat("SOURCES += {0}\n", cpp);
             File.WriteAllText(path, proBuilder.ToString());
             string error;
             ProcessHelper.Run(this.qmake, string.Format("\"{0}\"", path), out error);
