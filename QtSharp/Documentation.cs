@@ -30,7 +30,7 @@ namespace QtSharp
         {
             this.documentation = Get(docsPath, module);
             CppTypePrinter cppTypePrinter = new CppTypePrinter(new TypeMapDatabase());
-            cppTypePrinter.PrintLocalName = true;
+            cppTypePrinter.PrintKind = CppTypePrintKind.Local;
             this.typeDefsPerType = new Dictionary<string, List<TypedefDecl>>();
             foreach (KeyValuePair<Type, List<TypedefDecl>> typeTypeDefs in typeDefsPerType)
             {
@@ -117,7 +117,7 @@ namespace QtSharp
             {
                 string docs = this.documentation[file];
                 CppTypePrinter cppTypePrinter = new CppTypePrinter(new TypeMapDatabase());
-                cppTypePrinter.PrintLocalName = true;
+                cppTypePrinter.PrintKind = CppTypePrintKind.Local;
                 string type = property.Type.Visit(cppTypePrinter);
                 Match match = Regex.Match(docs, "Property Documentation.*" + property.Name + @" : (const )?(\w+::)?" + type.Replace("*", @"\s*\*") +
                                           @"(\s+const)?\n(?<docs>.*?)\nAccess functions:", RegexOptions.Singleline | RegexOptions.ExplicitCapture);
@@ -200,7 +200,8 @@ namespace QtSharp
                     string doc = match.Groups["docs"].Value.Trim();
                     if (!string.IsNullOrEmpty(doc))
                     {
-                        enumItem.Comment = doc;
+                        enumItem.Comment = new RawComment();
+                        enumItem.Comment.BriefText = doc;
                     }
                 }
             }
@@ -340,7 +341,7 @@ namespace QtSharp
             StringBuilder signatureRegex = new StringBuilder(Regex.Escape(function.OriginalName)).Append(@"\s*\(\s*(");
             bool anyArgs = false;
             CppTypePrinter cppTypePrinter = new CppTypePrinter(new TypeMapDatabase());
-            cppTypePrinter.PrintLocalName = true;
+            cppTypePrinter.PrintKind = CppTypePrintKind.Local;
             foreach (string argType in function.Parameters.Where(p => p.Kind == ParameterKind.Regular).Select(p => p.Type.Visit(cppTypePrinter)))
             {
                 if (!anyArgs)
@@ -530,10 +531,10 @@ namespace QtSharp
             StringBuilder obsoleteMessageBuilder = new StringBuilder();
             obsoleteMessageBuilder.Append(HtmlEncoder.HtmlDecode(HtmlEncoder.HtmlEncode(function.Comment.BriefText).Split(
                 Environment.NewLine.ToCharArray()).FirstOrDefault(line => line.Contains("instead") || line.Contains("deprecated"))));
-            Annotation annotation = new Annotation();
-            annotation.Type = typeof(ObsoleteAttribute);
-            annotation.Value = string.Format("\"{0}\"", obsoleteMessageBuilder);
-            function.Annotations.Add(annotation);
+            //Annotation annotation = new Annotation();
+            //annotation.Type = typeof(ObsoleteAttribute);
+            //annotation.Value = string.Format("\"{0}\"", obsoleteMessageBuilder);
+            //function.Annotations.Add(annotation);
         }
     }
 }
