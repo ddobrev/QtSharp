@@ -10,6 +10,7 @@ using CppSharp.AST;
 using CppSharp.Types;
 using Mono.Data.Sqlite;
 using zlib;
+using Attribute = CppSharp.AST.Attribute;
 using Type = CppSharp.AST.Type;
 
 namespace QtSharp
@@ -531,10 +532,10 @@ namespace QtSharp
             StringBuilder obsoleteMessageBuilder = new StringBuilder();
             obsoleteMessageBuilder.Append(HtmlEncoder.HtmlDecode(HtmlEncoder.HtmlEncode(function.Comment.BriefText).Split(
                 Environment.NewLine.ToCharArray()).FirstOrDefault(line => line.Contains("instead") || line.Contains("deprecated"))));
-            //Annotation annotation = new Annotation();
-            //annotation.Type = typeof(ObsoleteAttribute);
-            //annotation.Value = string.Format("\"{0}\"", obsoleteMessageBuilder);
-            //function.Annotations.Add(annotation);
+            Attribute annotation = new Attribute();
+            annotation.Type = typeof(ObsoleteAttribute);
+            annotation.Value = string.Format("\"{0}\"", obsoleteMessageBuilder);
+            function.Attributes.Add(annotation);
         }
     }
 }
