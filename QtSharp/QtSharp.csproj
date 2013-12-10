@@ -67,6 +67,12 @@
     <Compile Include="QFlags.cs">
       <SubType>Code</SubType>
     </Compile>
+    <None Include="MarshalQList.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Compile Include="QList.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="QtSharp.cs" />
     <Compile Include="RemoveStaticsFromDerivedTypesPass.cs" />
     <None Include="QEventArgs.cs">
