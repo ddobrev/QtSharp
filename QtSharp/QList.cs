@@ -1,4 +1,5 @@
-﻿using CppSharp;
+﻿using System.Globalization;
+using CppSharp;
 using CppSharp.AST;
 using CppSharp.Generators;
 using CppSharp.Generators.CSharp;
@@ -37,8 +38,18 @@ namespace QtSharp
 
         public override void CSharpMarshalToNative(MarshalContext ctx)
         {
-            // TODO: create a QList, iterate through the items in the param, append them to the QList and pass the QList
-            ctx.Return.Write("new QList()");
+            TextGenerator supportBefore = ctx.SupportBefore;
+            var suffix = ctx.ParameterIndex > 0 ? ctx.ParameterIndex.ToString(CultureInfo.InvariantCulture) : string.Empty;
+            string qList = string.Format("__qList{0}", suffix);
+            supportBefore.WriteLine(string.Format("var {0} = new QtCore.QList();", qList));
+            string qListDataData = string.Format("__qlistDataData{0}", suffix);
+            supportBefore.WriteLine("var {0} = (QListData.Data.Internal*) {1}.d.d;", qListDataData, qList);
+            // TODO: tests with Qt shows that while alloc is larger than end, it's not equal, it reserves more space actually
+            supportBefore.WriteLine("{0}->alloc = {1}.Count;", qListDataData, ctx.Parameter.Name);
+            supportBefore.WriteLine("{0}->begin = 0;", qListDataData, ctx.Parameter.Name);
+            supportBefore.WriteLine("{0}->end = {1}.Count;", qListDataData, ctx.Parameter.Name);
+            // TODO: wrap the array of void* in QListData.Data, iterate through the items in the param and append them to that array
+            ctx.Return.Write(qList);
         }
 
         public override void CSharpMarshalToManaged(MarshalContext ctx)
@@ -47,14 +58,15 @@ namespace QtSharp
             QualifiedType type = templateType.Arguments[0].Type;
 
             TextGenerator supportBefore = ctx.SupportBefore;
-            supportBefore.WriteLine("var __size = {0}.d.Size;", ctx.ReturnVarName);
+            supportBefore.WriteLine("var __qlistData = new QListData({0}.d);", ctx.ReturnVarName);
+            supportBefore.WriteLine("var __size = __qlistData.Size;");
             supportBefore.WriteLine("var __list = new System.Collections.Generic.List<{0}>(__size);", type);
             supportBefore.WriteLine("for (int i = 0; i < __size; i++)");
             supportBefore.WriteStartBraceIndent();
             // TODO: handle pointers to primitives, they cannot be used as a placeholder type and use IntPtr instead
             if (type.Type.IsPrimitiveType() || type.Type.IsEnumType())
             {
-                supportBefore.WriteLine("__list.Add(*({0}*) {1}.d.At(i));", type, ctx.ReturnVarName);                        
+                supportBefore.WriteLine("__list.Add(*({0}*) __qlistData.At(i));", type);                        
             }
             else
             {
@@ -63,11 +75,11 @@ namespace QtSharp
                 if ((type.Type.IsTagDecl(out @class) ||
                      (type.Type.IsPointerTo(out pointee) && pointee.IsTagDecl(out @class))) && @class.IsAbstract)
                 {
-                    supportBefore.WriteLine("__list.Add(new {0}Internal(new global::System.IntPtr({1}.d.At(i))));", type, ctx.ReturnVarName);
+                    supportBefore.WriteLine("__list.Add(new {0}Internal(new global::System.IntPtr(__qlistData.At(i))));", type, ctx.ReturnVarName);
                 }
                 else
                 {
-                    supportBefore.WriteLine("__list.Add(new {0}(new global::System.IntPtr({1}.d.At(i))));", type, ctx.ReturnVarName);
+                    supportBefore.WriteLine("__list.Add(new {0}(new global::System.IntPtr(__qlistData.At(i))));", type, ctx.ReturnVarName);
                 }
             }
             supportBefore.WriteCloseBraceIndent();

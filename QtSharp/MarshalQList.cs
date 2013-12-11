@@ -2,7 +2,7 @@
 {
     public struct QList
     {
-        public QListData d;
+        public QListData.Internal d;
 
         #region WRITE
 
