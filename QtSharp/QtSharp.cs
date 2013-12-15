@@ -113,7 +113,7 @@ namespace QtSharp
             new ClearCommentsPass().VisitLibrary(driver.ASTContext);
             new GetCommentsFromQtDocsPass(this.docs, this.module, collectTypeDefsPerTypePass.TypeDefsPerType).VisitLibrary(driver.ASTContext);
             new CaseRenamePass(
-                RenameTargets.Function | RenameTargets.Method | RenameTargets.Property | RenameTargets.Delegate,
+                RenameTargets.Function | RenameTargets.Method | RenameTargets.Property | RenameTargets.Delegate | RenameTargets.Field,
                 RenameCasePattern.UpperCamelCase).VisitLibrary(driver.ASTContext);
         }
 
