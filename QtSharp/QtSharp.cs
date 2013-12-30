@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using CppSharp;
 using CppSharp.AST;
@@ -115,6 +117,21 @@ namespace QtSharp
             new CaseRenamePass(
                 RenameTargets.Function | RenameTargets.Method | RenameTargets.Property | RenameTargets.Delegate | RenameTargets.Field,
                 RenameCasePattern.UpperCamelCase).VisitLibrary(driver.ASTContext);
+            if (this.module == "Core")
+            {
+                Class decl = null;
+                Class qList = lib.FindClass("QList").First(c => !c.IsIncomplete && c.IsDependent);
+                Field qListData = (from field in qList.Fields
+                                   where field.Type.IsTagDecl(out decl) && string.IsNullOrEmpty(decl.Name)
+                                   select field).First();
+                foreach (Field field in decl.Fields.ToList())
+                {
+                    field.Namespace = null;
+                    field.Offset = qListData.Offset;
+                    field.Access = AccessSpecifier.Protected;
+                    qList.Fields.Add(field);
+                }
+            }
         }
 
 		public void Setup(Driver driver)
