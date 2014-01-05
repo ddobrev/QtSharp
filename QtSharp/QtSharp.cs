@@ -48,7 +48,11 @@ namespace QtSharp
 	        }
             lib.SetClassAsValueType("QListData");
             lib.SetClassAsValueType("QListData::Data");
+            // TODO: remove these when their symbols have been replaced or included
             lib.IgnoreClassMethodWithName("QXmlStreamReader", "attributes");
+            lib.IgnoreClassMethodWithName("QTimeZone", "offsetData");
+            lib.IgnoreClassMethodWithName("QTimeZone", "nextTransition");
+            lib.IgnoreClassMethodWithName("QTimeZone", "previousTransition");
 		}
 
 	    private static void IgnorePrivateDeclarations(DeclarationContext unit)
