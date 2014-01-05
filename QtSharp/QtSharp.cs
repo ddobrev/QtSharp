@@ -48,6 +48,7 @@ namespace QtSharp
 	        }
             lib.SetClassAsValueType("QListData");
             lib.SetClassAsValueType("QListData::Data");
+            lib.IgnoreClassMethodWithName("QXmlStreamReader", "attributes");
 		}
 
 	    private static void IgnorePrivateDeclarations(DeclarationContext unit)
@@ -131,6 +132,10 @@ namespace QtSharp
                     field.Access = AccessSpecifier.Protected;
                     qList.Fields.Add(field);
                 }
+                Class qBitArray = lib.FindClass("QBitArray").First(c => !c.IsIncomplete);
+                Field d = qBitArray.Fields.First(f => f.OriginalName == "d");
+                d.ExplicityIgnored = false;
+                d.Access = AccessSpecifier.Protected;
             }
         }
 
