@@ -59,6 +59,9 @@
     <Compile Include="CollectTypeDefsPerTypePass.cs" />
     <Compile Include="CompileInlinesPass.cs" />
     <Compile Include="Documentation.cs" />
+    <None Include="DynamicQObject.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Compile Include="GenerateEventEventsPass.cs" />
     <Compile Include="GenerateSignalEventsPass.cs" />
     <Compile Include="GetCommentsFromQtDocsPass.cs" />

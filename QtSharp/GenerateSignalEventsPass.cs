@@ -14,6 +14,7 @@ namespace QtSharp
     {
         private bool eventAdded;
         private readonly HashSet<Event> events = new HashSet<Event>();
+        private bool addedDynamicQObject;
 
         public override bool VisitTranslationUnit(TranslationUnit unit)
         {
@@ -28,7 +29,6 @@ namespace QtSharp
         private void OnUnitGenerated(GeneratorOutput generatorOutput)
         {
             this.GenerateSignalEvents(generatorOutput);
-            OverrideQtMetacall(generatorOutput);
         }
 
         private void GenerateSignalEvents(GeneratorOutput generatorOutput)
@@ -41,8 +41,26 @@ namespace QtSharp
                 if (this.events.Contains(@event))
                 {
                     block.Text.StringBuilder.Clear();
-
                     Class @class = (Class) @event.Namespace;
+                    if (!this.addedDynamicQObject && @class.Name == "QObject")
+                    {
+                        block.WriteLine(@"protected DynamicQObject dynamicQObject;");
+                        block.NewLine();
+                        block.WriteLine("protected DynamicQObject __DynamicQObject");
+                        block.WriteStartBraceIndent();
+                        block.WriteLine("get");
+                        block.WriteStartBraceIndent();
+                        block.WriteLine("if (dynamicQObject == null)");
+                        block.WriteStartBraceIndent();
+                        block.WriteLine("dynamicQObject = new DynamicQObject(null);");
+                        block.WriteCloseBraceIndent();
+                        block.WriteLine("return dynamicQObject;");
+                        block.WriteCloseBraceIndent();
+                        block.WriteCloseBraceIndent();
+                        block.NewLine();
+                        this.addedDynamicQObject = true;
+                    }
+
                     int argNum = 1;
                     StringBuilder fullNameBuilder = new StringBuilder("Action");
                     foreach (Parameter parameter in @event.Parameters)
@@ -98,71 +116,15 @@ namespace QtSharp
 {{
 	add
 	{{
-        int signalId = MetaObject.IndexOfSignal(QMetaObject.NormalizedSignature(""{2}""));
-        Slots.Add(value);
-        QMetaObject.Connect(this, signalId, (QObject) value.Target, Slots.Count - 1 + MetaObject.MethodCount, 0, null);
+        __DynamicQObject.ConnectDynamicSlot(this, ""{2}"", value);
 	}}
 	remove
 	{{
-        int i = Slots.IndexOf(value);
-        if (i >= 0)
-        {{
-            int signalId = MetaObject.IndexOfSignal(QMetaObject.NormalizedSignature(""{2}""));
-        	QMetaObject.Disconnect(this, signalId, (QObject) value.Target, i + MetaObject.MethodCount);
-            Slots.RemoveAt(i);
-        }}
+        __DynamicQObject.DisconnectDynamicSlot(this, ""{2}"", value);
 	}}
 }}", fullNameBuilder, char.ToUpperInvariant(@event.Name[0]) + @event.Name.Substring(1), signature));
                 }
             }
-        }
-
-        private static void OverrideQtMetacall(GeneratorOutput generatorOutput)
-        {
-            Block block = (from template in generatorOutput.Templates
-                           from b in template.FindBlocks(CSharpBlockKind.Method)
-                           where b.Declaration != null
-                           let m = (Method) b.Declaration
-                           where m.Name == "Qt_metacall" && m.Namespace.Name == "QObject"
-                           select b).FirstOrDefault();
-            if (block == null)
-            {
-                return;
-            }
-            string body = block.Text.StringBuilder.ToString();
-            block.Text.StringBuilder.Clear();
-            block.WriteLine(@"protected readonly System.Collections.Generic.List<Delegate> Slots = new System.Collections.Generic.List<Delegate>();");
-            block.NewLine();
-            block.Text.StringBuilder.Append(body.Substring(0, body.IndexOf("return", StringComparison.Ordinal)));
-            Method method = (Method) block.Declaration;
-            block.Text.StringBuilder.Append(string.Format(@"
-    if (__ret < 0 || {0} != QMetaObject.Call.InvokeMetaMethod)
-    {{
-        return __ret;
-    }}
-    IntPtr ptr = new IntPtr({1});
-    Delegate @delegate = Slots[__ret];
-    System.Reflection.ParameterInfo[] @params = @delegate.Method.GetParameters();
-    IntPtr[] args = new IntPtr[@params.Length];
-    Marshal.Copy(ptr, args, 0, args.Length);
-    object[] parameters = new object[args.Length];
-    for (int i = 0; i < @params.Length; i++)
-    {{
-        System.Reflection.ParameterInfo parameter = @params[i];
-        object value;
-        if (parameter.ParameterType.IsValueType)
-        {{
-            value = Marshal.PtrToStructure(args[i], parameter.ParameterType);
-        }}
-        else
-        {{
-            value = Activator.CreateInstance(parameter.ParameterType, args[i]);
-        }}
-        parameters[i] = value;
-    }}
-    @delegate.DynamicInvoke(parameters);
-    return -1;
-}}", method.Parameters[0].Name, method.Parameters[2].Name));
         }
 
         private static string GetOriginalParameterType(ITypedDecl parameter)

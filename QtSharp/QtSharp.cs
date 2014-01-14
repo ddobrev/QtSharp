@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Reflection;
 using CppSharp;
@@ -147,6 +146,7 @@ namespace QtSharp
 		{
 			driver.Options.GeneratorKind = GeneratorKind.CSharp;
 		    string qtModule = "Qt" + this.module;
+		    driver.Options.Is32Bit = true;
             driver.Options.Abi = CppAbi.Itanium;
 		    driver.Options.LibraryName = string.Format("{0}Sharp", qtModule);
 		    driver.Options.OutputNamespace = qtModule;
@@ -168,6 +168,7 @@ namespace QtSharp
                 string dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
                 driver.Options.CodeFiles.Add(Path.Combine(dir, "QEventArgs.cs"));
                 driver.Options.CodeFiles.Add(Path.Combine(dir, "QEventHandler.cs"));
+                driver.Options.CodeFiles.Add(Path.Combine(dir, "DynamicQObject.cs"));
                 driver.Options.CodeFiles.Add(Path.Combine(dir, "MarshalQList.cs"));
 		    }
 		}
