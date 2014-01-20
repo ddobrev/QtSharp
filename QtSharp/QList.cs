@@ -85,7 +85,22 @@ namespace QtSharp
             }
             supportBefore.WriteLine("for (int i = 0; i < {0}.Count; i++)", ctx.Parameter.Name);
             supportBefore.WriteStartBraceIndent();
-            supportBefore.WriteLine("{0}->array[i] = (void*) {1}[i]{2};", qListDataData, ctx.Parameter.Name, instance);
+            Type desugared = ctx.Parameter.Type.Desugar();
+            TemplateSpecializationType templateSpecializationType = desugared as TemplateSpecializationType;
+            if (templateSpecializationType == null)
+            {
+                Type paramType;
+                desugared.IsPointerTo(out paramType);
+                templateSpecializationType = (TemplateSpecializationType) paramType.Desugar();
+            }
+            if (templateSpecializationType.Arguments[0].Type.ToString() == "string")
+            {
+                supportBefore.WriteLine("{0}->array[i] = Marshal.StringToHGlobalUni({1}[i]).ToPointer();", qListDataData, ctx.Parameter.Name, instance);                
+            }
+            else
+            {
+                supportBefore.WriteLine("{0}->array[i] = (void*) {1}[i]{2};", qListDataData, ctx.Parameter.Name, instance);                
+            }
             supportBefore.WriteCloseBraceIndent();
             ctx.Return.Write(qList);
         }

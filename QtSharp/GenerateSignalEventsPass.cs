@@ -202,6 +202,10 @@ namespace QtSharp
             else
             {
                 StringBuilder lastParamBuilder = new StringBuilder(suffix);
+                while (!char.IsLetter(lastParamBuilder[0]))
+                {
+                    lastParamBuilder.Remove(0, 1);
+                }
                 lastParamBuilder[0] = char.ToUpper(lastParamBuilder[0]);
                 suffix = lastParamBuilder.ToString();
             }

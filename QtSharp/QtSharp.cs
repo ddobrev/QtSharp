@@ -126,7 +126,7 @@ namespace QtSharp
                 Class decl = null;
                 Class qList = lib.FindClass("QList").First(c => !c.IsIncomplete && c.IsDependent);
                 Field qListData = (from field in qList.Fields
-                                   where field.Type.IsTagDecl(out decl) && string.IsNullOrEmpty(decl.Name)
+                                   where field.Type.IsTagDecl(out decl) && decl.Name.All(c => !char.IsLetter(c))
                                    select field).First();
                 foreach (Field field in decl.Fields.ToList())
                 {
@@ -170,6 +170,7 @@ namespace QtSharp
                 driver.Options.CodeFiles.Add(Path.Combine(dir, "QEventHandler.cs"));
                 driver.Options.CodeFiles.Add(Path.Combine(dir, "DynamicQObject.cs"));
                 driver.Options.CodeFiles.Add(Path.Combine(dir, "MarshalQList.cs"));
+                driver.Options.CodeFiles.Add(Path.Combine(dir, "MarshalQString.cs"));
 		    }
 		}
 

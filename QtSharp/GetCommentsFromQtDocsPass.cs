@@ -28,10 +28,6 @@ namespace QtSharp
             if (@enum.Comment == null)
             {
                 this.documentation.DocumentEnum(@enum);
-                foreach (Enumeration.Item item in @enum.Items)
-                {
-                    this.documentation.DocumentEnumItem(@enum, item);
-                }
             }
             return base.VisitEnumDecl(@enum);
         }

@@ -57,7 +57,15 @@ namespace QtCore
                 }
                 else
                 {
-                    value = Activator.CreateInstance(parameter.ParameterType, arg);
+                    if (parameter.ParameterType.IsAssignableFrom(typeof(string)))
+                    {
+                        // TODO: must properly handle QString here
+                        value = Marshal.PtrToStringUni(arg);
+                    }
+                    else
+                    {
+                        value = Activator.CreateInstance(parameter.ParameterType, arg);                        
+                    }
                 }
                 parameters[i] = value;
             }

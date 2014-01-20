@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Web.Util;
 using CppSharp;
 using CppSharp.AST;
+using CppSharp.Generators.CSharp;
 using CppSharp.Types;
 using Mono.Data.Sqlite;
 using zlib;
@@ -173,9 +174,13 @@ namespace QtSharp
                     }
                 }
             }
+            foreach (Enumeration.Item item in @enum.Items)
+            {
+                this.DocumentEnumItem(@enum, item);
+            }
         }
 
-        public void DocumentEnumItem(Enumeration @enum, Enumeration.Item enumItem)
+        private void DocumentEnumItem(Enumeration @enum, Enumeration.Item enumItem)
         {
             string file = GetFileForDeclarationContext(@enum.Namespace);
             if (this.documentation.ContainsKey(file))
@@ -521,7 +526,8 @@ namespace QtSharp
                     string name = argNames[i];
                     if (!string.IsNullOrEmpty(name))
                     {
-                        parameter.Name = name + (index > 0 ? oldArgName.Substring(index) : string.Empty);
+                        name += (index > 0 ? oldArgName.Substring(index) : string.Empty);
+                        parameter.Name = Helpers.SafeIdentifier(name);
                     }
                 }
             }
