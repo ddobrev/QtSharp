@@ -22,8 +22,8 @@ namespace QtSharp.CLI
                 Console.WriteLine("The specified qmake does not exist.");
                 return -1;
             }
-            string makePath = args[1];
-            if (!File.Exists(makePath))
+            string make = args[1];
+            if (!File.Exists(make))
             {
                 Console.WriteLine("The specified make does not exist.");
                 return -1;
@@ -59,12 +59,18 @@ namespace QtSharp.CLI
                 return -1;
             }
             string docs = ProcessHelper.Run(qmake, "-query QT_INSTALL_DOCS", out error);
+            string output = ProcessHelper.Run(Path.Combine(Path.GetDirectoryName(make), "gcc"), "-v", out error);
+            if (string.IsNullOrEmpty(output))
+            {
+                output = error;
+            }
+            string target = Regex.Match(output, @"Target:\s*(?<target>[^\r\n]+)").Groups["target"].Value;
+            string compilerVersion = Regex.Match(output, @"gcc\s+version\s+(?<version>\S+)").Groups["version"].Value;
             foreach (string libFile in libFiles)
             {
                 if (libFile == "libQt5Core.a")
                 {
-                    string module = Regex.Match(libFile, @"Qt\d?(?<module>\w+)\.\w+$").Groups["module"].Value;
-                    ConsoleDriver.Run(new QtSharp(qmake, makePath, headers, module, libs, libFile, docs));
+                    ConsoleDriver.Run(new QtSharp(qmake, make, headers, libs, libFile, target, compilerVersion, docs));
                 }
             }
             return 0;

@@ -1,6 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using CppSharp;
 using CppSharp.AST;
 using CppSharp.Generators;
@@ -17,16 +19,20 @@ namespace QtSharp
 	    private readonly string module;
 	    private readonly string libraryPath;
 	    private readonly string library;
+	    private readonly string target;
+	    private readonly string compilerVersion;
 	    private readonly string docs;
 
-	    public QtSharp(string qmake, string make, string includePath, string module, string libraryPath, string library, string docs)
+	    public QtSharp(string qmake, string make, string includePath, string libraryPath, string library, string target, string compilerVersion, string docs)
 	    {
 	        this.qmake = qmake;
 	        this.includePath = includePath;
-	        this.module = module;
+	        this.module = Regex.Match(library, @"Qt\d?(?<module>\w+)\.\w+$").Groups["module"].Value;
 	        this.libraryPath = libraryPath;
 	        this.library = library;
-            this.make = make;
+	        this.target = target;
+	        this.compilerVersion = compilerVersion;
+	        this.make = make;
             this.docs = docs;
 	    }
 
@@ -34,7 +40,7 @@ namespace QtSharp
 	    {
             string qtModule = "Qt" + this.module;
 	        string moduleIncludes = Path.Combine(this.includePath, qtModule);
-	        foreach (TranslationUnit unit in lib.TranslationUnits)
+	        foreach (TranslationUnit unit in lib.TranslationUnits.Where(u => u.FilePath != "<invalid>"))
 	        {
 	            if (Path.GetDirectoryName(unit.FilePath) != moduleIncludes)
 	            {
@@ -147,6 +153,9 @@ namespace QtSharp
 			driver.Options.GeneratorKind = GeneratorKind.CSharp;
 		    string qtModule = "Qt" + this.module;
 		    driver.Options.Is32Bit = true;
+		    driver.Options.NoBuiltinIncludes = true;
+		    driver.Options.MicrosoftMode = false;
+            driver.Options.TargetTriple = this.target;
             driver.Options.Abi = CppAbi.Itanium;
 		    driver.Options.LibraryName = string.Format("{0}Sharp", qtModule);
 		    driver.Options.OutputNamespace = qtModule;
@@ -158,11 +167,15 @@ namespace QtSharp
 			driver.Options.IgnoreParseWarnings = true;
 		    driver.Options.CheckSymbols = true;
             driver.Options.Headers.Add(qtModule);
-			driver.Options.IncludeDirs.Add(this.includePath);
+		    string gccPath = Path.GetDirectoryName(Path.GetDirectoryName(this.make));
+            driver.Options.IncludeDirs.Add(Path.Combine(gccPath, this.target, "include"));
+            driver.Options.IncludeDirs.Add(Path.Combine(gccPath, "lib", "gcc", this.target, this.compilerVersion, "include"));
+            driver.Options.IncludeDirs.Add(Path.Combine(gccPath, "lib", "gcc", this.target, this.compilerVersion, "include", "c++"));
+            driver.Options.IncludeDirs.Add(Path.Combine(gccPath, "lib", "gcc", this.target, this.compilerVersion, "include", "c++", this.target));
+            driver.Options.IncludeDirs.Add(this.includePath);
             driver.Options.IncludeDirs.Add(Path.Combine(this.includePath, qtModule));
             driver.Options.LibraryDirs.Add(this.libraryPath);
             driver.Options.Libraries.Add(this.library);
-			driver.Options.Defines.Add("_MSC_FULL_VER=170050215");
 		    if (this.module == "Core")
 		    {
                 string dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
