@@ -127,25 +127,6 @@ namespace QtSharp
             new CaseRenamePass(
                 RenameTargets.Function | RenameTargets.Method | RenameTargets.Property | RenameTargets.Delegate | RenameTargets.Field,
                 RenameCasePattern.UpperCamelCase).VisitLibrary(driver.ASTContext);
-            if (this.module == "Core")
-            {
-                Class decl = null;
-                Class qList = lib.FindClass("QList").First(c => !c.IsIncomplete && c.IsDependent);
-                Field qListData = (from field in qList.Fields
-                                   where field.Type.IsTagDecl(out decl) && decl.Name.All(c => !char.IsLetter(c))
-                                   select field).First();
-                foreach (Field field in decl.Fields.ToList())
-                {
-                    field.Namespace = null;
-                    field.Offset = qListData.Offset;
-                    field.Access = AccessSpecifier.Protected;
-                    qList.Fields.Add(field);
-                }
-                Class qBitArray = lib.FindClass("QBitArray").First(c => !c.IsIncomplete);
-                Field d = qBitArray.Fields.First(f => f.OriginalName == "d");
-                d.ExplicityIgnored = false;
-                d.Access = AccessSpecifier.Protected;
-            }
         }
 
 		public void Setup(Driver driver)
@@ -182,7 +163,6 @@ namespace QtSharp
                 driver.Options.CodeFiles.Add(Path.Combine(dir, "QEventArgs.cs"));
                 driver.Options.CodeFiles.Add(Path.Combine(dir, "QEventHandler.cs"));
                 driver.Options.CodeFiles.Add(Path.Combine(dir, "DynamicQObject.cs"));
-                driver.Options.CodeFiles.Add(Path.Combine(dir, "MarshalQList.cs"));
                 driver.Options.CodeFiles.Add(Path.Combine(dir, "MarshalQString.cs"));
 		    }
 		}

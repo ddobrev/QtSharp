@@ -35,7 +35,13 @@ namespace QtSharp
         public override string CSharpSignature(CSharpTypePrinterContext ctx)
         {
             if (ctx.CSharpKind == CSharpTypePrinterContextKind.Native)
-                return "QList";
+            {
+                if (Type.IsAddress())
+                {
+                    return "QList.Internal*";                    
+                }
+                return "QList.Internal";
+            }
 
             TemplateSpecializationType templateSpecialization = (TemplateSpecializationType) ctx.Type.Desugar();
             TemplateArgument templateArgument = templateSpecialization.Arguments[0];
@@ -51,9 +57,9 @@ namespace QtSharp
             TextGenerator supportBefore = ctx.SupportBefore;
             string suffix = ctx.ParameterIndex > 0 ? ctx.ParameterIndex.ToString(CultureInfo.InvariantCulture) : string.Empty;
             string qList = string.Format("__qList{0}", suffix);
-            supportBefore.WriteLine(string.Format("var {0} = new QtCore.QList();", qList));
+            supportBefore.WriteLine(string.Format("var {0} = new QtCore.QList.Internal();", qList));
             string qListDataData = string.Format("__qlistDataData{0}", suffix);
-            supportBefore.WriteLine("var {0} = (QListData.Data.Internal*) {1}.d.d;", qListDataData, qList);
+            supportBefore.WriteLine("var {0} = (QListData.Data.Internal*) {1}._0.d;", qListDataData, qList);
             // TODO: tests with Qt shows that while alloc is not smaller than end, it's not equal, it reserves more space actually
             supportBefore.WriteLine("{0}->alloc = {1}.Count;", qListDataData, ctx.Parameter.Name);
             supportBefore.WriteLine("{0}->begin = 0;", qListDataData, ctx.Parameter.Name);
@@ -111,7 +117,7 @@ namespace QtSharp
             QualifiedType type = templateType.Arguments[0].Type;
 
             TextGenerator supportBefore = ctx.SupportBefore;
-            supportBefore.WriteLine("var __qlistData = new QListData({0}.d);", ctx.ReturnVarName);
+            supportBefore.WriteLine("var __qlistData = new QListData({0}._0.d);", ctx.ReturnVarName);
             supportBefore.WriteLine("var __size = __qlistData.Size;");
             supportBefore.WriteLine("var __list = new System.Collections.Generic.List<{0}>(__size);", type);
             supportBefore.WriteLine("for (int i = 0; i < __size; i++)");
@@ -142,8 +148,8 @@ namespace QtSharp
         public override void CSharpMarshalCopyCtorToManaged(MarshalContext ctx)
         {
             ctx.SupportBefore.WriteLine("var __instance = new {0}.Internal();", ctx.ReturnType);
-            ctx.SupportBefore.WriteLine("QListData.Data.Internal* qListData = (QListData.Data.Internal*) __instance.d;");
-            ctx.SupportBefore.WriteLine("QListData.Data.Internal* result = (QListData.Data.Internal*) __ret.d;");
+            ctx.SupportBefore.WriteLine("QListData.Data.Internal* qListData = (QListData.Data.Internal*) __instance._0.d;");
+            ctx.SupportBefore.WriteLine("QListData.Data.Internal* result = (QListData.Data.Internal*) __ret._0.d;");
             ctx.SupportBefore.WriteLine("qListData->begin = result->begin;");
             ctx.SupportBefore.WriteLine("qListData->end = result->end;");
             ctx.SupportBefore.WriteLine("qListData->alloc = result->alloc;");
@@ -155,7 +161,7 @@ namespace QtSharp
             ctx.SupportBefore.WriteCloseBraceIndent();
             ctx.SupportBefore.WriteLine("qListData->array = v;");
             ctx.SupportBefore.WriteCloseBraceIndent();
-            ctx.SupportBefore.WriteLine("__instance.d = (IntPtr) qListData;");
+            ctx.SupportBefore.WriteLine("__instance._0.d = (IntPtr) qListData;");
         }
     }
 }
