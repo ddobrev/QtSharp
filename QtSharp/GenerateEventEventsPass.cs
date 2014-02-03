@@ -13,7 +13,7 @@ namespace QtSharp
     {
         private bool eventAdded;
         private readonly HashSet<Event> events = new HashSet<Event>();
-        private readonly HashSet<Class> markedClasses = new HashSet<Class>();  
+        private bool addedEventHandlers;
 
         public override bool VisitTranslationUnit(TranslationUnit unit)
         {
@@ -35,14 +35,13 @@ namespace QtSharp
                 if (this.events.Contains(@event))
                 {
                     block.Text.StringBuilder.Clear();
-                    const string eventFilters = "eventFilters";
                     Class @class = (Class) @event.Namespace;
-                    if (!markedClasses.Contains(@class))
+                    if (!this.addedEventHandlers && @class.Name == "QObject")
                     {
-                        block.WriteLine(@"private readonly System.Collections.Generic.List<QEventHandler> {0} = new System.Collections.Generic.List<QEventHandler>();",
-                                        eventFilters);
+                        block.WriteLine("protected readonly System.Collections.Generic.List<QEventHandler> " +
+                                        "eventFilters = new System.Collections.Generic.List<QEventHandler>();");
                         block.NewLine();
-                        markedClasses.Add(@class);
+                        this.addedEventHandlers = true;
                     }
                     bool isQAbstractScrollArea = @class.Name != "QAbstractScrollArea";
                     if (@event.OriginalDeclaration.Comment != null)
