@@ -51,8 +51,19 @@ namespace QtSharp
 	                IgnorePrivateDeclarations(unit);
 	            }
 	        }
+            lib.SetClassAsValueType("QByteArray");
             lib.SetClassAsValueType("QListData");
             lib.SetClassAsValueType("QListData::Data");
+            lib.SetClassAsValueType("QLocale");
+            lib.SetClassAsValueType("QModelIndex");
+            lib.SetClassAsValueType("QPoint");
+            lib.SetClassAsValueType("QPointF");
+            lib.SetClassAsValueType("QSize");
+            lib.SetClassAsValueType("QSizeF");
+            lib.SetClassAsValueType("QRect");
+            lib.SetClassAsValueType("QRectF");
+            lib.SetClassAsValueType("QGenericArgument");
+            lib.SetClassAsValueType("QVariant");
             // TODO: remove these when their symbols have been replaced or included
             lib.IgnoreClassMethodWithName("QXmlStreamReader", "attributes");
             lib.IgnoreClassMethodWithName("QTimeZone", "offsetData");

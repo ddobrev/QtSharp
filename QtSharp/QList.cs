@@ -99,13 +99,23 @@ namespace QtSharp
                 desugared.IsPointerTo(out paramType);
                 templateSpecializationType = (TemplateSpecializationType) paramType.Desugar();
             }
-            if (templateSpecializationType.Arguments[0].Type.ToString() == "string")
+            TemplateArgument templateArgument = templateSpecializationType.Arguments[0];
+            if (templateArgument.Type.ToString() == "string")
             {
                 supportBefore.WriteLine("{0}->array[i] = Marshal.StringToHGlobalUni({1}[i]).ToPointer();", qListDataData, ctx.Parameter.Name, instance);                
             }
             else
             {
-                supportBefore.WriteLine("{0}->array[i] = (void*) {1}[i]{2};", qListDataData, ctx.Parameter.Name, instance);                
+                Class @class;
+                if (templateArgument.Type.Type.IsTagDecl(out @class) && @class.IsValueType)
+                {
+                    supportBefore.WriteLine("{0}.Internal __value = {1}[i].ToInternal();", @class.Name, ctx.Parameter.Name, instance);
+                    supportBefore.WriteLine("{0}->array[i] = &__value;", qListDataData, ctx.Parameter.Name, instance);         
+                }
+                else
+                {
+                    supportBefore.WriteLine("{0}->array[i] = (void*) {1}[i]{2};", qListDataData, ctx.Parameter.Name, instance);                    
+                }
             }
             supportBefore.WriteCloseBraceIndent();
             ctx.Return.Write(qList);

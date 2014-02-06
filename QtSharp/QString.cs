@@ -14,7 +14,7 @@ namespace QtSharp
             {
                 if (ctx.Type.IsPointer())
                 {
-                    return "QString.Internal*";                    
+                    return "QString.Internal*";
                 }
                 return "QString.Internal";
             }
