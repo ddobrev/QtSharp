@@ -28,8 +28,8 @@ namespace QtSharp
             Type type = ctx.Parameter.Type.Desugar();
             if (type.IsAddress())
             {
-                ctx.Return.Write("ReferenceEquals({0}, null) ? global::System.IntPtr.Zero : __qstring{1}.{2}",
-                                 ctx.Parameter.Name, ctx.ParameterIndex, Helpers.InstanceIdentifier);
+                ctx.Return.Write("ReferenceEquals(__qstring{0}, null) ? global::System.IntPtr.Zero : __qstring{0}.{1}",
+                                 ctx.ParameterIndex, Helpers.InstanceIdentifier);
                 return;
             }
             Class @class;

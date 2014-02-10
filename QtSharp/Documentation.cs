@@ -518,15 +518,11 @@ namespace QtSharp
             for (int i = 0; i < function.Parameters.Count; i++)
             {
                 Parameter parameter = function.Parameters[i];
-                string oldArgName = parameter.Name;
-                int index = oldArgName.IndexOf(" = ", StringComparison.Ordinal);
-                string nameOnly = index > 0 ? oldArgName.Substring(0, index) : oldArgName;
-                if (nameOnly.StartsWith("_", StringComparison.Ordinal) && char.IsDigit(nameOnly[1]))
+                if (parameter.Name.StartsWith("_", StringComparison.Ordinal) && char.IsDigit(parameter.Name[1]))
                 {
                     string name = argNames[i];
                     if (!string.IsNullOrEmpty(name))
                     {
-                        name += (index > 0 ? oldArgName.Substring(index) : string.Empty);
                         parameter.Name = Helpers.SafeIdentifier(name);
                     }
                 }
