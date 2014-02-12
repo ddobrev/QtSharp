@@ -158,6 +158,7 @@ namespace QtSharp
 		    driver.Options.GenerateProperties = true;
 			driver.Options.IgnoreParseWarnings = true;
 		    driver.Options.CheckSymbols = true;
+		    driver.Options.GenerateSingleFilePerExtension = true;
             driver.Options.Headers.Add(qtModule);
 		    string gccPath = Path.GetDirectoryName(Path.GetDirectoryName(this.make));
             driver.Options.IncludeDirs.Add(Path.Combine(gccPath, this.target, "include"));
