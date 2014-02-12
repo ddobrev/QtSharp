@@ -180,7 +180,7 @@ namespace QtSharp
             }
         }
 
-        private void DocumentEnumItem(Enumeration @enum, Enumeration.Item enumItem)
+        private void DocumentEnumItem(Declaration @enum, Declaration enumItem)
         {
             string file = GetFileForDeclarationContext(@enum.Namespace);
             if (this.documentation.ContainsKey(file))
@@ -241,8 +241,8 @@ namespace QtSharp
             }
             try
             {
-                IDictionary<string, string> documentation = GetFromHtml(docsPath, module);
-                return documentation.Count > 0 ? documentation : GetFromQch(docsPath, module);
+                IDictionary<string, string> documentation = GetFromQch(docsPath, module);
+                return documentation.Count > 0 ? documentation : GetFromHtml(docsPath, module);
             }
             catch (Exception ex)
             {
@@ -293,7 +293,7 @@ namespace QtSharp
                                     zOutputStream.Write(blob, 4, length - 4);
                                     zOutputStream.Flush();
                                     documentation.Add(sqliteDataReader.GetString(0),
-                                                      StripTags(Encoding.UTF8.GetString(output.ToArray()).Replace(@"\", @"\\")));
+                                                      StripTags(Encoding.UTF8.GetString(output.ToArray())));
                                 }
                             }
                         }
@@ -410,6 +410,10 @@ namespace QtSharp
                 case "unsigned int":
                 case "unsigned int*":
                     typeBuilder.Append(@"|(unsigned\s+long)");
+                    break;
+                case "char":
+                case "char*":
+                    typeBuilder.Append(@"|(wchar_t)");
                     break;
             }
             typeBuilder.Append(@")");

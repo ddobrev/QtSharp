@@ -36,7 +36,17 @@ namespace QtSharp
         {
             if (function.Comment == null && !function.ExplicityIgnored)
             {
-                this.documentation.DocumentFunction(function);
+                if (function.IsSynthetized)
+                {
+                    if (function.SynthKind == FunctionSynthKind.DefaultValueOverload)
+                    {
+                        function.Comment = function.OriginalFunction.Comment;
+                    }
+                }
+                else
+                {
+                    this.documentation.DocumentFunction(function);
+                }
             }
             return base.VisitFunctionDecl(function);
         }
