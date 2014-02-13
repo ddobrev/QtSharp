@@ -55,9 +55,15 @@ namespace QtSharp
                 return;
             }
             file = file.Replace(".html", "-obsolete.html");
-            if (this.documentation.ContainsKey(file))
+            if (this.documentation.ContainsKey(file) && this.TryMatch(function, this.documentation[file], true))
             {
-                this.TryMatch(function, this.documentation[file], true);
+                return;
+            }
+            TranslationUnit unit = function.Namespace as TranslationUnit;
+            if (unit != null && unit.FileName.Contains("qmath") &&
+                !this.TryMatch(function, this.documentation["qtmath.html"], false))
+            {
+                this.TryMatch(function, this.documentation["qtcore-qmath-h.html"], false);
             }
         }
 
