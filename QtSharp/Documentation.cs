@@ -49,6 +49,13 @@ namespace QtSharp
 
         public void DocumentFunction(Function function)
         {
+            TranslationUnit unit = function.Namespace as TranslationUnit;
+            if (unit != null && unit.FileName.Contains("qmath") &&
+                !this.TryMatch(function, this.documentation["qtmath.html"], false))
+            {
+                this.TryMatch(function, this.documentation["qtcore-qmath-h.html"], false);
+                return;
+            }
             string file = GetFileForDeclarationContext(function.Namespace);
             if (this.documentation.ContainsKey(file) && this.TryMatch(function, this.documentation[file], false))
             {
@@ -58,12 +65,6 @@ namespace QtSharp
             if (this.documentation.ContainsKey(file) && this.TryMatch(function, this.documentation[file], true))
             {
                 return;
-            }
-            TranslationUnit unit = function.Namespace as TranslationUnit;
-            if (unit != null && unit.FileName.Contains("qmath") &&
-                !this.TryMatch(function, this.documentation["qtmath.html"], false))
-            {
-                this.TryMatch(function, this.documentation["qtcore-qmath-h.html"], false);
             }
         }
 

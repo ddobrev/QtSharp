@@ -34,19 +34,9 @@ namespace QtSharp
 
         public override bool VisitFunctionDecl(Function function)
         {
-            if (function.Comment == null && !function.ExplicityIgnored)
+            if (!function.ExplicityIgnored && function.IsGenerated)
             {
-                if (function.IsSynthetized)
-                {
-                    if (function.SynthKind == FunctionSynthKind.DefaultValueOverload)
-                    {
-                        function.Comment = function.OriginalFunction.Comment;
-                    }
-                }
-                else
-                {
-                    this.documentation.DocumentFunction(function);
-                }
+                this.DocumentFunction(function);
             }
             return base.VisitFunctionDecl(function);
         }
@@ -65,10 +55,27 @@ namespace QtSharp
             Function function = @event.OriginalDeclaration as Function;
             if (function != null)
             {
-                function.ExplicityIgnored = false;
-                this.VisitFunctionDecl(function);
+                this.DocumentFunction(function);
             }
             return base.VisitEvent(@event);
+        }
+
+        private void DocumentFunction(Function function)
+        {
+            if (function.Comment == null)
+            {
+                if (function.IsSynthetized)
+                {
+                    if (function.SynthKind == FunctionSynthKind.DefaultValueOverload)
+                    {
+                        function.Comment = function.OriginalFunction.Comment;
+                    }
+                }
+                else
+                {
+                    this.documentation.DocumentFunction(function);
+                }
+            }
         }
     }
 }

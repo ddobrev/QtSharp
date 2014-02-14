@@ -158,19 +158,15 @@ namespace QtSharp
             {
                 return;
             }
-            FunctionType functionType = new FunctionType
-                                        {
-                                            Parameters = method.Parameters,
-                                            ReturnType = method.ReturnType
-                                        };
-            if (functionType.Parameters.Any())
+            if (method.Parameters.Any())
             {
                 Declaration decl;
-                if (functionType.Parameters.Last().Type.IsTagDecl(out decl) && decl.Name == "QPrivateSignal")
+                if (method.Parameters.Last().Type.IsTagDecl(out decl) && decl.Name == "QPrivateSignal")
                 {
-                    functionType.Parameters.RemoveAt(functionType.Parameters.Count - 1);
+                    method.Parameters.RemoveAt(method.Parameters.Count - 1);
                 }
             }
+            FunctionType functionType = method.GetFunctionType();
 
             Event @event = new Event
                             {
