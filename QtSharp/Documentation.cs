@@ -50,11 +50,19 @@ namespace QtSharp
         public void DocumentFunction(Function function)
         {
             TranslationUnit unit = function.Namespace as TranslationUnit;
-            if (unit != null && unit.FileName.Contains("qmath") &&
-                !this.TryMatch(function, this.documentation["qtmath.html"], false))
+            if (unit != null)
             {
-                this.TryMatch(function, this.documentation["qtcore-qmath-h.html"], false);
-                return;
+                if (unit.FileName.Contains("qmath") &&
+                    !this.TryMatch(function, this.documentation["qtmath.html"], false))
+                {
+                    this.TryMatch(function, this.documentation["qtcore-qmath-h.html"], false);
+                    return;
+                }
+                if (unit.FileName.Contains("qalgorithms"))
+                {
+                    this.TryMatch(function, this.documentation["qtalgorithms.html"], false);
+                    return;
+                }
             }
             string file = GetFileForDeclarationContext(function.Namespace);
             if (this.documentation.ContainsKey(file) && this.TryMatch(function, this.documentation[file], false))
@@ -421,6 +429,9 @@ namespace QtSharp
                 case "char":
                 case "char*":
                     typeBuilder.Append(@"|(wchar_t)");
+                    break;
+                case "const char*":
+                    typeBuilder.Append(@"|(const wchar_t*)");
                     break;
             }
             typeBuilder.Append(@")");
