@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -7,6 +6,7 @@ using CppSharp;
 using CppSharp.AST;
 using CppSharp.Generators;
 using CppSharp.Passes;
+using CppAbi = CppSharp.Parser.AST.CppAbi;
 using Template = CppSharp.AST.Template;
 
 namespace QtSharp
@@ -158,16 +158,16 @@ namespace QtSharp
 		    driver.Options.GenerateProperties = true;
 			driver.Options.IgnoreParseWarnings = true;
 		    driver.Options.CheckSymbols = true;
-		    driver.Options.GenerateSingleFilePerExtension = true;
+            //driver.Options.GenerateSingleFilePerExtension = true;
             driver.Options.Headers.Add(qtModule);
 		    string gccPath = Path.GetDirectoryName(Path.GetDirectoryName(this.make));
-            driver.Options.IncludeDirs.Add(Path.Combine(gccPath, this.target, "include"));
-            driver.Options.IncludeDirs.Add(Path.Combine(gccPath, "lib", "gcc", this.target, this.compilerVersion, "include"));
-            driver.Options.IncludeDirs.Add(Path.Combine(gccPath, "lib", "gcc", this.target, this.compilerVersion, "include", "c++"));
-            driver.Options.IncludeDirs.Add(Path.Combine(gccPath, "lib", "gcc", this.target, this.compilerVersion, "include", "c++", this.target));
-            driver.Options.IncludeDirs.Add(this.includePath);
-            driver.Options.IncludeDirs.Add(Path.Combine(this.includePath, qtModule));
-            driver.Options.LibraryDirs.Add(this.libraryPath);
+            driver.Options.addIncludeDirs(Path.Combine(gccPath, this.target, "include"));
+            driver.Options.addIncludeDirs(Path.Combine(gccPath, "lib", "gcc", this.target, this.compilerVersion, "include"));
+            driver.Options.addIncludeDirs(Path.Combine(gccPath, "lib", "gcc", this.target, this.compilerVersion, "include", "c++"));
+            driver.Options.addIncludeDirs(Path.Combine(gccPath, "lib", "gcc", this.target, this.compilerVersion, "include", "c++", this.target));
+            driver.Options.addIncludeDirs(this.includePath);
+            driver.Options.addIncludeDirs(Path.Combine(this.includePath, qtModule));
+            driver.Options.addIncludeDirs(this.libraryPath);
             driver.Options.Libraries.Add(this.library);
 		    if (this.module == "Core")
 		    {

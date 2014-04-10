@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Web.Util;
 using CppSharp.AST;
+using CppSharp.AST.Extensions;
 using CppSharp.Generators;
 using CppSharp.Generators.CSharp;
 using CppSharp.Passes;
@@ -166,7 +167,7 @@ namespace QtSharp
                     method.Parameters.RemoveAt(method.Parameters.Count - 1);
                 }
             }
-            FunctionType functionType = method.GetFunctionType();
+            QualifiedType functionType = method.GetFunctionType();
 
             Event @event = new Event
                             {
@@ -174,7 +175,7 @@ namespace QtSharp
                                 Name = method.Name,
                                 OriginalName = method.OriginalName,
                                 Namespace = method.Namespace,
-                                QualifiedType = new QualifiedType(functionType),
+                                QualifiedType = functionType,
                                 Parameters = method.Parameters
                             };
             method.IsGenerated = false;

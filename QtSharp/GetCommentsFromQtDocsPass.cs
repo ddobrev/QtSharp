@@ -64,7 +64,7 @@ namespace QtSharp
         {
             if (function.Comment == null)
             {
-                if (function.IsSynthetized)
+                if (function.SynthKind != FunctionSynthKind.None)
                 {
                     if (function.SynthKind == FunctionSynthKind.DefaultValueOverload)
                     {

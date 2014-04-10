@@ -8,7 +8,7 @@ namespace QtSharp
     [TypeMap("QBitArray")]
     public class QBitArray : TypeMap
     {
-        public override bool UseMarshalling
+        public override bool DoesMarshalling
         {
             get { return false; }
         }
