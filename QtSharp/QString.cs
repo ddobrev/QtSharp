@@ -1,4 +1,5 @@
 ﻿using CppSharp.AST;
+using CppSharp.AST.Extensions;
 using CppSharp.Generators;
 using CppSharp.Generators.CSharp;
 using CppSharp.Types;
@@ -33,10 +34,10 @@ namespace QtSharp
                 return;
             }
             Class @class;
-            type.IsTagDecl(out @class);
+            type.TryGetClass(out @class);
             if (@class == null)
             {
-                Type.IsTagDecl(out @class);
+                Type.TryGetClass(out @class);
             }
             var qualifiedIdentifier = CSharpMarshalNativeToManagedPrinter.QualifiedIdentifier(@class.OriginalClass ?? @class);
             ctx.Return.Write("ReferenceEquals(__qstring{0}, null) ? new {1}.Internal() : *({1}.Internal*) (__qstring{0}.{2})",

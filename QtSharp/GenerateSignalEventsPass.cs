@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Web.Util;
 using CppSharp.AST;
+using CppSharp.AST.Extensions;
 using CppSharp.Generators;
 using CppSharp.Generators.CSharp;
 using CppSharp.Passes;
@@ -129,8 +130,8 @@ namespace QtSharp
 
         private static string GetOriginalParameterType(ITypedDecl parameter)
         {
-            Declaration decl;
-            return parameter.Type.IsTagDecl(out decl) ? decl.QualifiedOriginalName : parameter.Type.ToString();
+            Class decl;
+            return parameter.Type.TryGetClass(out decl) ? decl.QualifiedOriginalName : parameter.Type.ToString();
         }
 
         public override bool VisitClassDecl(Class @class)
@@ -160,8 +161,8 @@ namespace QtSharp
             }
             if (method.Parameters.Any())
             {
-                Declaration decl;
-                if (method.Parameters.Last().Type.IsTagDecl(out decl) && decl.Name == "QPrivateSignal")
+                Class decl;
+                if (method.Parameters.Last().Type.TryGetClass(out decl) && decl.Name == "QPrivateSignal")
                 {
                     method.Parameters.RemoveAt(method.Parameters.Count - 1);
                 }
@@ -177,7 +178,7 @@ namespace QtSharp
                                 QualifiedType = new QualifiedType(functionType),
                                 Parameters = method.Parameters
                             };
-            method.IsGenerated = false;
+            method.GenerationKind = GenerationKind.None;
             @class.Events.Add(@event);
             this.events.Add(@event);
         }

@@ -1,4 +1,5 @@
 ﻿using CppSharp.AST;
+using CppSharp.AST.Extensions;
 using CppSharp.Generators;
 using CppSharp.Generators.CSharp;
 using CppSharp.Types;
@@ -8,6 +9,11 @@ namespace QtSharp
     [TypeMap("QFlags")]
     public class QFlags : TypeMap
     {
+        public override string CSharpConstruct()
+        {
+            return string.Empty;
+        }
+
         public override string CSharpSignature(CSharpTypePrinterContext ctx)
         {
             TemplateArgument templateArgument = ((TemplateSpecializationType) ctx.Type.Desugar()).Arguments[0];

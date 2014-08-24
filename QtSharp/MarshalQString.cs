@@ -231,17 +231,10 @@ namespace QtCore
     /// constructor is called and a copy of the string is returned. No actual
     /// copying takes place thanks to the implicit sharing.</para>
     /// </remarks>
-    public unsafe partial class QString
+    internal unsafe partial class QString
     {
-        [StructLayout(LayoutKind.Explicit, Size = 8)]
-        public struct Internal
+        public partial struct Internal
         {
-            [FieldOffset(0)]
-            internal QTypedArrayData.Internal d;
-
-            [FieldOffset(0)]
-            public global::System.IntPtr vfptr0;
-
             [SuppressUnmanagedCodeSecurity]
             [DllImport("Qt5Cored", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,
                 EntryPoint = "_ZN7QStringC2ERKS_")]

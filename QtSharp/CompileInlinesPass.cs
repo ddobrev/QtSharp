@@ -45,7 +45,7 @@ namespace QtSharp
                 Console.WriteLine(error);
                 return false;
             }
-            this.Driver.Options.LibraryDirs.Add(Path.Combine(this.Driver.Options.OutputDir, "release"));
+            this.Driver.Options.addLibraryDirs(Path.Combine(this.Driver.Options.OutputDir, "release"));
             this.Driver.Options.Libraries.Add(string.Format("lib{0}.a", Path.GetFileNameWithoutExtension(pro)));
             this.Driver.ParseLibraries();
             NativeLibrary inlines = this.Driver.Symbols.Libraries.Last();

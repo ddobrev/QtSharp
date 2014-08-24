@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using CppSharp;
 using CppSharp.AST;
+using CppSharp.AST.Extensions;
 using CppSharp.Generators;
 using CppSharp.Generators.CSharp;
 using CppSharp.Types;
@@ -107,7 +108,7 @@ namespace QtSharp
             else
             {
                 Class @class;
-                if (templateArgument.Type.Type.IsTagDecl(out @class) && @class.IsValueType)
+                if (templateArgument.Type.Type.TryGetClass(out @class) && @class.IsValueType)
                 {
                     supportBefore.WriteLine("{0}.Internal __value = {1}[i].ToInternal();", @class.Name, ctx.Parameter.Name, instance);
                     supportBefore.WriteLine("{0}->array[i] = &__value;", qListDataData, ctx.Parameter.Name, instance);         
@@ -118,7 +119,14 @@ namespace QtSharp
                 }
             }
             supportBefore.WriteCloseBraceIndent();
-            ctx.Return.Write(qList);
+            if (parameterType.IsAddress())
+            {
+                ctx.Return.Write("new global::System.IntPtr(&{0})", qList);
+            }
+            else
+            {
+                ctx.Return.Write(qList);
+            }
         }
 
         public override void CSharpMarshalToManaged(MarshalContext ctx)
@@ -127,7 +135,12 @@ namespace QtSharp
             QualifiedType type = templateType.Arguments[0].Type;
 
             TextGenerator supportBefore = ctx.SupportBefore;
-            supportBefore.WriteLine("var __qlistData = new QListData({0}._0.d);", ctx.ReturnVarName);
+            string returnVarName = ctx.ReturnVarName;
+            if (ctx.ReturnType.Type.Desugar().IsAddress())
+            {
+                returnVarName = string.Format("(*(QList.Internal*) {0})", returnVarName);
+            }
+            supportBefore.WriteLine("var __qlistData = new QListData({0}._0.d);", returnVarName);
             supportBefore.WriteLine("var __size = __qlistData.Size;");
             supportBefore.WriteLine("var __list = new System.Collections.Generic.List<{0}>(__size);", type);
             supportBefore.WriteLine("for (int i = 0; i < __size; i++)");
@@ -141,8 +154,8 @@ namespace QtSharp
             {
                 Class @class;
                 Type pointee;
-                if ((type.Type.IsTagDecl(out @class) ||
-                     (type.Type.IsPointerTo(out pointee) && pointee.IsTagDecl(out @class))) && @class.IsAbstract)
+                if ((type.Type.TryGetClass(out @class) ||
+                     (type.Type.IsPointerTo(out pointee) && pointee.TryGetClass(out @class))) && @class.IsAbstract)
                 {
                     supportBefore.WriteLine("__list.Add(new {0}Internal(new global::System.IntPtr(__qlistData.At(i))));", type, ctx.ReturnVarName);
                 }

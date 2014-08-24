@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -7,6 +6,7 @@ using CppSharp;
 using CppSharp.AST;
 using CppSharp.Generators;
 using CppSharp.Passes;
+using CppAbi = CppSharp.Parser.AST.CppAbi;
 using Template = CppSharp.AST.Template;
 
 namespace QtSharp
@@ -64,11 +64,14 @@ namespace QtSharp
             lib.SetClassAsValueType("QRectF");
             lib.SetClassAsValueType("QGenericArgument");
             lib.SetClassAsValueType("QVariant");
+
             // TODO: remove these when their symbols have been replaced or included
             lib.IgnoreClassMethodWithName("QXmlStreamReader", "attributes");
             lib.IgnoreClassMethodWithName("QTimeZone", "offsetData");
             lib.IgnoreClassMethodWithName("QTimeZone", "nextTransition");
             lib.IgnoreClassMethodWithName("QTimeZone", "previousTransition");
+
+            lib.FindCompleteClass("QString").GenerationKind = GenerationKind.Internal;
 		}
 
 	    private static void IgnorePrivateDeclarations(DeclarationContext unit)
@@ -144,8 +147,7 @@ namespace QtSharp
 		{
 			driver.Options.GeneratorKind = GeneratorKind.CSharp;
 		    string qtModule = "Qt" + this.module;
-		    driver.Options.Is32Bit = true;
-		    driver.Options.NoBuiltinIncludes = true;
+            driver.Options.addDefines("_WIN32");
 		    driver.Options.MicrosoftMode = false;
             driver.Options.TargetTriple = this.target;
             driver.Options.Abi = CppAbi.Itanium;
@@ -155,19 +157,24 @@ namespace QtSharp
 		    driver.Options.GenerateAbstractImpls = true;
             driver.Options.GenerateVirtualTables = true;
 		    driver.Options.GenerateInterfacesForMultipleInheritance = true;
-		    driver.Options.GenerateProperties = true;
+            driver.Options.GeneratePropertiesAdvanced = true;
 			driver.Options.IgnoreParseWarnings = true;
 		    driver.Options.CheckSymbols = true;
-		    driver.Options.GenerateSingleFilePerExtension = true;
+            driver.Options.GenerateSingleCSharpFile = true;
+		    driver.Options.GenerateInlines = true;
+		    driver.Options.CompileCode = true;
+		    driver.Options.GenerateCopyConstructors = true;
+		    driver.Options.GenerateDefaultValuesForArguments = true;
+		    driver.Options.MarshalCharAsManagedChar = true;
             driver.Options.Headers.Add(qtModule);
 		    string gccPath = Path.GetDirectoryName(Path.GetDirectoryName(this.make));
-            driver.Options.IncludeDirs.Add(Path.Combine(gccPath, this.target, "include"));
-            driver.Options.IncludeDirs.Add(Path.Combine(gccPath, "lib", "gcc", this.target, this.compilerVersion, "include"));
-            driver.Options.IncludeDirs.Add(Path.Combine(gccPath, "lib", "gcc", this.target, this.compilerVersion, "include", "c++"));
-            driver.Options.IncludeDirs.Add(Path.Combine(gccPath, "lib", "gcc", this.target, this.compilerVersion, "include", "c++", this.target));
-            driver.Options.IncludeDirs.Add(this.includePath);
-            driver.Options.IncludeDirs.Add(Path.Combine(this.includePath, qtModule));
-            driver.Options.LibraryDirs.Add(this.libraryPath);
+            driver.Options.addSystemIncludeDirs(Path.Combine(gccPath, this.target, "include"));
+            driver.Options.addSystemIncludeDirs(Path.Combine(gccPath, "lib", "gcc", this.target, this.compilerVersion, "include"));
+            driver.Options.addSystemIncludeDirs(Path.Combine(gccPath, "lib", "gcc", this.target, this.compilerVersion, "include", "c++"));
+            driver.Options.addSystemIncludeDirs(Path.Combine(gccPath, "lib", "gcc", this.target, this.compilerVersion, "include", "c++", this.target));
+            driver.Options.addIncludeDirs(this.includePath);
+            driver.Options.addIncludeDirs(Path.Combine(this.includePath, qtModule));
+            driver.Options.addLibraryDirs(this.libraryPath);
             driver.Options.Libraries.Add(this.library);
 		    if (this.module == "Core")
 		    {
