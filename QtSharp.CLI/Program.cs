@@ -29,7 +29,7 @@ namespace QtSharp.CLI
                 return -1;
             }
             string error;
-            string libs = ProcessHelper.Run(qmake, "-query QT_INSTALL_LIBS", out error);
+            string libs = ProcessHelper.Run(qmake, "-query QT_INSTALL_BINS", out error);
             if (!string.IsNullOrEmpty(error))
             {
                 Console.WriteLine(error);
@@ -68,7 +68,7 @@ namespace QtSharp.CLI
             string compilerVersion = Regex.Match(output, @"gcc\s+version\s+(?<version>\S+)").Groups["version"].Value;
             foreach (string libFile in libFiles)
             {
-                if (libFile == "libQt5Core.a")
+                if (libFile == "Qt5Core.dll")
                 {
                     ConsoleDriver.Run(new QtSharp(qmake, make, headers, libs, libFile, target, compilerVersion, docs));
                 }
@@ -79,7 +79,7 @@ namespace QtSharp.CLI
         private static IEnumerable<string> GetLibFiles(DirectoryInfo libsInfo)
         {
             List<string> modules = (from file in libsInfo.EnumerateFiles()
-                                    where Regex.IsMatch(file.Name, @"^libQt\d?\w+\.\w+$")
+                                    where Regex.IsMatch(file.Name, @"^Qt\d?\w+\.\w+$")
                                     select file.Name).ToList();
             for (int i = modules.Count - 1; i >= 0; i--)
             {
