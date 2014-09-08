@@ -258,8 +258,15 @@ namespace QtCore
         {
         }
 
+        private static global::System.IntPtr CopyQStringValue(QString.Internal native)
+        {
+            global::System.IntPtr ret = Marshal.AllocHGlobal(4);
+            *(QString.Internal*) ret = native;
+            return ret;
+        }
+
         internal QString(QString.Internal native)
-            : this(&native)
+            : this(CopyQStringValue(native))
         {
         }
 
@@ -286,7 +293,7 @@ namespace QtCore
             var arg0 = unicode;
             var __ret = new QtCore.QString.Internal();
             Internal.FromUtf16_0(new IntPtr(&__ret), arg0, size);
-            var __instance = Marshal.AllocHGlobal(8);
+            var __instance = Marshal.AllocHGlobal(4);
             QString.Internal.ctor_5(__instance, new global::System.IntPtr(&__ret));
             return new QString(__instance);
         }

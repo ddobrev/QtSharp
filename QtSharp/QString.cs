@@ -13,7 +13,7 @@ namespace QtSharp
         {
             if (ctx.CSharpKind == CSharpTypePrinterContextKind.Native)
             {
-                if (ctx.Type.IsPointer())
+                if (ctx.Type.IsAddress())
                 {
                     return "QString.Internal*";
                 }

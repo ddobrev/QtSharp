@@ -1,4 +1,6 @@
-﻿using CppSharp.Generators;
+﻿using CppSharp.AST;
+using CppSharp.AST.Extensions;
+using CppSharp.Generators;
 using CppSharp.Generators.CSharp;
 using CppSharp.Types;
 
@@ -28,8 +30,11 @@ namespace QtSharp
 
         public override void CSharpMarshalCopyCtorToManaged(MarshalContext ctx)
         {
-            ctx.SupportBefore.WriteLine("var __instance = new QBitArray.Internal();");
-            ctx.SupportBefore.WriteLine("__instance.d = __ret.d;");
+            Class @class;
+            ctx.ReturnType.Type.TryGetClass(out @class);
+            ctx.SupportBefore.WriteLine("global::System.IntPtr {0} = Marshal.AllocHGlobal({1});", ctx.ReturnVarName, @class.Layout.Size);
+            ctx.SupportBefore.WriteLine("*(QBitArray.Internal*) {0} = native;", ctx.ReturnVarName);
+            ctx.SupportBefore.WriteLine("return {0};", ctx.ReturnVarName);
         }
     }
 }
