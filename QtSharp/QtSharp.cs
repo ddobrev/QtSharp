@@ -26,9 +26,9 @@ namespace QtSharp
 	    public QtSharp(string qmake, string make, string includePath, string libraryPath, string library, string target, string compilerVersion, string docs)
 	    {
 	        this.qmake = qmake;
-	        this.includePath = includePath;
+	        this.includePath = includePath.Replace('/', Path.DirectorySeparatorChar);
 	        this.module = Regex.Match(library, @"Qt\d?(?<module>\w+)\.\w+$").Groups["module"].Value;
-	        this.libraryPath = libraryPath;
+	        this.libraryPath = libraryPath.Replace('/', Path.DirectorySeparatorChar);
 	        this.library = library;
 	        this.target = target;
 	        this.compilerVersion = compilerVersion;
@@ -169,6 +169,8 @@ namespace QtSharp
             driver.Options.Headers.Add(qtModule);
 		    string gccPath = Path.GetDirectoryName(Path.GetDirectoryName(this.make));
             driver.Options.addSystemIncludeDirs(Path.Combine(gccPath, this.target, "include"));
+            driver.Options.addSystemIncludeDirs(Path.Combine(gccPath, this.target, "include", "c++"));
+            driver.Options.addSystemIncludeDirs(Path.Combine(gccPath, this.target, "include", "c++", this.target));
             driver.Options.addSystemIncludeDirs(Path.Combine(gccPath, "lib", "gcc", this.target, this.compilerVersion, "include"));
             driver.Options.addSystemIncludeDirs(Path.Combine(gccPath, "lib", "gcc", this.target, this.compilerVersion, "include", "c++"));
             driver.Options.addSystemIncludeDirs(Path.Combine(gccPath, "lib", "gcc", this.target, this.compilerVersion, "include", "c++", this.target));

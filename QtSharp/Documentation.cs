@@ -52,10 +52,9 @@ namespace QtSharp
             TranslationUnit unit = function.Namespace as TranslationUnit;
             if (unit != null)
             {
-                if (unit.FileName.Contains("qmath") &&
-                    !this.TryMatch(function, this.documentation["qtmath.html"], false))
+                if (unit.FileName.Contains("qmath"))
                 {
-                    this.TryMatch(function, this.documentation["qtcore-qmath-h.html"], false);
+                    this.TryMatch(function, this.documentation["qtmath.html"], false);
                     return;
                 }
                 if (unit.FileName.Contains("qalgorithms"))

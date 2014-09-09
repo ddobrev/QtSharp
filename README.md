@@ -9,3 +9,6 @@ It is a generator that expects the include and library directories of a Qt set-u
 The source code is separated into a library that contains the settings and passes the generator needs, and a command-line client. In the future a GUI client, constructed with Qt# itself, is planned as well.
 
 When the generated bindings are stable, binary releases will be uploaded.
+
+
+QtSharp has been tested only with Qt for MinGW so far. To generate the wrappers, there's an additional step except installing Qt: add "...\Qt\Qt&lt;version&gt;\Tools\mingw&lt;version&gt;_32\bin" to your PATH.
