@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helper.cs" />
+    <Compile Include="QtCore\QCoreApplicationTests.cs" />
     <Compile Include="QtCore\QDateTests.cs" />
     <Compile Include="QtCore\QFileInfoTests.cs" />
     <Compile Include="QtCore\QFlagTests.cs" />
