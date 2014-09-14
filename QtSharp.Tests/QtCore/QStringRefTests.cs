@@ -21,14 +21,14 @@ namespace QtSharp.Tests.QtCore
 
         private QStringRef _qString;
 
-        [TestFixtureSetUp]
+        [SetUp]
         public void Init()
         {
             // TODO: Add Init code.
             _qString = new QStringRef(_testString);
         }
 
-        [TestFixtureTearDown]
+        [TearDown]
         public void Dispose()
         {
             // TODO: Add tear down code.

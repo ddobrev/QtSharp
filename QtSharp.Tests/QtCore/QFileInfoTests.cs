@@ -17,14 +17,14 @@ namespace QtSharp.Tests.QtCore
 
         private QFileInfo _fileInfo;
 
-        [TestFixtureSetUp]
+        [SetUp]
         public void Init()
         {
             // TODO: Add Init code.
             _fileInfo = new QFileInfo(_testFilePath);
         }
 
-        [TestFixtureTearDown]
+        [TearDown]
         public void Dispose()
         {
             // TODO: Add tear down code.

@@ -50,21 +50,20 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helper.cs" />
+    <Compile Include="QtCore\QDateTests.cs" />
     <Compile Include="QtCore\QFileInfoTests.cs" />
     <Compile Include="QtCore\QObjectTests.cs" />
+    <Compile Include="QtCore\QSizeFTests.cs" />
+    <Compile Include="QtCore\QSizeTests.cs" />
     <Compile Include="QtCore\QStringRefTests.cs" />
+    <Compile Include="QtCore\QSysInfoTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="QtCore.QtGlobalStatic\" />
-    <Folder Include="QtCore.QtMetaTypePrivate\" />
-    <Folder Include="QtCore.QtPrivate.Internal\" />
-    <Folder Include="QtCore.QtPrivate\" />
-    <Folder Include="QtCore.QtSharedPointer\" />
-    <Folder Include="QtCore.QtStringBuilder\" />
-    <Folder Include="QtCore.Qt\" />
+    <Content Include="ToDo.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

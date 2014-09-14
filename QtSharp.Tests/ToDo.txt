@@ -1,0 +1,15 @@
+QObject:
+- BlockSignals as setter to Property SignalsBlocked
+
+QCoreApplication
+- Add another Ctor with C# args and without need for unsafe context
+
+QSysInfo
+- Add Mac Version
+
+QDate
+- Avoid unsafe context in GetDate, use ref, out...
+- Avoid unsafe context in WeekNumber, use ref, out...
+- IsValid is missing
+
+
