@@ -52,6 +52,7 @@
     <Compile Include="Helper.cs" />
     <Compile Include="QtCore\QDateTests.cs" />
     <Compile Include="QtCore\QFileInfoTests.cs" />
+    <Compile Include="QtCore\QFlagTests.cs" />
     <Compile Include="QtCore\QObjectTests.cs" />
     <Compile Include="QtCore\QSizeFTests.cs" />
     <Compile Include="QtCore\QSizeTests.cs" />
