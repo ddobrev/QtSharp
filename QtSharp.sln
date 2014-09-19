@@ -9,6 +9,34 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QtSharp.CLI", "QtSharp.CLI\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QtSharp.Tests", "QtSharp.Tests\QtSharp.Tests.csproj", "{5E8F503D-1B37-4298-855D-06F81B5B4630}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{137A0346-F288-4399-BAEB-935E27A384E1}"
+	ProjectSection(SolutionItems) = preProject
+		..\Documentation\2. Get Started.md = ..\Documentation\2. Get Started.md
+		..\Documentation\Home.md = ..\Documentation\Home.md
+		..\Documentation\How-It-Works.md = ..\Documentation\How-It-Works.md
+		..\Documentation\How-to-use.md = ..\Documentation\How-to-use.md
+		..\Documentation\Sidebar.md = ..\Documentation\Sidebar.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Images", "Images", "{8D259B44-55D7-4E82-AA34-6AD0C4D7D3DF}"
+	ProjectSection(SolutionItems) = preProject
+		..\Documentation\Images\2.1-1.png = ..\Documentation\Images\2.1-1.png
+		..\Documentation\Images\2.1-10.png = ..\Documentation\Images\2.1-10.png
+		..\Documentation\Images\2.1-11.png = ..\Documentation\Images\2.1-11.png
+		..\Documentation\Images\2.1-12.png = ..\Documentation\Images\2.1-12.png
+		..\Documentation\Images\2.1-13.png = ..\Documentation\Images\2.1-13.png
+		..\Documentation\Images\2.1-14.png = ..\Documentation\Images\2.1-14.png
+		..\Documentation\Images\2.1-15.png = ..\Documentation\Images\2.1-15.png
+		..\Documentation\Images\2.1-16.png = ..\Documentation\Images\2.1-16.png
+		..\Documentation\Images\2.1-2.png = ..\Documentation\Images\2.1-2.png
+		..\Documentation\Images\2.1-20.png = ..\Documentation\Images\2.1-20.png
+		..\Documentation\Images\2.1-3.png = ..\Documentation\Images\2.1-3.png
+		..\Documentation\Images\2.2-1.png = ..\Documentation\Images\2.2-1.png
+		..\Documentation\Images\2.2-2.png = ..\Documentation\Images\2.2-2.png
+		..\Documentation\Images\2.2-3.png = ..\Documentation\Images\2.2-3.png
+		..\Documentation\Images\2.3-1.png = ..\Documentation\Images\2.3-1.png
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,5 +69,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8D259B44-55D7-4E82-AA34-6AD0C4D7D3DF} = {137A0346-F288-4399-BAEB-935E27A384E1}
 	EndGlobalSection
 EndGlobal
