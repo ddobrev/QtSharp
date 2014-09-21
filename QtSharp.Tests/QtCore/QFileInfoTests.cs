@@ -30,6 +30,12 @@ namespace QtSharp.Tests.QtCore
             // TODO: Add tear down code.
         }
 
+        #region Ctor
+
+
+
+        #endregion
+
         [Test]
         public void GetAbsoluteFilePathAndTestWithDotNetAbsoluteFilePath()
         {

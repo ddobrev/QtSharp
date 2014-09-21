@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using QtCore;
 
 namespace QtSharp.Tests.QtCore
@@ -19,7 +20,8 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestMacintoshVersion()
         {
-            // TODo Add in QtCore
+            throw new NotImplementedException("Add in QtCore");
+
             //var s = QSysInfo.MacintoshVersion;
 
             //Assert.IsNotNullOrEmpty(s.ToString());
