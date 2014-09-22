@@ -40,9 +40,8 @@
     <Reference Include="CppSharp.Generator">
       <HintPath>..\References\CppSharp.Generator.dll</HintPath>
     </Reference>
-    <Reference Include="CppSharp.Parser, Version=0.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\CppSharp.Parser.dll</HintPath>
+    <Reference Include="CppSharp.Parser.CLI">
+      <HintPath>..\References\CppSharp.Parser.CLI.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Data.Sqlite">
       <HintPath>..\References\Mono.Data.Sqlite.dll</HintPath>
