@@ -55,6 +55,7 @@
     <Compile Include="QtCore\QFileInfoTests.cs" />
     <Compile Include="QtCore\QFlagTests.cs" />
     <Compile Include="QtCore\QObjectTests.cs" />
+    <Compile Include="QtCore\QRectTests.cs" />
     <Compile Include="QtCore\QSizeFTests.cs" />
     <Compile Include="QtCore\QSizeTests.cs" />
     <Compile Include="QtCore\QStringRefTests.cs" />
@@ -62,6 +63,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="TestData\DoubleExtensionVerknüpfung.lnk">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

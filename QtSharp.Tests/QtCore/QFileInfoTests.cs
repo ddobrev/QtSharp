@@ -18,6 +18,7 @@ namespace QtSharp.Tests.QtCore
         private readonly FileInfo _testFilePath3 = new FileInfo("./TestData/TextFile3_50bytes.txt");
         private readonly FileInfo _testFilePath4 = new FileInfo("./TestData/DoubleExtension.ext.txt");
 
+
         private QFileInfo _fileInfo;
 
         [SetUp]
@@ -53,6 +54,7 @@ namespace QtSharp.Tests.QtCore
             var q = new QFileInfo(f);
         }
 
+        [Ignore("Bug!")]
         [Test]
         public void TestDirConstructorNotThrowingAnException()
         {
@@ -62,6 +64,7 @@ namespace QtSharp.Tests.QtCore
             var q = new QFileInfo(dir, f.Name);
         }
 
+        [Ignore("Bug!")]
         [Test]
         public void TestQFileInfoConstructorNotThrowingAnException()
         {
@@ -108,7 +111,22 @@ namespace QtSharp.Tests.QtCore
             Assert.AreEqual(exp, q);
         }
 
-        // TODO Add BundleName
+        [Platform(Include = "MacOsX")]
+        [Test]
+        public void TestBundleNameOnMaxOSX()
+        {
+            var file = new QFileInfo("/Applications/Safari.app");
+
+            Assert.AreEqual("Safari", file.BundleName);
+        }
+
+        [Platform(Exclude = "MacOsX")]
+        [Test]
+        public void TestBundleNameOnAllExceptMaxOSX()
+        {
+            var l = _fileInfo.BundleName;
+            Assert.AreEqual("", _fileInfo.BundleName);
+        }
 
         [Test]
         public void TestGetCaching()
@@ -180,7 +198,17 @@ namespace QtSharp.Tests.QtCore
             Assert.AreEqual(net.Year, q.Date.Year);
         }
 
-        // TODO Add Dir, but Warning! Can delete all files!!!
+        [Test]
+        public void TestDir()
+        {
+            throw new AssertionException("Warning! Execution deletes all files.");
+
+            var parentDir = _fileInfo.Dir;
+
+            var exp = _testFilePath1.Directory.FullName.Replace("\\", "/"); ;
+
+            Assert.AreEqual(exp, parentDir.AbsolutePath);
+        }
 
         [Test]
         public void TestExists()
@@ -199,13 +227,299 @@ namespace QtSharp.Tests.QtCore
         }
 
         [Test]
-        public void GetFileName()
+        public void TestFileName()
         {
             var q = _fileInfo.FileName;
 
             var exp = new FileInfo(_testFilePath1.FullName).Name;
 
             Assert.AreEqual(exp, q);
+        }
+
+        [Test]
+        public void TestFilePath()
+        {
+            var q = _fileInfo.FilePath;
+
+            var exp = new FileInfo(_testFilePath1.FullName).FullName;
+
+            Assert.AreEqual(exp.Replace("\\", "/"), q);
+        }
+
+        [Test]
+        public void TestGroup()
+        {
+            var q = _fileInfo.Group;
+            
+            Assert.AreEqual("", q);
+        }
+
+        [Test]
+        public void TestGroupId()
+        {
+            var q = (uint)_fileInfo.GroupId;
+
+            Assert.AreEqual(-2, q);
+        }
+
+        [Test]
+        public void TestIsAbsolute()
+        {
+            var isAbs = _fileInfo.IsAbsolute;
+            Assert.IsTrue(isAbs);
+
+            var isNotAbs = new QFileInfo("./TestData/TextFile1.txt").IsAbsolute;
+            Assert.IsTrue(!isNotAbs);
+        }
+
+        [Test]
+        [Platform(Include = "MacOsX")]
+        public void TestIsBundleOnMaxOSX()
+        {
+            var file = new QFileInfo("/Applications/Safari.app");
+
+            Assert.IsTrue(file.IsBundle);
+        }
+
+        [Test]
+        [Platform(Exclude = "MacOsX")]
+        public void TestIsBundleOnAllExceptMaxOSX()
+        {
+            var isBundle = _fileInfo.IsBundle;
+            Assert.IsFalse(isBundle);
+        }
+
+        [Test]
+        public void TestIsDir()
+        {
+            throw new AssertionException("Warning! Execution deletes all files.");
+            var ad = _fileInfo.IsDir;
+            
+            Assert.IsFalse(ad);
+        }
+        
+        [Test]
+        public void TestIsExecutable()
+        {
+            var isExe = _fileInfo.IsExecutable;
+            Assert.IsFalse(isExe);
+        }
+
+        [Test]
+        public void TestIsFile()
+        {
+            var isFile = _fileInfo.IsFile;
+            Assert.IsTrue(isFile);
+        }
+
+        [Test]
+        public void TestIsHidden()
+        {
+            var isFile = _fileInfo.IsHidden;
+            Assert.IsFalse(isFile);
+        }
+
+        [Test]
+        public void TestIsNativePath()
+        {
+            var isFile = _fileInfo.IsNativePath;
+            Assert.IsTrue(isFile);
+        }
+
+        [Test]
+        public void TestIsReadable()
+        {
+            var isFile = _fileInfo.IsReadable;
+            Assert.IsTrue(isFile);
+        }
+
+        [Test]
+        public void TestIsRelative()
+        {
+            var isAbs = _fileInfo.IsRelative;
+            Assert.IsFalse(isAbs);
+
+            var isNotAbs = new QFileInfo("./TestData/TextFile1.txt").IsRelative;
+            Assert.IsTrue(isNotAbs);
+        }
+
+        [Test]
+        public void TestIsRoot()
+        {
+            var isAbs = _fileInfo.IsRoot;
+            Assert.IsFalse(isAbs);
+        }
+
+        [Test]
+        public void TestIsSymLink()
+        {
+            var file = new QFileInfo("./TestData/DoubleExtensionVerknüpfung.Ink");
+            
+            Assert.IsTrue(file.IsSymLink);
+        }
+
+        [Test]
+        public void TestIsWritable()
+        {
+            Assert.IsTrue(_fileInfo.IsWritable);
+        }
+
+        [Test]
+        public void TestLastModified()
+        {
+            var qd = _fileInfo.LastModified;
+            var qday = qd.Date.Day;
+
+            throw new AssertionException("System.AccessViolationException was thrown.");
+        }
+
+        [Test]
+        public void TestLastRead()
+        {
+            var qd = _fileInfo.LastRead;
+            var qday = qd.Date.Day;
+
+            throw new AssertionException("System.AccessViolationException was thrown.");
+        }
+
+        [Test]
+        public void TestMakeAbsolute()
+        {
+            var file = new QFileInfo("./TestData/TextFile1.txt");
+            var res = file.MakeAbsolute();
+
+            Assert.IsTrue(res);
+        }
+
+        [Test]
+        public void TestOwner()
+        {
+            var file = new QFileInfo("./TestData/TextFile1.txt");
+            var res = file.Owner;
+
+            Assert.IsNotNull(res);
+        }
+
+        [Test]
+        public void TestOwnerId()
+        {
+            var file = new QFileInfo("./TestData/TextFile1.txt");
+            var res = file.OwnerId;
+
+            Assert.IsNotNull(res);
+        }
+
+        [Test]
+        public void TestPath()
+        {
+            var file = new QFileInfo("./TestData/TextFile1.txt");
+            var res = file.Path;
+
+            Assert.AreEqual("./TestData", res);
+        }
+
+        [Test]
+        public void TestPermission()
+        {
+            var file = new QFileInfo("./TestData/TextFile1.txt");
+            var res = file.Permission(QFileDevice.Permission.ReadOwner | QFileDevice.Permission.WriteOwner);
+
+            Assert.IsTrue(res);
+        }
+
+        [Test]
+        public void TestPermissions()
+        {
+            var file = new QFileInfo("./TestData/TextFile1.txt");
+            var res = file.Permissions;
+            
+            Assert.IsTrue(res == QFileDevice.Permission.ReadOwner);
+        }
+
+        [Test]
+        public void TestRefresh()
+        {
+            var file = new QFileInfo("./TestData/TextFile1.txt");
+            file.Refresh();
+        }
+
+        [Test]
+        public void TestSetFile()
+        {
+            var file = new QFileInfo("./TestData/TextFile2_1000words.txt");
+            file.SetFile(_fileInfo.FilePath);
+
+            Assert.AreEqual(_fileInfo.FilePath, file.FilePath);
+        }
+
+        [Test]
+        public void TestSize()
+        {
+            var file = new QFileInfo("./TestData/TextFile3_50bytes.txt");
+
+            var s = file.Size;
+
+            Assert.AreEqual(53, s);
+        }
+
+        [Test]
+        public void TestSuffix()
+        {
+            var file = new QFileInfo("./TestData/DoubleExtension.ext.txt");
+
+            var s = file.Suffix;
+
+            Assert.AreEqual("txt", s);
+        }
+
+        [Ignore("Bug!")]
+        [Test]
+        public void TestSwap()
+        {
+            var file = new QFileInfo("./TestData/DoubleExtension.ext.txt");
+
+            file.Swap(_fileInfo);
+
+            Assert.AreEqual(_fileInfo.FilePath, file.FilePath);
+        }
+
+        [Test]
+        public void TestSymLinkTarget()
+        {
+            var file = new QFileInfo("./TestData/DoubleExtensionVerknüpfung.Ink");
+            var target = file.SymLinkTarget;
+
+            Assert.AreNotEqual("", target);
+        }
+
+        [Ignore("Bug!")]
+        [Test]
+        public void TestNotEqual()
+        {
+            var file = new QFileInfo("./TestData/TextFile1.txt");
+
+            if(file != _fileInfo)
+                Assert.IsTrue(false);
+            else
+                Assert.IsTrue(true);
+        }
+
+        [Test]
+        public void TestCopyToAnother()
+        {
+            QFileInfo file = _fileInfo;
+        }
+
+        [Ignore("Bug!")]
+        [Test]
+        public void TestEqual()
+        {
+            var file = new QFileInfo("./TestData/TextFile1.txt");
+
+            if (file == _fileInfo)
+                Assert.IsTrue(true);
+            else
+                Assert.IsTrue(false);
         }
     }
 }

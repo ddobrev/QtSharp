@@ -6,9 +6,8 @@ QDate (tests done):
 - Avoid unsafe context in WeekNumber, use ref, out...
 - IsValid is missing
 
-QFileInfo (tests in work):
+QFileInfo (tests done):
 - Add Exists
--
 
 QFlag (tests done)
 
