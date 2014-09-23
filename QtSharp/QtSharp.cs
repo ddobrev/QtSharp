@@ -172,8 +172,6 @@ namespace QtSharp
             driver.Options.addSystemIncludeDirs(Path.Combine(gccPath, this.target, "include", "c++"));
             driver.Options.addSystemIncludeDirs(Path.Combine(gccPath, this.target, "include", "c++", this.target));
             driver.Options.addSystemIncludeDirs(Path.Combine(gccPath, "lib", "gcc", this.target, this.compilerVersion, "include"));
-            driver.Options.addSystemIncludeDirs(Path.Combine(gccPath, "lib", "gcc", this.target, this.compilerVersion, "include", "c++"));
-            driver.Options.addSystemIncludeDirs(Path.Combine(gccPath, "lib", "gcc", this.target, this.compilerVersion, "include", "c++", this.target));
             driver.Options.addIncludeDirs(this.includePath);
             driver.Options.addIncludeDirs(Path.Combine(this.includePath, qtModule));
             driver.Options.addLibraryDirs(this.libraryPath);
