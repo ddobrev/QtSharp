@@ -15,6 +15,9 @@ QObject (tests in work):
 - BlockSignals as setter to Property SignalsBlocked
 - See TODO comments in file
 
+QRect (tests in work):
+- Avoid unsafe context, use ref, out...
+
 QSizeF (tests done)
 - some ops are missing
 
