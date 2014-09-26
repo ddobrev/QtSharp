@@ -5,15 +5,15 @@ using QtCore;
 namespace QtSharp.Tests.QtCore
 {
     [TestFixture]
-    public class QRectTests
+    public class QRectFTests
     {
-        private QRect _qRect;
+        private QRectF _QRectF;
 
         [SetUp]
         public void Init()
         {
             // TODO: Add Init code.
-            _qRect = new QRect();
+            _QRectF = new QRectF();
         }
 
         [TearDown]
@@ -26,14 +26,14 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestEmptyConstructor()
         {
-            var s = new QRect();
+            var s = new QRectF();
             Assert.NotNull(s.IsValid);
         }
 
         [Test]
         public void TestIntegerConstructor()
         {
-            var s = new QRect(50, 100, 200, 150);
+            var s = new QRectF(50, 100, 200, 150);
 
             Assert.AreEqual(50, s.Left);
             Assert.AreEqual(100, s.Top);
@@ -44,10 +44,10 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestPointsConstructor()
         {
-            var p1 = new QPoint(50, 100);
-            var p2 = new QPoint(250, 250);
+            var p1 = new QPointF(50, 100);
+            var p2 = new QPointF(250, 250);
 
-            var s = new QRect(p1, p2);
+            var s = new QRectF(p1, p2);
 
             Assert.AreEqual(50, s.Left);
             Assert.AreEqual(100, s.Top);
@@ -58,10 +58,10 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestPointSizeConstructor()
         {
-            var p1 = new QPoint(50, 100);
-            var p2 = new QSize(200, 150);
+            var p1 = new QPointF(50, 100);
+            var p2 = new QSizeF(200, 150);
 
-            var s = new QRect(p1, p2);
+            var s = new QRectF(p1, p2);
 
             Assert.AreEqual(50, s.Left);
             Assert.AreEqual(100, s.Top);
@@ -73,7 +73,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestAdjust()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 150;
             s.Width = 500;
@@ -90,7 +90,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestAdjusted()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 150;
             s.Width = 500;
@@ -107,7 +107,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestBottom()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 150;
             s.Width = 500;
@@ -121,7 +121,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestBottomLeft()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 150;
             s.Width = 500;
@@ -135,7 +135,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestBottomRight()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 150;
             s.Width = 500;
@@ -149,7 +149,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestCenter()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 150;
             s.Width = 500;
@@ -162,15 +162,15 @@ namespace QtSharp.Tests.QtCore
         }
 
         [Test]
-        public void TestContainsWithQPoint()
+        public void TestContainsWithQPointF()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 150;
             s.Width = 500;
             s.Height = 600;
 
-            var p = new QPoint(275, 375);
+            var p = new QPointF(275, 375);
             var n = s.Contains(p);
 
             Assert.IsTrue(n);
@@ -179,7 +179,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestContainsWithIntegerValues()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 150;
             s.Width = 500;
@@ -191,16 +191,16 @@ namespace QtSharp.Tests.QtCore
         }
 
         [Test]
-        public void TestContainsWithQRect()
+        public void TestContainsWithQRectF()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 150;
             s.Width = 500;
             s.Height = 600;
 
-            var p = new QRect(275, 375, 50, 50);
-            var n = s.Contains(p, true);
+            var p = new QRectF(275, 375, 50, 50);
+            var n = s.Contains(p);
 
             Assert.IsTrue(n);
         }
@@ -208,16 +208,16 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public unsafe void TestGetCoords()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 150;
             s.Width = 500;
             s.Height = 600;
 
-            int x1;
-            int y1;
-            int x2;
-            int y2;
+            double x1;
+            double y1;
+            double x2;
+            double y2;
 
             s.GetCoords(&x1, &y1, &x2, &y2);
 
@@ -230,7 +230,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestSetCoords()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 150;
             s.Width = 500;
@@ -247,16 +247,16 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public unsafe void TestGetRect()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 150;
             s.Width = 500;
             s.Height = 600;
 
-            int x1;
-            int y1;
-            int width;
-            int height;
+            double x1;
+            double y1;
+            double width;
+            double height;
 
             s.GetRect(&x1, &y1, &width, &height);
 
@@ -269,7 +269,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestSetRect()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 150;
             s.Width = 500;
@@ -286,7 +286,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestHeight()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 150;
             s.Width = 500;
@@ -298,13 +298,13 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestIntersected()
         {
-            var s1 = new QRect();
+            var s1 = new QRectF();
             s1.X = 0;
             s1.Y = 0;
             s1.Width = 500;
             s1.Height = 600;
 
-            var s2 = new QRect();
+            var s2 = new QRectF();
             s2.X = 400;
             s2.Y = 500;
             s2.Width = 500;
@@ -321,13 +321,13 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestIntersects()
         {
-            var s1 = new QRect();
+            var s1 = new QRectF();
             s1.X = 0;
             s1.Y = 0;
             s1.Width = 500;
             s1.Height = 600;
 
-            var s2 = new QRect();
+            var s2 = new QRectF();
             s2.X = 400;
             s2.Y = 500;
             s2.Width = 500;
@@ -341,7 +341,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestIsEmpty()
         {
-            var s1 = new QRect();
+            var s1 = new QRectF();
             s1.Left = 500;
             s1.Right = 400;
             s1.Top = 700;
@@ -355,7 +355,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestIsNull()
         {
-            var s1 = new QRect();
+            var s1 = new QRectF();
             s1.X = 0;
             s1.Y = 0;
             s1.Width = 0;
@@ -369,7 +369,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestIsValid()
         {
-            var s1 = new QRect();
+            var s1 = new QRectF();
             s1.Left = 500;
             s1.Right = 400;
             s1.Top = 700;
@@ -383,7 +383,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestLeft()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 150;
             s.Width = 500;
@@ -392,16 +392,17 @@ namespace QtSharp.Tests.QtCore
             Assert.AreEqual(50, s.Left);
         }
 
+        [Ignore("Bug!")]
         [Test]
         public void TestMarginsAdded()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.Left = 50;
             s.Top = 150;
             s.Right = 600;
             s.Bottom = 500;
 
-            var mar = new QMargins(50, 100, 150, 200);
+            var mar = new QMarginsF(50, 100, 150, 200);
 
             var newR = s.MarginsAdded(mar);
 
@@ -411,16 +412,17 @@ namespace QtSharp.Tests.QtCore
             Assert.AreEqual(700, newR.Bottom);
         }
 
+        [Ignore("Bug!")]
         [Test]
         public void TestMarginsRemoved()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.Left = 50;
             s.Top = 150;
             s.Right = 600;
             s.Bottom = 500;
 
-            var mar = new QMargins(50, 100, 150, 200);
+            var mar = new QMarginsF(50, 100, 150, 200);
 
             var newR = s.MarginsRemoved(mar);
 
@@ -433,7 +435,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestMoveBottom()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.Left = 50;
             s.Top = 150;
             s.Right = 600;
@@ -447,13 +449,13 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestMoveBottomLeft()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 100;
             s.Width = 500;
             s.Height = 600;
 
-            s.MoveBottomLeft(new QPoint(100, 600));
+            s.MoveBottomLeft(new QPointF(100, 600));
 
             Assert.AreEqual(500, s.Width);
             Assert.AreEqual(600, s.Height);
@@ -464,13 +466,13 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestMoveBottomRight()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 100;
             s.Width = 500;
             s.Height = 600;
 
-            s.MoveBottomRight(new QPoint(600, 600));
+            s.MoveBottomRight(new QPointF(600, 600));
 
             Assert.AreEqual(500, s.Width);
             Assert.AreEqual(600, s.Height);
@@ -481,13 +483,13 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestMoveCenter()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 100;
             s.Width = 500;
             s.Height = 600;
 
-            s.MoveCenter(new QPoint(600, 600));
+            s.MoveCenter(new QPointF(600, 600));
 
             Assert.AreEqual(500, s.Width);
             Assert.AreEqual(600, s.Height);
@@ -498,7 +500,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestMoveLeft()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 100;
             s.Width = 500;
@@ -515,7 +517,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestMoveRight()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 100;
             s.Width = 500;
@@ -532,7 +534,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestMoveToInteger()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 80;
             s.Width = 500;
@@ -547,15 +549,15 @@ namespace QtSharp.Tests.QtCore
         }
 
         [Test]
-        public void TestMoveToQPoint()
+        public void TestMoveToQPointF()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 80;
             s.Width = 500;
             s.Height = 600;
 
-            s.MoveTo(new QPoint(100, 100));
+            s.MoveTo(new QPointF(100, 100));
 
             Assert.AreEqual(500, s.Width);
             Assert.AreEqual(600, s.Height);
@@ -566,7 +568,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestMoveTop()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 80;
             s.Width = 500;
@@ -583,13 +585,13 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestMoveTopLeft()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 80;
             s.Width = 500;
             s.Height = 600;
 
-            s.MoveTopLeft(new QPoint(100, 100));
+            s.MoveTopLeft(new QPointF(100, 100));
 
             Assert.AreEqual(500, s.Width);
             Assert.AreEqual(600, s.Height);
@@ -600,13 +602,13 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestMoveTopRight()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 80;
             s.Width = 500;
             s.Height = 600;
 
-            s.MoveTopRight(new QPoint(600, 100));
+            s.MoveTopRight(new QPointF(600, 100));
 
             Assert.AreEqual(500, s.Width);
             Assert.AreEqual(600, s.Height);
@@ -617,7 +619,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestNormalized()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 0;
             s.Y = 0;
             s.Width = -1;
@@ -634,7 +636,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestRight()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 80;
             s.Width = 500;
@@ -650,7 +652,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestSize()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 80;
             s.Width = 500;
@@ -665,7 +667,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestTop()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 80;
             s.Width = 500;
@@ -679,7 +681,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestTopLeft()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 80;
             s.Width = 500;
@@ -694,7 +696,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestTopRight()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 80;
             s.Width = 500;
@@ -709,7 +711,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestTranslateInteger()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 80;
             s.Width = 500;
@@ -722,15 +724,15 @@ namespace QtSharp.Tests.QtCore
         }
 
         [Test]
-        public void TestTranslateQPoint()
+        public void TestTranslateQPointF()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 80;
             s.Width = 500;
             s.Height = 600;
             
-            s.Translate(new QPoint(50, 20));
+            s.Translate(new QPointF(50, 20));
 
             Assert.AreEqual(100, s.X);
             Assert.AreEqual(100, s.Y);
@@ -739,7 +741,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestTranslatedInteger()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 80;
             s.Width = 500;
@@ -752,15 +754,15 @@ namespace QtSharp.Tests.QtCore
         }
 
         [Test]
-        public void TestTranslatedQPoint()
+        public void TestTranslatedQPointF()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 50;
             s.Y = 80;
             s.Width = 500;
             s.Height = 600;
 
-            var n = s.Translated(new QPoint(50, 20));
+            var n = s.Translated(new QPointF(50, 20));
 
             Assert.AreEqual(100, n.X);
             Assert.AreEqual(100, n.Y);
@@ -769,13 +771,13 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestUnited()
         {
-            var s1 = new QRect();
+            var s1 = new QRectF();
             s1.X = 0;
             s1.Y = 0;
             s1.Width = 500;
             s1.Height = 600;
 
-            var s2 = new QRect();
+            var s2 = new QRectF();
             s2.X = 100;
             s2.Y = 100;
             s2.Width = 500;
@@ -792,7 +794,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestWidth()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 0;
             s.Y = 0;
             s.Width = 500;
@@ -804,7 +806,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestX()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 200;
             s.Y = 300;
             s.Width = 500;
@@ -816,7 +818,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestY()
         {
-            var s = new QRect();
+            var s = new QRectF();
             s.X = 200;
             s.Y = 300;
             s.Width = 500;
@@ -828,13 +830,13 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestAndOperator()
         {
-            var s1 = new QRect();
+            var s1 = new QRectF();
             s1.X = 0;
             s1.Y = 0;
             s1.Width = 500;
             s1.Height = 600;
 
-            var s2 = new QRect();
+            var s2 = new QRectF();
             s2.X = 400;
             s2.Y = 500;
             s2.Width = 500;
@@ -851,13 +853,13 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestAndEqualOperator()
         {
-            var s1 = new QRect();
+            var s1 = new QRectF();
             s1.X = 0;
             s1.Y = 0;
             s1.Width = 500;
             s1.Height = 600;
 
-            var s2 = new QRect();
+            var s2 = new QRectF();
             s2.X = 400;
             s2.Y = 500;
             s2.Width = 500;
@@ -871,16 +873,17 @@ namespace QtSharp.Tests.QtCore
             Assert.AreEqual(100, s1.Height);
         }
 
+        [Ignore("Bug!")]
         [Test]
         public void TestAddMarginOperator()
         {
-            var s1 = new QRect();
+            var s1 = new QRectF();
             s1.X = 0;
             s1.Y = 0;
             s1.Width = 500;
             s1.Height = 600;
 
-            var s2 = new QMargins(100, 100, 100, 100);
+            var s2 = new QMarginsF(100, 100, 100, 100);
            
             s1 += s2;
 
@@ -890,16 +893,17 @@ namespace QtSharp.Tests.QtCore
             Assert.AreEqual(600, s1.Height);
         }
 
+        [Ignore("Bug!")]
         [Test]
         public void TestSubMarginOperator()
         {
-            var s1 = new QRect();
+            var s1 = new QRectF();
             s1.X = 100;
             s1.Y = 100;
             s1.Width = 500;
             s1.Height = 600;
 
-            var s2 = new QMargins(100, 100, 100, 100);
+            var s2 = new QMarginsF(100, 100, 100, 100);
 
             s1 += s2;
 
@@ -912,13 +916,13 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestPipeOperator()
         {
-            var s1 = new QRect();
+            var s1 = new QRectF();
             s1.X = 0;
             s1.Y = 0;
             s1.Width = 500;
             s1.Height = 600;
 
-            var s2 = new QRect();
+            var s2 = new QRectF();
             s2.X = 100;
             s2.Y = 100;
             s2.Width = 500;
@@ -935,13 +939,13 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestPipeEqualOperator()
         {
-            var s1 = new QRect();
+            var s1 = new QRectF();
             s1.X = 0;
             s1.Y = 0;
             s1.Width = 500;
             s1.Height = 600;
 
-            var s2 = new QRect();
+            var s2 = new QRectF();
             s2.X = 100;
             s2.Y = 100;
             s2.Width = 500;
@@ -958,13 +962,13 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestNotEqualOperator()
         {
-            var s1 = new QRect();
+            var s1 = new QRectF();
             s1.X = 0;
             s1.Y = 0;
             s1.Width = 500;
             s1.Height = 600;
 
-            var s2 = new QRect();
+            var s2 = new QRectF();
             s2.X = 100;
             s2.Y = 100;
             s2.Width = 500;
@@ -974,16 +978,17 @@ namespace QtSharp.Tests.QtCore
             //Assert.IsTrue(s1 != s2);
         }
 
+        [Ignore("Bug!")]
         [Test]
         public void TestAddMarginToNewRectOperator()
         {
-            var s1 = new QRect();
+            var s1 = new QRectF();
             s1.X = 0;
             s1.Y = 0;
             s1.Width = 500;
             s1.Height = 600;
 
-            var s2 = new QMargins(100, 100, 100, 100);
+            var s2 = new QMarginsF(100, 100, 100, 100);
 
             var n = s1 + s2;
 
@@ -993,16 +998,17 @@ namespace QtSharp.Tests.QtCore
             Assert.AreEqual(600, n.Height);
         }
 
+        [Ignore("Bug!")]
         [Test]
         public void TestAddMarginToNewRectOperator2()
         {
-            var s1 = new QRect();
+            var s1 = new QRectF();
             s1.X = 0;
             s1.Y = 0;
             s1.Width = 500;
             s1.Height = 600;
 
-            var s2 = new QMargins(100, 100, 100, 100);
+            var s2 = new QMarginsF(100, 100, 100, 100);
 
             var n = s2 + s1;
 
@@ -1012,16 +1018,17 @@ namespace QtSharp.Tests.QtCore
             Assert.AreEqual(600, n.Height);
         }
 
+        [Ignore("Bug!")]
         [Test]
         public void TestSubMarginToNewRectOperator()
         {
-            var s1 = new QRect();
+            var s1 = new QRectF();
             s1.X = 100;
             s1.Y = 100;
             s1.Width = 500;
             s1.Height = 600;
 
-            var s2 = new QMargins(100, 100, 100, 100);
+            var s2 = new QMarginsF(100, 100, 100, 100);
 
             var n = s1 - s2;
 
@@ -1034,13 +1041,13 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestEqualOperator()
         {
-            var s1 = new QRect();
+            var s1 = new QRectF();
             s1.X = 0;
             s1.Y = 0;
             s1.Width = 500;
             s1.Height = 600;
 
-            var s2 = new QRect();
+            var s2 = new QRectF();
             s2.X = 0;
             s2.Y = 0;
             s2.Width = 500;
