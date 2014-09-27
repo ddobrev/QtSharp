@@ -55,6 +55,8 @@
     <Compile Include="QtCore\QFileInfoTests.cs" />
     <Compile Include="QtCore\QFlagTests.cs" />
     <Compile Include="QtCore\QObjectTests.cs" />
+    <Compile Include="QtCore\QPointFTests.cs" />
+    <Compile Include="QtCore\QPointTests.cs" />
     <Compile Include="QtCore\QRectTests.cs" />
     <Compile Include="QtCore\QRectFTests.cs" />
     <Compile Include="QtCore\QSizeFTests.cs" />

@@ -15,6 +15,10 @@ QObject (tests in work):
 - BlockSignals as setter to Property SignalsBlocked
 - See TODO comments in file
 
+QPoint / QPointF (tests done):
+- Avoid unsafe context in Rx, Ry
+- How to handle << and >> operator
+
 QRect / QRectF (tests done):
 - Avoid unsafe context in GetCoords, GetRect, use ref, out...
 - GetCoords and SetCoords to property

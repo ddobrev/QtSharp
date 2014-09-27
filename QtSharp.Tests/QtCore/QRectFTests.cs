@@ -7,13 +7,13 @@ namespace QtSharp.Tests.QtCore
     [TestFixture]
     public class QRectFTests
     {
-        private QRectF _QRectF;
+        private QRectF _qRectF;
 
         [SetUp]
         public void Init()
         {
             // TODO: Add Init code.
-            _QRectF = new QRectF();
+            _qRectF = new QRectF();
         }
 
         [TearDown]
