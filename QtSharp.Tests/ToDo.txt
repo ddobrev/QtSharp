@@ -11,6 +11,9 @@ QFileInfo (tests done):
 
 QFlag (tests done)
 
+QLine / QLineF (tests done)
+- How to handle << and >> operator
+
 QObject (tests in work):
 - BlockSignals as setter to Property SignalsBlocked
 - See TODO comments in file

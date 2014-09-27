@@ -54,6 +54,10 @@
     <Compile Include="QtCore\QDateTests.cs" />
     <Compile Include="QtCore\QFileInfoTests.cs" />
     <Compile Include="QtCore\QFlagTests.cs" />
+    <Compile Include="QtCore\QLineFTests.cs" />
+    <Compile Include="QtCore\QLineTests.cs" />
+    <Compile Include="QtCore\QMarginsFTests.cs" />
+    <Compile Include="QtCore\QMarginsTests.cs" />
     <Compile Include="QtCore\QObjectTests.cs" />
     <Compile Include="QtCore\QPointFTests.cs" />
     <Compile Include="QtCore\QPointTests.cs" />
