@@ -27,6 +27,7 @@ namespace QtSharp.Tests.QtCore
         public void TestEmpyConstructor()
         {
             var s = new QSize();
+            Assert.NotNull(s);
         }
 
         [Test]

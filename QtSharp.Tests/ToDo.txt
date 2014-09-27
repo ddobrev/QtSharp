@@ -1,3 +1,9 @@
+QAtomicInteger (tests in work):
+
+QBasicTimer (tests in work):
+
+QCommandLineOption (tests in work):
+
 QCoreApplication (tests in work):
 - Add another Ctor with C# args and without need for unsafe context
 
@@ -9,10 +15,12 @@ QDate (tests done):
 QFileInfo (tests done):
 - Add Exists
 
-QFlag (tests done)
+QFlag (tests done):
 
-QLine / QLineF (tests done)
+QLine / QLineF (tests done):
 - How to handle << and >> operator
+
+QMarginsF (tests done):
 
 QObject (tests in work):
 - BlockSignals as setter to Property SignalsBlocked
@@ -28,13 +36,15 @@ QRect / QRectF (tests done):
 - GetRect and SetRect to property
 - How to handle << and >> operator
 
-QSizeF (tests done)
+QSizeF (tests done):
 - some ops are missing
 
-QSize (tests done)
+QSize (tests done):
 - some ops are missing
 
-QStringRef (tests done)
+QStringRef (tests done):
 
 QSysInfo (tests done):
 - Add Mac Version
+
+QUrl (tests in work):

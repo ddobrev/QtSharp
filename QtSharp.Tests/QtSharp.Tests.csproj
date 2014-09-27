@@ -50,6 +50,9 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helper.cs" />
+    <Compile Include="QtCore\QAtomicIntegerTests.cs" />
+    <Compile Include="QtCore\QBasicTimerTests.cs" />
+    <Compile Include="QtCore\QCommandLineOptionTests.cs" />
     <Compile Include="QtCore\QCoreApplicationTests.cs" />
     <Compile Include="QtCore\QDateTests.cs" />
     <Compile Include="QtCore\QFileInfoTests.cs" />
@@ -67,9 +70,11 @@
     <Compile Include="QtCore\QSizeTests.cs" />
     <Compile Include="QtCore\QStringRefTests.cs" />
     <Compile Include="QtCore\QSysInfoTests.cs" />
+    <Compile Include="QtCore\QUrlTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="QtCoreClasses.ods" />
     <None Include="TestData\DoubleExtensionVerknüpfung.lnk">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
