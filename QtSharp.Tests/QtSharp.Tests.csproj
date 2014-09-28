@@ -71,6 +71,7 @@
     <Compile Include="QtCore\QStringRefTests.cs" />
     <Compile Include="QtCore\QSysInfoTests.cs" />
     <Compile Include="QtCore\QUrlTests.cs" />
+    <Compile Include="QtCore\QUuidTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -48,3 +48,9 @@ QSysInfo (tests done):
 - Add Mac Version
 
 QUrl (tests in work):
+- How to handle << and >> operator
+
+QUuid (tests done):
+- variant to Variant
+- version to Version
+- How to handle << and >> operator
