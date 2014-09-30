@@ -1,3 +1,10 @@
+QAbstractAnimation (tests done):
+- direction to Direction
+- state to State
+
+QAnimationGroup (tests in work):
+- 
+
 QAtomicInteger (tests in work):
 
 QBasicTimer (tests in work):

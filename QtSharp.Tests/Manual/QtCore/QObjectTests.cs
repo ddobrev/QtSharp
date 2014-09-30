@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using NUnit.Framework;
 using QtCore;
 
-namespace QtSharp.Tests.QtCore
+namespace QtSharp.Tests.Manual.QtCore
 {
     [TestFixture]
     public class QObjectTests
@@ -90,7 +90,7 @@ namespace QtSharp.Tests.QtCore
             var k = (char*)p;
 
             var core = new QCoreApplication(&argc, &k);
-            
+
 
 
             _qObject.DeleteLater();

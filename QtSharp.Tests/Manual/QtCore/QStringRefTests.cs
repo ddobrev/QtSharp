@@ -1,18 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
-using NUnit;
 using NUnit.Framework;
 using QtCore;
 using QtCore.Qt;
 
-namespace QtSharp.Tests.QtCore
+namespace QtSharp.Tests.Manual.QtCore
 {
     [TestFixture]
     public class QStringRefTests
@@ -40,7 +35,7 @@ namespace QtSharp.Tests.QtCore
         public void TestQStringRefConstructor()
         {
             var s = new QStringRef(_qString);
-            
+
             Assert.AreEqual(_testString, s.ToString());
         }
 
@@ -140,7 +135,7 @@ namespace QtSharp.Tests.QtCore
             var qLString2 = new QLatin1String(netString2);
 
             var netRes = string.Compare(netString1, netString2, CultureInfo.CurrentCulture, CompareOptions.IgnoreCase);
-            
+
             var qRes = QStringRef.Compare(qString1, qLString2, CaseSensitivity.CaseInsensitive);
 
             if (netRes == qRes)
@@ -808,7 +803,7 @@ namespace QtSharp.Tests.QtCore
             var charac = netString1.ElementAt(rx);
             var net = netString1.LastIndexOf(charac);
 
-            var qChar = new QStringRef(new string(charac,1));
+            var qChar = new QStringRef(new string(charac, 1));
             var q = qString1.LastIndexOf(qChar);
 
             Assert.AreEqual(net, q);
@@ -842,7 +837,7 @@ namespace QtSharp.Tests.QtCore
             var netString1 = Helper.RandomString(i1);
             var qString1 = new QStringRef(netString1);
 
-            var subNet = netString1.Substring(0, i1/5);
+            var subNet = netString1.Substring(0, i1 / 5);
             var subQ = qString1.Left(i1 / 5);
 
             Assert.AreEqual(subNet, subQ.ToString());
@@ -927,7 +922,7 @@ namespace QtSharp.Tests.QtCore
 
             var net = _testString.StartsWith(i.ToString());
 
-            var qs = new QStringRef(new string(i,1));
+            var qs = new QStringRef(new string(i, 1));
 
             var q = _qString.StartsWith(qs);
 
@@ -1111,65 +1106,65 @@ namespace QtSharp.Tests.QtCore
         #region Ops
         [Ignore("Bug!")]
         [Test]
-        public void TestEqual_QString_QLatin1String()
+        public void TestEqual_QStringRef_QLatin1StringOperator()
         {
             var s = _qString;
             var s2 = new QLatin1String(_testString);
 
-            Assert.IsTrue(s == s2);
+            Assert.AreEqual(s, s2);
         }
 
         [Ignore("Bug!")]
         [Test]
-        public void TestEqual_QString_QString()
+        public void TestEqual_QStringRef_QStringRefOperator()
         {
             var s = _qString;
             var s2 = new QStringRef(_testString);
-            
-            Assert.IsTrue(s == s2);
+
+            Assert.AreEqual(s, s2);
         }
 
         [Ignore("Bug!")]
         [Test]
-        public void TestEqual_QString_String()
+        public void TestEqual_QStringRef_StringOperator()
         {
             var s = _qString;
 
-            Assert.IsTrue(s == _testString);
+            Assert.AreEqual(s, _testString);
         }
 
         [Ignore("Bug!")]
         [Test]
-        public void TestUnEqual_QString_QLatin1String()
+        public void TestNotEqual_QString_QLatin1StringOperator()
         {
             var s = _qString;
             var s2 = new QLatin1String(_testString);
 
-            Assert.IsTrue(s != s2);
+            Assert.AreNotEqual(s, s2);
         }
 
         [Ignore("Bug!")]
         [Test]
-        public void TestUnEqual_QString_QString()
+        public void TestNotEqual_QStringRef_QStringRefOperator()
         {
             var s = _qString;
             var s2 = new QStringRef(_testString);
 
-            Assert.IsTrue(s != s2);
+            Assert.AreNotEqual(s, s2);
         }
 
         [Ignore("Bug!")]
         [Test]
-        public void TestUnEqual_QString_String()
+        public void TestNotEqual_QStringRef_StringOperator()
         {
             var s = _qString;
 
-            Assert.IsFalse(s != _testString);
+            Assert.AreNotEqual(s, _testString);
         }
 
         [Ignore("Bug!")]
         [Test]
-        public void TestBigger()
+        public void TestGreaterOperator()
         {
             var s = new QStringRef(_testString);
             var s2 = new QStringRef(_testString.ToUpper());
@@ -1180,12 +1175,14 @@ namespace QtSharp.Tests.QtCore
 
             var q = s > s2;
 
+            //Assert.Greater(s, s2);
+
             Assert.AreEqual(net, q);
         }
 
         [Ignore("Bug!")]
         [Test]
-        public void TestBiggerEqual()
+        public void TestGreaterEqualOperator()
         {
             var s = new QStringRef(_testString);
             var s2 = new QStringRef(_testString.ToUpper());
@@ -1196,12 +1193,14 @@ namespace QtSharp.Tests.QtCore
 
             var q = s >= s2;
 
+            //Assert.GreaterOrEqual(s, s2);
+
             Assert.AreEqual(net, q);
         }
 
         [Ignore("Bug!")]
         [Test]
-        public void TestSmaller()
+        public void TestLessOperator()
         {
             var s = new QStringRef(_testString);
             var s2 = new QStringRef(_testString.ToUpper());
@@ -1212,12 +1211,14 @@ namespace QtSharp.Tests.QtCore
 
             var q = s < s2;
 
+            //Assert.Less(s, s2);
+
             Assert.AreEqual(net, q);
         }
 
         [Ignore("Bug!")]
         [Test]
-        public void TestSmallerEqual()
+        public void TestLessEqualOperator()
         {
             var s = new QStringRef(_testString);
             var s2 = new QStringRef(_testString.ToUpper());
@@ -1227,6 +1228,8 @@ namespace QtSharp.Tests.QtCore
             bool net = netComp <= 0;
 
             var q = s <= s2;
+
+            //Assert.LessOrEqual(s, s2);
 
             Assert.AreEqual(net, q);
         }
@@ -1244,7 +1247,7 @@ namespace QtSharp.Tests.QtCore
             Assert.AreNotEqual(u.__Instance, IntPtr.Zero);
             Assert.AreNotEqual(d.__Instance, IntPtr.Zero);
             Assert.AreNotEqual(cd.__Instance, IntPtr.Zero);
-            
+
             Assert.AreEqual(u.Cell, d.Cell);
             Assert.AreEqual(u.Cell, cd.Cell);
         }

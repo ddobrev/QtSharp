@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using QtCore;
 
-namespace QtSharp.Tests.QtCore
+namespace QtSharp.Tests.Manual.QtCore
 {
     [TestFixture]
     public class QUuidTests
@@ -33,7 +33,6 @@ namespace QtSharp.Tests.QtCore
         public void TestEmpyConstructor()
         {
             //var uid = new QUuid();
-            //Assert.NotNull(uid);
             throw new AssertionException("Empty ctor not implemented!");
         }
 
@@ -53,7 +52,6 @@ namespace QtSharp.Tests.QtCore
             byte b8 = 0xee;
 
             //var uid = new QUuid(l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8);
-            //Assert.NotNull(uid);
 
             throw new AssertionException("Hex ctor not implemented!");
         }
@@ -62,7 +60,6 @@ namespace QtSharp.Tests.QtCore
         public void TestStringConstructor()
         {
             var uid = new QUuid("{67C8770B-44F1-410A-AB9A-F9B5446F13EE}");
-            Assert.NotNull(uid);
         }
 
         [Test]
@@ -126,7 +123,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestFromRfc4122()
         {
-            Assert.AreEqual(_uuidA, 
+            Assert.AreEqual(_uuidA,
                 QUuid.FromRfc4122(QByteArray.FromHex(new QByteArray("fc69b59ecc344436a43cee95d128b8c5"))));
 
             Assert.AreEqual(_uuidB,
@@ -231,7 +228,7 @@ namespace QtSharp.Tests.QtCore
         }
 
         [Test]
-        public void TestMoreOperator()
+        public void TestGreaterOperator()
         {
             Assert.IsTrue(_uuidA > _uuidB);
 

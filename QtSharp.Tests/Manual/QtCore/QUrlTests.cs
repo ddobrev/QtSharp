@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using QtCore;
 
-namespace QtSharp.Tests.QtCore
+namespace QtSharp.Tests.Manual.QtCore
 {
     [TestFixture]
     public class QUrlTests
@@ -28,28 +28,24 @@ namespace QtSharp.Tests.QtCore
         public void TestEmpyConstructor()
         {
             var s = new QUrl();
-            Assert.NotNull(s);
         }
 
         [Test]
         public void TestStringTolerantConstructor()
         {
             var s = new QUrl("http://www.example.com/List of holidays.xml");
-            Assert.NotNull(s);
         }
 
         [Test]
         public void TestStringStrictConstructor()
         {
             var s = new QUrl("http://www.example.com/List of holidays.xml", QUrl.ParsingMode.StrictMode);
-            Assert.NotNull(s);
         }
 
         [Test]
         public void TestStringDecodedConstructor()
         {
             var s = new QUrl("http://www.example.com/List of holidays.xml", QUrl.ParsingMode.DecodedMode);
-            Assert.NotNull(s);
         }
 
         [Ignore("Bug!")]
@@ -59,8 +55,6 @@ namespace QtSharp.Tests.QtCore
             var s = new QUrl("http://www.example.com/List of holidays.xml");
 
             var n = new QUrl(s);
-
-            Assert.NotNull(n);
         }
 
         [Test]
@@ -73,7 +67,7 @@ namespace QtSharp.Tests.QtCore
         public void TestAuthority()
         {
             foreach (
-                QUrl.ComponentFormattingOption formatting in Enum.GetValues(typeof (QUrl.ComponentFormattingOption)))
+                QUrl.ComponentFormattingOption formatting in Enum.GetValues(typeof(QUrl.ComponentFormattingOption)))
             {
                 var s = _qUrl.Authority(formatting);
                 Assert.IsNotNullOrEmpty(s, "Problem in enum: " + formatting.ToString());
@@ -558,7 +552,8 @@ namespace QtSharp.Tests.QtCore
         {
             //QUrl n = _qUrl.Url();
             throw new AssertionException("Url() not implemented!");
-            //Assert.IsFalse(n != _qUrl);
+
+            //Assert.AreEqual(n, _qUrl);           
         }
 
         [Ignore("Bug!")]
@@ -567,7 +562,7 @@ namespace QtSharp.Tests.QtCore
         {
             var n = new QUrl(Url);
 
-            Assert.IsTrue(n == _qUrl);
+            Assert.AreEqual(n, _qUrl);
         }
     }
 }

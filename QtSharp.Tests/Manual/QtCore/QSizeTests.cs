@@ -2,18 +2,18 @@
 using QtCore;
 using QtCore.Qt;
 
-namespace QtSharp.Tests.QtCore
+namespace QtSharp.Tests.Manual.QtCore
 {
     [TestFixture]
     public class QSizeTests
     {
         private QSize _qSize;
-        
+
         [SetUp]
         public void Init()
         {
             // TODO: Add Init code.
-           _qSize = new QSize(500, 100);
+            _qSize = new QSize(500, 100);
         }
 
         [TearDown]
@@ -27,7 +27,6 @@ namespace QtSharp.Tests.QtCore
         public void TestEmpyConstructor()
         {
             var s = new QSize();
-            Assert.NotNull(s);
         }
 
         [Test]
@@ -128,7 +127,7 @@ namespace QtSharp.Tests.QtCore
             rW = &resW;
             rH = &resH;
 
-            Assert.AreEqual(_qSize.Width+w, *rW);
+            Assert.AreEqual(_qSize.Width + w, *rW);
             Assert.AreEqual(_qSize.Height + h, *rH);
         }
 
@@ -233,9 +232,9 @@ namespace QtSharp.Tests.QtCore
             Assert.AreEqual(100, tr.Width);
             Assert.AreEqual(500, tr.Height);
         }
-        
+
         [Test]
-        public void TestMultWidthInteger()
+        public void TestMultWidthIntegerOperator()
         {
             //var size = new QSize(500, 100);
             //size *= 5;
@@ -247,7 +246,7 @@ namespace QtSharp.Tests.QtCore
         }
 
         [Test]
-        public void TestAddWidthInteger()
+        public void TestAddWidthIntegerOperator()
         {
             //var size = new QSize(500, 100);
             //size += 5;
@@ -259,7 +258,7 @@ namespace QtSharp.Tests.QtCore
         }
 
         [Test]
-        public void TestSubWidthInteger()
+        public void TestSubWidthIntegerOperator()
         {
             //var size = new QSize(500, 100);
             //size -= 5;
@@ -271,7 +270,7 @@ namespace QtSharp.Tests.QtCore
         }
 
         [Test]
-        public void TestDivWidthInteger()
+        public void TestDivWidthIntegerOperator()
         {
             //var size = new QSize(500, 100);
             //size /= 5;
@@ -283,18 +282,18 @@ namespace QtSharp.Tests.QtCore
         }
 
         [Test]
-        public void TestNotEqual()
+        public void TestNotEqualOperator()
         {
             var size = new QSize(500, 100);
             var size2 = new QSize(100, 50);
 
-            //Assert.IsTrue(size != size2);
+            Assert.AreNotEqual(size, size2);
 
             throw new AssertionException("Not implemented");
         }
 
         [Test]
-        public void TestMult()
+        public void TestMultOperator()
         {
             var size = new QSize(500, 100);
 
@@ -307,11 +306,11 @@ namespace QtSharp.Tests.QtCore
         }
 
         [Test]
-        public void TestMult2()
+        public void TestMult2Operator()
         {
             var size = new QSize(500, 100);
 
-            //var res = 50*size;
+            //var res = 50 * size;
 
             //Assert.AreEqual(500 * 50, res.Width);
             //Assert.AreEqual(50 * 100, res.Height);
@@ -320,7 +319,7 @@ namespace QtSharp.Tests.QtCore
         }
 
         [Test]
-        public void TestAdd()
+        public void TestAddOperator()
         {
             var size = new QSize(500, 100);
             var size2 = new QSize(500, 100);
@@ -334,7 +333,7 @@ namespace QtSharp.Tests.QtCore
         }
 
         [Test]
-        public void TestSub()
+        public void TestSubOperator()
         {
             var size = new QSize(500, 100);
             var size2 = new QSize(500, 100);
@@ -348,7 +347,7 @@ namespace QtSharp.Tests.QtCore
         }
 
         [Test]
-        public void TestDiv()
+        public void TestDivOperator()
         {
             var size = new QSize(500, 100);
 
@@ -361,12 +360,12 @@ namespace QtSharp.Tests.QtCore
         }
 
         [Test]
-        public void TestEqual()
+        public void TestEqualOperator()
         {
             var size = new QSize(500, 100);
             var size2 = new QSize(500, 100);
 
-            //Assert.IsTrue(size == size2);
+            Assert.AreEqual(size, size2);
 
             throw new AssertionException("Not implemented");
         }

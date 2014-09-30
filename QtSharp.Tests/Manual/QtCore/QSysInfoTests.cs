@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using QtCore;
 
-namespace QtSharp.Tests.QtCore
+namespace QtSharp.Tests.Manual.QtCore
 {
     [TestFixture]
     public class QSysInfoTests

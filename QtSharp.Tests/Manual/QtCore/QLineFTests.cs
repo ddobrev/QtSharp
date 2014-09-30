@@ -1,7 +1,6 @@
 ﻿using NUnit.Framework;
-using QtCore;
 
-namespace QtSharp.Tests.QtCore
+namespace QtSharp.Tests.Manual.QtCore
 {
     [TestFixture]
     public class QLineFTests
@@ -23,7 +22,6 @@ namespace QtSharp.Tests.QtCore
         {
             throw new AssertionException("Not implemented!");
             //var s = new QLineF();
-            //Assert.NotNull(s);
         }
 
         [Test]
@@ -31,7 +29,6 @@ namespace QtSharp.Tests.QtCore
         {
             throw new AssertionException("Not implemented!");
             //var s = new QLineF(new QPointF(5.0, 5.0), new QPointF(10.0, 10.0));
-            //Assert.NotNull(s);
 
             //Assert.AreEqual(5.0, s.X1);
             //Assert.AreEqual(5.0, s.Y1);
@@ -45,7 +42,6 @@ namespace QtSharp.Tests.QtCore
         {
             throw new AssertionException("Not implemented!");
             //var s = new QLineF(5.0, 5.0, 10.0, 10.0);
-            //Assert.NotNull(s);
 
             //Assert.AreEqual(5.0, s.X1);
             //Assert.AreEqual(5.0, s.Y1);
@@ -190,9 +186,9 @@ namespace QtSharp.Tests.QtCore
         {
             throw new AssertionException("Not implemented!");
             //var s1 = new QLineF(5.0, 5.0, 10.0, 10.0);
-            //var s2 = new QLineF(5.0, 5.0, 10.0, 10.0);
+            //var s2 = new QLineF(5.0, 5.0, 15.0, 10.0);
 
-            //Assert.IsFalse(s1 != s2);
+            //Assert.AreNotEqual(s1, s2);           
         }
 
         [Test]
@@ -202,7 +198,7 @@ namespace QtSharp.Tests.QtCore
             //var s1 = new QLineF(5.0, 5.0, 10.0, 10.0);
             //var s2 = new QLineF(5.0, 5.0, 10.0, 10.0);
 
-            //Assert.IsTrue(s1 == s2);
+            //Assert.AreEqual(s1, s2);   
         }
     }
 }

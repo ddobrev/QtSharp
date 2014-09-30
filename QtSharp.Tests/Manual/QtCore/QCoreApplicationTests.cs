@@ -1,11 +1,7 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using QtCore;
 
-namespace QtSharp.Tests.QtCore
+namespace QtSharp.Tests.Manual.QtCore
 {
     [TestFixture]
     public class QCoreApplicationTests
@@ -75,10 +71,11 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestAboutToQuit()
         {
-            QCoreApplication.Quit();
-
             var wasFired = false;
+
             _qCoreApp.AboutToQuit += () => wasFired = true;
+
+            QCoreApplication.Quit();
 
             Assert.IsTrue(wasFired);
         }

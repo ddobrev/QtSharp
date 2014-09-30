@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using QtCore;
 
-namespace QtSharp.Tests.QtCore
+namespace QtSharp.Tests.Manual.QtCore
 {
     [TestFixture]
     public class QMarginsTests
@@ -29,14 +29,12 @@ namespace QtSharp.Tests.QtCore
         public void TestEmptyConstructor()
         {
             var s = new QMargins();
-            Assert.NotNull(s);
         }
 
         [Test]
         public void TestIntegerConstructor()
         {
             var s = new QMargins(5, 5, 10, 10);
-            Assert.NotNull(s);
         }
 
         [Test]
@@ -138,7 +136,7 @@ namespace QtSharp.Tests.QtCore
         {
             var res = new QMargins(Left, Top, Right, Bottom);
 
-            Assert.IsFalse(res != _margins);
+            Assert.AreNotEqual(res, _margins);
         }
 
         [Test]
@@ -203,7 +201,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestAddMarginsToThisOperator()
         {
-            _margins = _margins + new QMargins(1,2,3,4);
+            _margins = _margins + new QMargins(1, 2, 3, 4);
 
             Assert.AreEqual(Left + 1, _margins.Left);
             Assert.AreEqual(Top + 2, _margins.Top);
@@ -262,7 +260,7 @@ namespace QtSharp.Tests.QtCore
         {
             var res = new QMargins(Left, Top, Right, Bottom);
 
-            Assert.IsTrue(res == _margins);
+            Assert.AreEqual(res, _margins);
         }
     }
 }

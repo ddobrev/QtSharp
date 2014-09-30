@@ -1,10 +1,10 @@
 ﻿using NUnit.Framework;
 using QtCore;
 
-namespace QtSharp.Tests.QtCore
+namespace QtSharp.Tests.Manual.QtCore
 {
     [TestFixture]
-    public class QPointFTests
+    public class QPointTests
     {
         [SetUp]
         public void Init()
@@ -21,8 +21,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestEmptyConstructor()
         {
-            var s = new QPointF();
-            Assert.NotNull(s);
+            var s = new QPoint();
 
             Assert.AreEqual(0, s.X);
             Assert.AreEqual(0, s.Y);
@@ -31,8 +30,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestIntegerConstructor()
         {
-            var s = new QPointF(5, 10);
-            Assert.NotNull(s);
+            var s = new QPoint(5, 10);
 
             Assert.AreEqual(5, s.X);
             Assert.AreEqual(10, s.Y);
@@ -41,9 +39,9 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestDotProduct()
         {
-            var s1 = new QPointF(3, 7);
-            var s2 = new QPointF(-1, 4);
-            var dot = QPointF.DotProduct(s1, s2);
+            var s1 = new QPoint(3, 7);
+            var s2 = new QPoint(-1, 4);
+            var dot = QPoint.DotProduct(s1, s2);
 
             Assert.AreEqual(25, dot);
         }
@@ -51,7 +49,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestIsNull()
         {
-            var s = new QPointF();
+            var s = new QPoint();
 
             Assert.IsTrue(s.IsNull);
         }
@@ -59,7 +57,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestManhattanLength()
         {
-            var s1 = new QPointF(3, 7);
+            var s1 = new QPoint(3, 7);
             var res = s1.ManhattanLength;
 
             Assert.AreEqual(10, res);
@@ -68,9 +66,9 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public unsafe void TestRx()
         {
-            var s1 = new QPointF(3, 7);
+            var s1 = new QPoint(3, 7);
 
-            double* res = s1.Rx;
+            int* res = s1.Rx;
 
             Assert.AreEqual(3, *res);
         }
@@ -78,9 +76,9 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public unsafe void TestRy()
         {
-            var s1 = new QPointF(3, 7);
+            var s1 = new QPoint(3, 7);
 
-            double* res = s1.Ry;
+            int* res = s1.Ry;
 
             Assert.AreEqual(7, *res);
         }
@@ -88,7 +86,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestX()
         {
-            var s1 = new QPointF(3, 7);
+            var s1 = new QPoint(3, 7);
 
             var res = s1.X;
 
@@ -98,7 +96,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestY()
         {
-            var s1 = new QPointF(3, 7);
+            var s1 = new QPoint(3, 7);
 
             var res = s1.Y;
 
@@ -108,7 +106,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestMultiEqualIntOperator()
         {
-            var s1 = new QPointF(3, 7);
+            var s1 = new QPoint(3, 7);
 
             throw new AssertionException("Not implemented!");
             //s1 *= 5;
@@ -120,7 +118,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestMultiEqualFloatOperator()
         {
-            var s1 = new QPointF(3, 7);
+            var s1 = new QPoint(3, 7);
 
             throw new AssertionException("Not implemented!");
             //s1 *= 5.0f;
@@ -132,7 +130,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestMultiEqualDoubleOperator()
         {
-            var s1 = new QPointF(3, 7);
+            var s1 = new QPoint(3, 7);
 
             throw new AssertionException("Not implemented!");
             //s1 *= 5.0;
@@ -144,8 +142,8 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestAddEqualOperator()
         {
-            var s1 = new QPointF(3, 7);
-            var s2 = new QPointF(-1, 4);
+            var s1 = new QPoint(3, 7);
+            var s2 = new QPoint(-1, 4);
 
             throw new AssertionException("Not implemented!");
             //s1 += s2;
@@ -157,8 +155,8 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestSubEqualOperator()
         {
-            var s1 = new QPointF(3, 7);
-            var s2 = new QPointF(-1, 4);
+            var s1 = new QPoint(3, 7);
+            var s2 = new QPoint(-1, 4);
 
             throw new AssertionException("Not implemented!");
             //s1 -= s2;
@@ -170,7 +168,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestDivEqualOperator()
         {
-            var s1 = new QPointF(-3, 10);
+            var s1 = new QPoint(-3, 10);
 
             throw new AssertionException("Not implemented!");
             //s1 /= 2.5;
@@ -182,18 +180,18 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestNotEqualOperator()
         {
-            var s1 = new QPointF(3, 7);
-            var s2 = new QPointF(-1, 4);
+            var s1 = new QPoint(3, 7);
+            var s2 = new QPoint(-1, 4);
 
             throw new AssertionException("Not implemented!");
 
-            //Assert.IsTrue(s1 != s2);
+            Assert.AreNotEqual(s1, s2);
         }
 
         [Test]
         public void TestMultFloatOperator()
         {
-            var s1 = new QPointF(3, 7);
+            var s1 = new QPoint(3, 7);
 
             throw new AssertionException("Not implemented!");
             //var res = s1 * 5.0f;
@@ -205,7 +203,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestMultDoubleOperator()
         {
-            var s1 = new QPointF(3, 7);
+            var s1 = new QPoint(3, 7);
 
             throw new AssertionException("Not implemented!");
             //var res = s1 * 5.0;
@@ -217,7 +215,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestMultIntOperator()
         {
-            var s1 = new QPointF(3, 7);
+            var s1 = new QPoint(3, 7);
 
             throw new AssertionException("Not implemented!");
             //var res = s1 * 5;
@@ -229,7 +227,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestMultFloatRevOperator()
         {
-            var s1 = new QPointF(3, 7);
+            var s1 = new QPoint(3, 7);
 
             throw new AssertionException("Not implemented!");
             //var res = 5.0f * s1;
@@ -241,7 +239,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestMultDoubleRevOperator()
         {
-            var s1 = new QPointF(3, 7);
+            var s1 = new QPoint(3, 7);
 
             throw new AssertionException("Not implemented!");
             //var res =  5.0 * s1;
@@ -253,7 +251,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestMultIntRevOperator()
         {
-            var s1 = new QPointF(3, 7);
+            var s1 = new QPoint(3, 7);
 
             throw new AssertionException("Not implemented!");
             //var res = 5 * s1;
@@ -263,10 +261,10 @@ namespace QtSharp.Tests.QtCore
         }
 
         [Test]
-        public void TestAddQPointFsOperator()
+        public void TestAddQPointsOperator()
         {
-            var s1 = new QPointF(3, 7);
-            var s2 = new QPointF(-1, 4);
+            var s1 = new QPoint(3, 7);
+            var s2 = new QPoint(-1, 4);
 
             throw new AssertionException("Not implemented!");
             //var res = s1 + s2;
@@ -276,9 +274,9 @@ namespace QtSharp.Tests.QtCore
         }
 
         [Test]
-        public void TestAddQPointFOperator()
+        public void TestAddQPointOperator()
         {
-            var s1 = new QPointF(3, 7);
+            var s1 = new QPoint(3, 7);
 
             throw new AssertionException("Not implemented!");
             //var res = +s1;
@@ -288,10 +286,10 @@ namespace QtSharp.Tests.QtCore
         }
 
         [Test]
-        public void TestSubQPointFsOperator()
+        public void TestSubQPointsOperator()
         {
-            var s1 = new QPointF(3, 7);
-            var s2 = new QPointF(-1, 4);
+            var s1 = new QPoint(3, 7);
+            var s2 = new QPoint(-1, 4);
 
             throw new AssertionException("Not implemented!");
             //var res = s1 - s2;
@@ -301,9 +299,9 @@ namespace QtSharp.Tests.QtCore
         }
 
         [Test]
-        public void TestSubQPointFOperator()
+        public void TestSubQPointOperator()
         {
-            var s1 = new QPointF(3, 7);
+            var s1 = new QPoint(3, 7);
 
             throw new AssertionException("Not implemented!");
             //var res = -s1;
@@ -315,7 +313,7 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestDivOperator()
         {
-            var s1 = new QPointF(3, 7);
+            var s1 = new QPoint(3, 7);
 
             throw new AssertionException("Not implemented!");
             //var res = s1 / 1.0;
@@ -327,12 +325,12 @@ namespace QtSharp.Tests.QtCore
         [Test]
         public void TestEqualOperator()
         {
-            var s1 = new QPointF(3, 7);
-            var s2 = new QPointF(3, 7);
+            var s1 = new QPoint(3, 7);
+            var s2 = new QPoint(3, 7);
 
             throw new AssertionException("Not implemented!");
 
-            //Assert.IsTrue(s1 == s2);
-        } 
+            Assert.AreEqual(s1, s2);
+        }
     }
 }

@@ -3,7 +3,7 @@ using NUnit.Framework;
 using QtCore;
 using QtCore.Qt;
 
-namespace QtSharp.Tests.QtCore
+namespace QtSharp.Tests.Manual.QtCore
 {
     [TestFixture]
     public class QDateTests
@@ -476,72 +476,76 @@ namespace QtSharp.Tests.QtCore
 
         [Ignore("Bug")]
         [Test]
-        public void TestNotEqual()
+        public void TestNotEqualOperator()
         {
             var q = new QDate(2014, 11, 20);
             var q2 = new QDate(2014, 11, 22);
 
-            var res = (q != q2); // true
-
-            Assert.IsTrue(res);
+            Assert.AreNotEqual(q, q2);
         }
 
         [Ignore("Bug")]
         [Test]
-        public unsafe void TestSmaller()
+        public unsafe void TestLessOperator()
         {
             var q = new QDate(2014, 11, 20);
             var q2 = new QDate(2014, 11, 22);
 
             var res = (q < q2); // true
 
+            //Assert.Less(q, q2);
+
             Assert.IsTrue(res);
         }
 
         [Ignore("Bug")]
         [Test]
-        public unsafe void TestSmallerEqual()
+        public unsafe void TestLessEqualOperator()
         {
             var q = new QDate(2014, 11, 22);
             var q2 = new QDate(2014, 11, 22);
 
             var res = (q <= q2); // true
 
+            //Assert.LessOrEqual(q, q2);
+
             Assert.IsTrue(res);
         }
 
         [Ignore("Bug")]
         [Test]
-        public unsafe void TestEqual()
+        public void TestEqualOperator()
         {
             var q = new QDate(2014, 11, 20);
             var q2 = new QDate(2014, 11, 22);
 
-            var res = (q == q2); // false
-
-            Assert.IsFalse(res);
+            Assert.AreEqual(q, q2);
         }
 
         [Ignore("Bug")]
         [Test]
-        public unsafe void TestGreater()
+        public unsafe void TestGreaterOperator()
         {
             var q = new QDate(2014, 11, 20);
             var q2 = new QDate(2014, 11, 22);
 
             var res = (q > q2); // false
 
+            //Assert.Greater(q, q2);
+
             Assert.IsFalse(res);
         }
 
         [Ignore("Bug")]
         [Test]
-        public unsafe void TestGreaterEqual()
+        public unsafe void TestGreaterEqualOperator()
         {
             var q = new QDate(2014, 11, 22);
             var q2 = new QDate(2014, 11, 22);
 
             var res = (q >= q2); // true
+
+            //Assert.GreaterOrEqual(q, q2);
 
             Assert.IsTrue(res);
         }

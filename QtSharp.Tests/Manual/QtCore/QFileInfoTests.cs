@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NUnit;
 using NUnit.Framework;
 using QtCore;
 
-namespace QtSharp.Tests.QtCore
+namespace QtSharp.Tests.Manual.QtCore
 {
     [TestFixture]
     public class QFileInfoTests
@@ -183,7 +178,7 @@ namespace QtSharp.Tests.QtCore
         {
             var f = new QFileInfo(_testFilePath4.FullName);
             var q = f.CompleteSuffix();
-          
+
             Assert.AreEqual("ext.txt", q);
         }
 
@@ -250,7 +245,7 @@ namespace QtSharp.Tests.QtCore
         public void TestGroup()
         {
             var q = _fileInfo.Group;
-            
+
             Assert.AreEqual("", q);
         }
 
@@ -294,10 +289,10 @@ namespace QtSharp.Tests.QtCore
         {
             throw new AssertionException("Warning! Execution deletes all files.");
             var ad = _fileInfo.IsDir;
-            
+
             Assert.IsFalse(ad);
         }
-        
+
         [Test]
         public void TestIsExecutable()
         {
@@ -354,7 +349,7 @@ namespace QtSharp.Tests.QtCore
         public void TestIsSymLink()
         {
             var file = new QFileInfo("./TestData/DoubleExtensionVerknüpfung.Ink");
-            
+
             Assert.IsTrue(file.IsSymLink);
         }
 
@@ -432,7 +427,7 @@ namespace QtSharp.Tests.QtCore
         {
             var file = new QFileInfo("./TestData/TextFile1.txt");
             var res = file.Permissions;
-            
+
             Assert.IsTrue(res == QFileDevice.Permission.ReadOwner);
         }
 
@@ -494,32 +489,27 @@ namespace QtSharp.Tests.QtCore
 
         [Ignore("Bug!")]
         [Test]
-        public void TestNotEqual()
+        public void TestNotEqualOperator()
         {
-            var file = new QFileInfo("./TestData/TextFile1.txt");
+            var file = new QFileInfo("./TestData/TextFile2_1000words.txt");
 
-            if(file != _fileInfo)
-                Assert.IsTrue(false);
-            else
-                Assert.IsTrue(true);
+            Assert.AreNotEqual(file, _fileInfo);
         }
 
         [Test]
-        public void TestCopyToAnother()
+        public void TestCopyToAnotherOperator()
         {
             QFileInfo file = _fileInfo;
+            Assert.NotNull(file);
         }
 
         [Ignore("Bug!")]
         [Test]
-        public void TestEqual()
+        public void TestEqualOperator()
         {
             var file = new QFileInfo("./TestData/TextFile1.txt");
 
-            if (file == _fileInfo)
-                Assert.IsTrue(true);
-            else
-                Assert.IsTrue(false);
+            Assert.AreEqual(file, _fileInfo);
         }
     }
 }

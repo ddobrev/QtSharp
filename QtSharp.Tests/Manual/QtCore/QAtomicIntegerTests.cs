@@ -1,10 +1,10 @@
 ﻿using NUnit.Framework;
 using QtCore;
 
-namespace QtSharp.Tests.QtCore
+namespace QtSharp.Tests.Manual.QtCore
 {
     [TestFixture]
-    public class QBasicTimerTests
+    public class QAtomicIntegerTests
     {
         [SetUp]
         public void Init()
@@ -19,18 +19,9 @@ namespace QtSharp.Tests.QtCore
         }
 
         [Test]
-        public void TestEmptyConstructor()
+        public void TestEmptyConstructorNotThrowingAnException()
         {
-            var t = new QBasicTimer();
-
-            Assert.NotNull(t);
-        }
-
-        [Test]
-        public void TestIsActive()
-        {
-            var t = new QBasicTimer();
-            var isAc = t.IsActive;
+            var i = new QAtomicInteger();
         }
     }
 }
