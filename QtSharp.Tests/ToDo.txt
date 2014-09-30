@@ -5,6 +5,9 @@ QAbstractAnimation (tests done):
 QAnimationGroup (tests in work):
 - 
 
+QJsonValue (tests in work):
+- type to Type
+
 QAtomicInteger (tests in work):
 
 QBasicTimer (tests in work):
