@@ -1,0 +1,63 @@
+QAbstractAnimation (tests done):
+- direction to Direction
+- state to State
+
+QAnimationGroup (tests in work):
+- 
+
+QAtomicInteger (tests in work):
+
+QBasicTimer (tests in work):
+
+QCommandLineOption (tests in work):
+
+QCoreApplication (tests in work):
+- Add another Ctor with C# args and without need for unsafe context
+
+QDate (tests done):
+- Avoid unsafe context in GetDate, use ref, out...
+- Avoid unsafe context in WeekNumber, use ref, out...
+- IsValid is missing
+
+QFileInfo (tests done):
+- Add Exists
+
+QFlag (tests done):
+
+QLine / QLineF (tests done):
+- How to handle << and >> operator
+
+QMarginsF (tests done):
+
+QObject (tests in work):
+- BlockSignals as setter to Property SignalsBlocked
+- See TODO comments in file
+
+QPoint / QPointF (tests done):
+- Avoid unsafe context in Rx, Ry
+- How to handle << and >> operator
+
+QRect / QRectF (tests done):
+- Avoid unsafe context in GetCoords, GetRect, use ref, out...
+- GetCoords and SetCoords to property
+- GetRect and SetRect to property
+- How to handle << and >> operator
+
+QSizeF (tests done):
+- some ops are missing
+
+QSize (tests done):
+- some ops are missing
+
+QStringRef (tests done):
+
+QSysInfo (tests done):
+- Add Mac Version
+
+QUrl (tests in work):
+- How to handle << and >> operator
+
+QUuid (tests done):
+- variant to Variant
+- version to Version
+- How to handle << and >> operator
