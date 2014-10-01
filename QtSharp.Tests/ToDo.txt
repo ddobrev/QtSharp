@@ -3,16 +3,22 @@ QAbstractAnimation (tests done):
 - state to State
 
 QAnimationGroup (tests in work):
-- 
+- state to State
+
+QPropertyAnimation (tests in work):
+- SetDuration to property Duration
 
 QJsonValue (tests in work):
 - type to Type
 
 QAtomicInteger (tests in work):
+-
 
 QBasicTimer (tests in work):
+-
 
 QCommandLineOption (tests in work):
+-
 
 QCoreApplication (tests in work):
 - Add another Ctor with C# args and without need for unsafe context
@@ -26,11 +32,13 @@ QFileInfo (tests done):
 - Add Exists
 
 QFlag (tests done):
+-
 
 QLine / QLineF (tests done):
 - How to handle << and >> operator
 
-QMarginsF (tests done):
+QMargins / QMarginsF (tests done):
+-
 
 QObject (tests in work):
 - BlockSignals as setter to Property SignalsBlocked
@@ -53,6 +61,7 @@ QSize (tests done):
 - some ops are missing
 
 QStringRef (tests done):
+-
 
 QSysInfo (tests done):
 - Add Mac Version

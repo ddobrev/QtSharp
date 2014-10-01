@@ -7,7 +7,7 @@ using NUnit.Framework;
 using QtCore;
 using QtCore.Qt;
 
-namespace QtSharp.Tests.Manual.QtCore
+namespace QtSharp.Tests.Manual.QtCore.Tools
 {
     [TestFixture]
     public class QStringRefTests
@@ -179,7 +179,7 @@ namespace QtSharp.Tests.Manual.QtCore
             var netString1 = Helper.RandomString(i1);
             var qString1 = new QStringRef(netString1);
 
-            Thread.Sleep(50);
+            System.Threading.Thread.Sleep(50);
 
             var r2 = new Random();
             var i2 = r2.Next(0, 60);
@@ -205,7 +205,7 @@ namespace QtSharp.Tests.Manual.QtCore
             var netString1 = Helper.RandomString(i1);
             var qString1 = new QStringRef(netString1);
 
-            Thread.Sleep(50);
+            System.Threading.Thread.Sleep(50);
 
             var r2 = new Random();
             var i2 = r2.Next(0, 60);
@@ -231,7 +231,7 @@ namespace QtSharp.Tests.Manual.QtCore
             var netString1 = Helper.RandomString(i1);
             var qString1 = new QStringRef(netString1);
 
-            Thread.Sleep(50);
+            System.Threading.Thread.Sleep(50);
 
             var r2 = new Random();
             var i2 = r2.Next(0, 60);
@@ -257,7 +257,7 @@ namespace QtSharp.Tests.Manual.QtCore
             var netString1 = Helper.RandomString(i1);
             var qString1 = new QStringRef(netString1);
 
-            Thread.Sleep(50);
+            System.Threading.Thread.Sleep(50);
 
             var r2 = new Random();
             var i2 = r2.Next(0, 60);
@@ -854,7 +854,7 @@ namespace QtSharp.Tests.Manual.QtCore
             var netString1 = Helper.RandomString(i1);
             var qString1 = new QStringRef(netString1);
 
-            Thread.Sleep(50);
+            System.Threading.Thread.Sleep(50);
 
             var r2 = new Random();
             var i2 = r2.Next(0, 60);

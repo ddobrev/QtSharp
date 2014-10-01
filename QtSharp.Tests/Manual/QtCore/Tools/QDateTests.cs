@@ -3,7 +3,7 @@ using NUnit.Framework;
 using QtCore;
 using QtCore.Qt;
 
-namespace QtSharp.Tests.Manual.QtCore
+namespace QtSharp.Tests.Manual.QtCore.Tools
 {
     [TestFixture]
     public class QDateTests
