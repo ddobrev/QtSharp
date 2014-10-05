@@ -55,7 +55,10 @@
     <Compile Include="Auto\Generator.cs" />
     <Compile Include="Manual\QtCore\Animation\QAbstractAnimationTests.cs" />
     <Compile Include="Manual\QtCore\Animation\QAnimationGroupTests.cs" />
+    <Compile Include="Manual\QtCore\IO\QDirTests.cs" />
+    <Compile Include="Manual\QtCore\IO\QIODeviceTests.cs" />
     <Compile Include="Manual\QtCore\Json\QtJsonTests.cs" />
+    <Compile Include="Manual\QtCore\Kernel\QAbstractEventDispatcherTests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helper.cs" />

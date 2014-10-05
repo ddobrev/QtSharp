@@ -2,8 +2,17 @@ QAbstractAnimation (tests done):
 - direction to Direction
 - state to State
 
+QAbstractEventDispatcherTests (tests in work):
+- QElapsedTimer needed
+
 QAnimationGroup (tests in work):
 - state to State
+
+QElapsedTimer:
+- no ctor available
+
+QIODevice (tests in work):
+- ReadData needs unsafe context
 
 QPropertyAnimation (tests in work):
 - SetDuration to property Duration
@@ -15,6 +24,9 @@ QAtomicInteger (tests in work):
 -
 
 QBasicTimer (tests in work):
+-
+
+QDir (tests in work):
 -
 
 QCommandLineOption (tests in work):
