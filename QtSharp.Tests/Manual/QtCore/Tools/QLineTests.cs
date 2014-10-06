@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace QtSharp.Tests.Manual.QtCore
+namespace QtSharp.Tests.Manual.QtCore.Tools
 {
     [TestFixture]
     public class QLineTests

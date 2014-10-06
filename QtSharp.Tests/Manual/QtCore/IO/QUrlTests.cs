@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using QtCore;
 
-namespace QtSharp.Tests.Manual.QtCore
+namespace QtSharp.Tests.Manual.QtCore.IO
 {
     [TestFixture]
     public class QUrlTests
