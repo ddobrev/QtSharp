@@ -2,18 +2,18 @@
 using QtCore;
 using QtCore.Qt;
 
-namespace QtSharp.Tests.Manual.QtCore
+namespace QtSharp.Tests.Manual.QtCore.Tools
 {
     [TestFixture]
-    public class QSizeTests
+    public class QSizeFTests
     {
-        private QSize _qSize;
+        private QSizeF _qSize;
 
         [SetUp]
         public void Init()
         {
             // TODO: Add Init code.
-            _qSize = new QSize(500, 100);
+            _qSize = new QSizeF(500, 100);
         }
 
         [TearDown]
@@ -26,13 +26,13 @@ namespace QtSharp.Tests.Manual.QtCore
         [Test]
         public void TestEmpyConstructor()
         {
-            var s = new QSize();
+            var s = new QSizeF();
         }
 
         [Test]
         public void TestIntConstructor()
         {
-            var s = new QSize(100, 200);
+            var s = new QSizeF(100, 200);
 
             Assert.AreEqual(200, s.Height);
             Assert.AreEqual(100, s.Width);
@@ -45,7 +45,7 @@ namespace QtSharp.Tests.Manual.QtCore
             this._qSize.Width = 500;
             this._qSize.Height = 100;
 
-            var other = new QSize();
+            var other = new QSizeF();
             other.Width = 400;
             other.Height = 500;
 
@@ -61,7 +61,7 @@ namespace QtSharp.Tests.Manual.QtCore
             this._qSize.Width = 500;
             this._qSize.Height = 100;
 
-            var other = new QSize();
+            var other = new QSizeF();
             other.Width = 400;
             other.Height = 500;
 
@@ -134,17 +134,17 @@ namespace QtSharp.Tests.Manual.QtCore
         [Test]
         public void TestScaleWithInteger()
         {
-            var s1 = new QSize(10, 12);
+            var s1 = new QSizeF(10, 12);
             s1.Scale(60, 60, AspectRatioMode.IgnoreAspectRatio);
             Assert.AreEqual(60, s1.Width);
             Assert.AreEqual(60, s1.Height);
 
-            var s2 = new QSize(10, 12);
+            var s2 = new QSizeF(10, 12);
             s2.Scale(60, 60, AspectRatioMode.KeepAspectRatio);
             Assert.AreEqual(50, s2.Width);
             Assert.AreEqual(60, s2.Height);
 
-            var s3 = new QSize(10, 12);
+            var s3 = new QSizeF(10, 12);
             s3.Scale(60, 60, AspectRatioMode.KeepAspectRatioByExpanding);
             Assert.AreEqual(60, s3.Width);
             Assert.AreEqual(72, s3.Height);
@@ -153,20 +153,20 @@ namespace QtSharp.Tests.Manual.QtCore
         [Test]
         public void TestScaleWithSize()
         {
-            var s1 = new QSize(10, 12);
-            var sS1 = new QSize(60, 60);
+            var s1 = new QSizeF(10, 12);
+            var sS1 = new QSizeF(60, 60);
             s1.Scale(sS1, AspectRatioMode.IgnoreAspectRatio);
             Assert.AreEqual(60, s1.Width);
             Assert.AreEqual(60, s1.Height);
 
-            var s2 = new QSize(10, 12);
-            var sS2 = new QSize(60, 60);
+            var s2 = new QSizeF(10, 12);
+            var sS2 = new QSizeF(60, 60);
             s2.Scale(sS2, AspectRatioMode.KeepAspectRatio);
             Assert.AreEqual(50, s2.Width);
             Assert.AreEqual(60, s2.Height);
 
-            var s3 = new QSize(10, 12);
-            var sS3 = new QSize(60, 60);
+            var s3 = new QSizeF(10, 12);
+            var sS3 = new QSizeF(60, 60);
             s3.Scale(sS3, AspectRatioMode.KeepAspectRatioByExpanding);
             Assert.AreEqual(60, s3.Width);
             Assert.AreEqual(72, s3.Height);
@@ -175,12 +175,12 @@ namespace QtSharp.Tests.Manual.QtCore
         [Test]
         public void TestScaledWithInteger()
         {
-            var s1 = new QSize(10, 12);
+            var s1 = new QSizeF(10, 12);
             var res1 = s1.Scaled(60, 60, AspectRatioMode.IgnoreAspectRatio);
             Assert.AreEqual(60, res1.Width);
             Assert.AreEqual(60, res1.Height);
 
-            var s2 = new QSize(10, 12);
+            var s2 = new QSizeF(10, 12);
             var res2 = s2.Scaled(60, 60, AspectRatioMode.KeepAspectRatio);
             Assert.AreEqual(50, res2.Width);
             Assert.AreEqual(60, res2.Height);
@@ -194,20 +194,20 @@ namespace QtSharp.Tests.Manual.QtCore
         [Test]
         public void TestScaledWithSize()
         {
-            var s1 = new QSize(10, 12);
-            var sS1 = new QSize(60, 60);
+            var s1 = new QSizeF(10, 12);
+            var sS1 = new QSizeF(60, 60);
             var res1 = s1.Scaled(sS1, AspectRatioMode.IgnoreAspectRatio);
             Assert.AreEqual(60, res1.Width);
             Assert.AreEqual(60, res1.Height);
 
-            var s2 = new QSize(10, 12);
-            var sS2 = new QSize(60, 60);
+            var s2 = new QSizeF(10, 12);
+            var sS2 = new QSizeF(60, 60);
             var res2 = s2.Scaled(sS2, AspectRatioMode.KeepAspectRatio);
             Assert.AreEqual(50, res2.Width);
             Assert.AreEqual(60, res2.Height);
 
-            var s3 = new QSize(10, 12);
-            var sS3 = new QSize(60, 60);
+            var s3 = new QSizeF(10, 12);
+            var sS3 = new QSizeF(60, 60);
             var res3 = s3.Scaled(sS3, AspectRatioMode.KeepAspectRatioByExpanding);
             Assert.AreEqual(60, res3.Width);
             Assert.AreEqual(72, res3.Height);
@@ -216,8 +216,8 @@ namespace QtSharp.Tests.Manual.QtCore
         [Test]
         public void TestTranspose()
         {
-            var size = new QSize(500, 100);
-            _qSize.Transpose();
+            var size = new QSizeF(500, 100);
+            size.Transpose();
 
             Assert.AreEqual(100, _qSize.Width);
             Assert.AreEqual(500, _qSize.Height);
@@ -226,8 +226,8 @@ namespace QtSharp.Tests.Manual.QtCore
         [Test]
         public void TestTransposed()
         {
-            var size = new QSize(500, 100);
-            var tr = _qSize.Transposed;
+            var size = new QSizeF(500, 100);
+            var tr = size.Transposed;
 
             Assert.AreEqual(100, tr.Width);
             Assert.AreEqual(500, tr.Height);
@@ -236,7 +236,7 @@ namespace QtSharp.Tests.Manual.QtCore
         [Test]
         public void TestMultWidthIntegerOperator()
         {
-            //var size = new QSize(500, 100);
+            //var size = new QSizeF(500, 100);
             //size *= 5;
 
             //Assert.AreEqual(2500, size.Width);
@@ -248,7 +248,7 @@ namespace QtSharp.Tests.Manual.QtCore
         [Test]
         public void TestAddWidthIntegerOperator()
         {
-            //var size = new QSize(500, 100);
+            //var size = new QSizeF(500, 100);
             //size += 5;
 
             //Assert.AreEqual(505, size.Width);
@@ -260,7 +260,7 @@ namespace QtSharp.Tests.Manual.QtCore
         [Test]
         public void TestSubWidthIntegerOperator()
         {
-            //var size = new QSize(500, 100);
+            //var size = new QSizeF(500, 100);
             //size -= 5;
 
             //Assert.AreEqual(495, size.Width);
@@ -272,7 +272,7 @@ namespace QtSharp.Tests.Manual.QtCore
         [Test]
         public void TestDivWidthIntegerOperator()
         {
-            //var size = new QSize(500, 100);
+            //var size = new QSizeF(500, 100);
             //size /= 5;
 
             //Assert.AreEqual(100, size.Width);
@@ -284,18 +284,17 @@ namespace QtSharp.Tests.Manual.QtCore
         [Test]
         public void TestNotEqualOperator()
         {
-            var size = new QSize(500, 100);
-            var size2 = new QSize(100, 50);
+            var size = new QSizeF(500, 100);
+            var size2 = new QSizeF(100, 50);
 
             Assert.AreNotEqual(size, size2);
-
             throw new AssertionException("Not implemented");
         }
 
         [Test]
         public void TestMultOperator()
         {
-            var size = new QSize(500, 100);
+            var size = new QSizeF(500, 100);
 
             //var res = size*50;
 
@@ -308,9 +307,9 @@ namespace QtSharp.Tests.Manual.QtCore
         [Test]
         public void TestMult2Operator()
         {
-            var size = new QSize(500, 100);
+            var size = new QSizeF(500, 100);
 
-            //var res = 50 * size;
+            //var res = 50*size;
 
             //Assert.AreEqual(500 * 50, res.Width);
             //Assert.AreEqual(50 * 100, res.Height);
@@ -321,8 +320,8 @@ namespace QtSharp.Tests.Manual.QtCore
         [Test]
         public void TestAddOperator()
         {
-            var size = new QSize(500, 100);
-            var size2 = new QSize(500, 100);
+            var size = new QSizeF(500, 100);
+            var size2 = new QSizeF(500, 100);
 
             //var res = size + size2;
 
@@ -335,8 +334,8 @@ namespace QtSharp.Tests.Manual.QtCore
         [Test]
         public void TestSubOperator()
         {
-            var size = new QSize(500, 100);
-            var size2 = new QSize(500, 100);
+            var size = new QSizeF(500, 100);
+            var size2 = new QSizeF(500, 100);
 
             //var res = size - size2;
 
@@ -349,7 +348,7 @@ namespace QtSharp.Tests.Manual.QtCore
         [Test]
         public void TestDivOperator()
         {
-            var size = new QSize(500, 100);
+            var size = new QSizeF(500, 100);
 
             //var res = size / 5;
 
@@ -362,8 +361,8 @@ namespace QtSharp.Tests.Manual.QtCore
         [Test]
         public void TestEqualOperator()
         {
-            var size = new QSize(500, 100);
-            var size2 = new QSize(500, 100);
+            var size = new QSizeF(500, 100);
+            var size2 = new QSizeF(500, 100);
 
             Assert.AreEqual(size, size2);
 

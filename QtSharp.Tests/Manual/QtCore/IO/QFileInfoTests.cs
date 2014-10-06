@@ -3,7 +3,7 @@ using System.Linq;
 using NUnit.Framework;
 using QtCore;
 
-namespace QtSharp.Tests.Manual.QtCore
+namespace QtSharp.Tests.Manual.QtCore.IO
 {
     [TestFixture]
     public class QFileInfoTests
