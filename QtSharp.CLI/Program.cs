@@ -30,7 +30,7 @@ namespace QtSharp.CLI
             }
 
             string path = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine);
-            path = Path.GetDirectoryName(make)+ Path.PathSeparator + path;
+            path = Path.GetDirectoryName(make) + Path.PathSeparator + path;
             Environment.SetEnvironmentVariable("Path", path, EnvironmentVariableTarget.Process);
 
             string error;
@@ -64,7 +64,7 @@ namespace QtSharp.CLI
                 return -1;
             }
             string docs = ProcessHelper.Run(qmake, "-query QT_INSTALL_DOCS", out error);
-            string output = ProcessHelper.Run(Path.Combine(Path.GetDirectoryName(make), "gcc"), "-v", out error);
+            string output = ProcessHelper.Run("gcc", "-v", out error);
             if (string.IsNullOrEmpty(output))
             {
                 output = error;

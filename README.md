@@ -11,4 +11,4 @@ The source code is separated into a library that contains the settings and passe
 When the generated bindings are stable, binary releases will be uploaded.
 
 
-QtSharp has been tested only with Qt for MinGW, and with Qt's built-in MinGW set-up, so far. To generate the wrappers, there's an additional step except installing Qt: add "...\Qt\Qt&lt;version&gt;\Tools\mingw&lt;version&gt;_32\bin" to your PATH.
+QtSharp has been tested only with Qt for MinGW, and with Qt's built-in MinGW set-up, so far.
