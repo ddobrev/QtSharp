@@ -43,7 +43,7 @@ namespace QtSharp
 
         public override bool VisitProperty(Property property)
         {
-            if (property.Comment == null)
+            if (!property.IsSynthetized && property.Comment == null)
             {
                 this.documentation.DocumentProperty(property);
             }
