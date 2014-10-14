@@ -28,6 +28,11 @@ namespace QtSharp.CLI
                 Console.WriteLine("The specified make does not exist.");
                 return -1;
             }
+
+            string path = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine);
+            path = Path.GetDirectoryName(make)+ Path.PathSeparator + path;
+            Environment.SetEnvironmentVariable("Path", path, EnvironmentVariableTarget.Process);
+
             string error;
             string libs = ProcessHelper.Run(qmake, "-query QT_INSTALL_BINS", out error);
             if (!string.IsNullOrEmpty(error))
