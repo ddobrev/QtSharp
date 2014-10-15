@@ -39,7 +39,7 @@ namespace QtSharp
             {
                 if (Type.IsAddress())
                 {
-                    return "QList.Internal*";                    
+                    return "QList.Internal*";
                 }
                 return "QList.Internal";
             }
@@ -166,25 +166,6 @@ namespace QtSharp
             }
             supportBefore.WriteCloseBraceIndent();
             ctx.Return.Write("__list");
-        }
-
-        public override void CSharpMarshalCopyCtorToManaged(MarshalContext ctx)
-        {
-            ctx.SupportBefore.WriteLine("var __instance = new {0}.Internal();", ctx.ReturnType);
-            ctx.SupportBefore.WriteLine("QListData.Data.Internal* qListData = (QListData.Data.Internal*) __instance._0.d;");
-            ctx.SupportBefore.WriteLine("QListData.Data.Internal* result = (QListData.Data.Internal*) __ret._0.d;");
-            ctx.SupportBefore.WriteLine("qListData->begin = result->begin;");
-            ctx.SupportBefore.WriteLine("qListData->end = result->end;");
-            ctx.SupportBefore.WriteLine("qListData->alloc = result->alloc;");
-            ctx.SupportBefore.WriteLine("fixed (void** v = new void*[qListData->end])");
-            ctx.SupportBefore.WriteStartBraceIndent();
-            ctx.SupportBefore.WriteLine("for (int i = 0; i < qListData->end; i++)");
-            ctx.SupportBefore.WriteStartBraceIndent();
-            ctx.SupportBefore.WriteLine("v[i] = *(result->array + i);");
-            ctx.SupportBefore.WriteCloseBraceIndent();
-            ctx.SupportBefore.WriteLine("qListData->array = v;");
-            ctx.SupportBefore.WriteCloseBraceIndent();
-            ctx.SupportBefore.WriteLine("__instance._0.d = (IntPtr) qListData;");
         }
     }
 }

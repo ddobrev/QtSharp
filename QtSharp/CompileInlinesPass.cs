@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using CppSharp.AST;
+using CppSharp.Parser;
 using CppSharp.Passes;
 
 namespace QtSharp
@@ -25,12 +25,9 @@ namespace QtSharp
             string path = Path.Combine(this.Driver.Options.OutputDir, pro);
             StringBuilder proBuilder = new StringBuilder();
             proBuilder.Append("QMAKE_CXXFLAGS += -fkeep-inline-functions -std=c++0x\n");
-            proBuilder.AppendFormat("TARGET = {0}\n", Path.GetFileNameWithoutExtension(pro));
+            proBuilder.AppendFormat("TARGET = {0}\n", this.Driver.Options.InlinesLibraryName);
             proBuilder.Append("TEMPLATE = lib\n");
-            string cpp = Path.ChangeExtension(pro, "cpp");
-            string inlinesCode = File.ReadAllText(cpp);
-            File.WriteAllText(cpp, inlinesCode.Replace("#include \"qatomic_msvc.h\"", string.Empty));
-            proBuilder.AppendFormat("SOURCES += {0}\n", cpp);
+            proBuilder.AppendFormat("SOURCES += {0}\n", Path.ChangeExtension(pro, "cpp"));
             File.WriteAllText(path, proBuilder.ToString());
             string error;
             ProcessHelper.Run(this.qmake, string.Format("\"{0}\"", path), out error);
@@ -45,17 +42,16 @@ namespace QtSharp
                 Console.WriteLine(error);
                 return false;
             }
-            this.Driver.Options.addLibraryDirs(Path.Combine(this.Driver.Options.OutputDir, "release"));
-            this.Driver.Options.Libraries.Add(string.Format("lib{0}.a", Path.GetFileNameWithoutExtension(pro)));
-            this.Driver.ParseLibraries();
-            NativeLibrary inlines = this.Driver.Symbols.Libraries.Last();
-            foreach (string symbol in this.Driver.Symbols.Libraries.Take(
-                this.Driver.Symbols.Libraries.Count - 1).SelectMany(
-                    nativeLibrary => nativeLibrary.Symbols))
+            var parserOptions = new ParserOptions();
+            parserOptions.addLibraryDirs(Path.Combine(this.Driver.Options.OutputDir, "release"));
+            parserOptions.FileName = Path.GetFileName(string.Format("lib{0}.a", Path.GetFileNameWithoutExtension(pro)));
+            var parserResult = ClangParser.ParseLibrary(parserOptions);
+            if (parserResult.Kind == ParserResultKind.Success)
             {
-                inlines.Symbols.Remove(symbol);
+                var nativeLibrary = CppSharp.ClangParser.ConvertLibrary(parserResult.Library);
+                this.Driver.Symbols.Libraries.Add(nativeLibrary);
+                this.Driver.Symbols.IndexSymbols();
             }
-            this.Driver.Symbols.IndexSymbols();
             return result;
         }
     }

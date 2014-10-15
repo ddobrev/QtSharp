@@ -65,12 +65,6 @@ namespace QtSharp
             lib.SetClassAsValueType("QGenericArgument");
             lib.SetClassAsValueType("QVariant");
 
-            // TODO: remove these when their symbols have been replaced or included
-            lib.IgnoreClassMethodWithName("QXmlStreamReader", "attributes");
-            lib.IgnoreClassMethodWithName("QTimeZone", "offsetData");
-            lib.IgnoreClassMethodWithName("QTimeZone", "nextTransition");
-            lib.IgnoreClassMethodWithName("QTimeZone", "previousTransition");
-
             lib.FindCompleteClass("QString").GenerationKind = GenerationKind.Internal;
 		}
 
@@ -188,6 +182,7 @@ namespace QtSharp
 
 		public void SetupPasses(Driver driver)
 		{
+            driver.TranslationUnitPasses.FindPass<GenerateInlinesCodePass>().SkipPatterns.AddRange(new[] { "_p.h", "_impl.h" });
             driver.TranslationUnitPasses.AddPass(new CompileInlinesPass(this.qmake, this.make));
             driver.TranslationUnitPasses.AddPass(new GenerateEventEventsPass());
             driver.TranslationUnitPasses.AddPass(new GenerateSignalEventsPass());
