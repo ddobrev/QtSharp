@@ -1104,7 +1104,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         #endregion
 
         #region Ops
-        [Ignore("Bug!")]
         [Test]
         public void TestEqual_QStringRef_QLatin1StringOperator()
         {
@@ -1114,7 +1113,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(s, s2);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestEqual_QStringRef_QStringRefOperator()
         {
@@ -1124,7 +1122,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(s, s2);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestEqual_QStringRef_StringOperator()
         {

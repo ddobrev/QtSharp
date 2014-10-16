@@ -331,6 +331,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             throw new AssertionException("Not implemented!");
 
             Assert.AreEqual(s1, s2);
-        } 
+        }
     }
 }

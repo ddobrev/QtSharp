@@ -151,7 +151,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
             Assert.AreEqual(1, d.Day);
             Assert.AreEqual(12, d.Month);
-            Assert.AreEqual(2013, d.Year);
+            Assert.AreEqual(2003, d.Year);
         }
 
         [Test]
@@ -486,7 +486,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
         [Ignore("Bug")]
         [Test]
-        public unsafe void TestLessOperator()
+        public void TestLessOperator()
         {
             var q = new QDate(2014, 11, 20);
             var q2 = new QDate(2014, 11, 22);
@@ -500,7 +500,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
         [Ignore("Bug")]
         [Test]
-        public unsafe void TestLessEqualOperator()
+        public void TestLessEqualOperator()
         {
             var q = new QDate(2014, 11, 22);
             var q2 = new QDate(2014, 11, 22);
@@ -524,7 +524,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
         [Ignore("Bug")]
         [Test]
-        public unsafe void TestGreaterOperator()
+        public void TestGreaterOperator()
         {
             var q = new QDate(2014, 11, 20);
             var q2 = new QDate(2014, 11, 22);

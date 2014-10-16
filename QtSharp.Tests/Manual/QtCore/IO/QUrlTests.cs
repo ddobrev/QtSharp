@@ -230,7 +230,7 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         {
             var p = _qUrl.Query();
 
-            Assert.AreEqual(58, p);
+            Assert.AreEqual(58.ToString(), p);
         }
 
         [Ignore("Bug!")]

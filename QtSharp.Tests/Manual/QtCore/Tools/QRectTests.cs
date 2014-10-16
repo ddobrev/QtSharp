@@ -79,10 +79,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
             s.Adjust(50, 100, 150, 200);
 
-            Assert.AreEqual(s.X, 100);
-            Assert.AreEqual(s.Y, 250);
-            Assert.AreEqual(s.Width, 650);
-            Assert.AreEqual(s.Height, 800);
+            Assert.AreEqual(100, s.X);
+            Assert.AreEqual(250, s.Y);
+            Assert.AreEqual(650, s.Width);
+            Assert.AreEqual(800, s.Height);
         }
 
         [Test]
@@ -96,10 +96,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
             var n = s.Adjusted(50, 100, 150, 200);
 
-            Assert.AreEqual(n.X, 100);
-            Assert.AreEqual(n.Y, 250);
-            Assert.AreEqual(n.Width, 650);
-            Assert.AreEqual(n.Height, 800);
+            Assert.AreEqual(100, n.X);
+            Assert.AreEqual(250, n.Y);
+            Assert.AreEqual(650, n.Width);
+            Assert.AreEqual(800, n.Height);
         }
 
         [Test]
@@ -127,7 +127,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
             var n = s.BottomLeft;
 
-            Assert.AreEqual(s.Left + s.Top - 1, n);
+            Assert.AreEqual(new QPoint(s.Left, s.Height + s.Top - 1), n);
         }
 
         [Test]
@@ -141,7 +141,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
             var n = s.BottomRight;
 
-            Assert.AreEqual(s.Width + s.Left - 1, n);
+            Assert.AreEqual(new QPoint(s.Left + s.Width - 1, s.Top + s.Height - 1), n);
         }
 
         [Test]
