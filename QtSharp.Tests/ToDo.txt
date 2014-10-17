@@ -2,10 +2,13 @@ QAbstractAnimation (tests done):
 - direction to Direction
 - state to State
 
+QParallelAnimationGroupTests (tests in work):
+-
+
 QAbstractEventDispatcherTests (tests in work):
 - QElapsedTimer needed
 
-QAnimationGroup (tests in work):
+QAnimationGroup (tests done):
 - state to State
 
 QElapsedTimer:
@@ -44,13 +47,11 @@ QFileInfo (tests done):
 - Add Exists
 
 QFlag (tests done):
--
 
 QLine / QLineF (tests done):
 - How to handle << and >> operator
 
 QMargins / QMarginsF (tests done):
--
 
 QObject (tests in work):
 - BlockSignals as setter to Property SignalsBlocked
@@ -59,6 +60,9 @@ QObject (tests in work):
 QPoint / QPointF (tests done):
 - Avoid unsafe context in Rx, Ry
 - How to handle << and >> operator
+
+QPointer:
+- Better as generic?
 
 QRect / QRectF (tests done):
 - Avoid unsafe context in GetCoords, GetRect, use ref, out...
@@ -72,8 +76,7 @@ QSizeF (tests done):
 QSize (tests done):
 - some ops are missing
 
-QStringRef (tests done):
--
+QStringRef (tests done)
 
 QSysInfo (tests done):
 - Add Mac Version
