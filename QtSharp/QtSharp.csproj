@@ -88,7 +88,14 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="sqlite3.dll">
+    <None Include="..\References\CppSharp.CppParser.dll">
+      <Link>CppSharp.CppParser.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\References\sqlite3.dll">
+      <Link>sqlite3.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
