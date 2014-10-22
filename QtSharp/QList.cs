@@ -157,11 +157,11 @@ namespace QtSharp
                 if ((type.Type.TryGetClass(out @class) ||
                      (type.Type.IsPointerTo(out pointee) && pointee.TryGetClass(out @class))) && @class.IsAbstract)
                 {
-                    supportBefore.WriteLine("__list.Add(new {0}Internal(new global::System.IntPtr(__qlistData.At(i))));", type, ctx.ReturnVarName);
+                    supportBefore.WriteLine("__list.Add({0}Internal.{1}(new global::System.IntPtr(__qlistData.At(i))));", type, Helpers.CreateInstanceIdentifier);
                 }
                 else
                 {
-                    supportBefore.WriteLine("__list.Add(new {0}(new global::System.IntPtr(__qlistData.At(i))));", type, ctx.ReturnVarName);
+                    supportBefore.WriteLine("__list.Add({0}.{1}(new global::System.IntPtr(__qlistData.At(i))));", type, Helpers.CreateInstanceIdentifier);
                 }
             }
             supportBefore.WriteCloseBraceIndent();

@@ -59,7 +59,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestIntPtrConstructor()
         {
-            var s = new QStringRef(_qString.__Instance);
+            var s = QStringRef.__CreateInstance(_qString.__Instance);
 
             Assert.AreEqual(_testString, s.ToString());
         }

@@ -45,7 +45,7 @@ namespace QtSharp.Tests.Manual.QtCore.Kernel
         [Test]
         public void TestNativeConstructor()
         {
-            var o = new QObject(_qObject.__Instance);
+            var o = QObject.__CreateInstance(_qObject.__Instance);
 
             Assert.AreEqual(_qObject.__Instance, o.__Instance);
         }
