@@ -182,7 +182,7 @@ namespace QtSharp.Tests.Manual.QtCore.Animation
                 Assert.AreEqual(1, parent.AnimationCount);
                 QAnimationGroup child = (QAnimationGroup)parent.AnimationAt(0);
 
-                Assert.AreSame(child.Parent, (QObject)parent);
+                Assert.AreSame(child.Parent, parent);
 
                 if (i % 2 == 1)
                     Assert.IsTrue((child as QParallelAnimationGroup) != null);
@@ -197,7 +197,6 @@ namespace QtSharp.Tests.Manual.QtCore.Animation
         {
             QAnimationGroup parent = new QSequentialAnimationGroup();
             QAbstractAnimation subGroup = new QPropertyAnimation();
-            QAbstractAnimation subGroup2 = new QPropertyAnimation();
 
             subGroup.Parent = parent;
             parent.AddAnimation(subGroup);
@@ -207,8 +206,10 @@ namespace QtSharp.Tests.Manual.QtCore.Animation
 
             Assert.AreEqual(0, parent.AnimationCount);
 
+            // adding the same item twice to a group will remove the item from its current position
+            // and append it to the end
             subGroup = new QPropertyAnimation(parent);
-            subGroup2 = new QPropertyAnimation(parent);
+            QAbstractAnimation subGroup2 = new QPropertyAnimation(parent);
 
             Assert.AreEqual(2, parent.AnimationCount);
             Assert.AreSame(subGroup, parent.AnimationAt(0));
@@ -225,15 +226,15 @@ namespace QtSharp.Tests.Manual.QtCore.Animation
         public unsafe void TestLoopWithoutStartValue()
         {
             QAnimationGroup parent = new QSequentialAnimationGroup();
-            QObject o = new QObject();
+            var o = new QObject();
             o.SetProperty("ole", new QVariant(0));
             Assert.AreEqual(0, o.Property("ole").ToInt());
 
-            QPropertyAnimation anim1 = new QPropertyAnimation(o, new QByteArray("ole"));
+            var anim1 = new QPropertyAnimation(o, new QByteArray("ole"));
             anim1.EndValue = new QVariant(-50);
             anim1.SetDuration(100);
 
-            QPropertyAnimation anim2 = new QPropertyAnimation(o, new QByteArray("ole"));
+            var anim2 = new QPropertyAnimation(o, new QByteArray("ole"));
             anim2.EndValue = new QVariant(50);
             anim2.SetDuration(100);
 
@@ -253,15 +254,6 @@ namespace QtSharp.Tests.Manual.QtCore.Animation
             parent.Stop();
         }
 
-        private class TestQSequentialAnimationGroup : QSequentialAnimationGroup
-        {
-            //        	public int GetSubscribersCount()
-            //        	{
-            //        		return this.StateChanged.GetInvocationList().Length;
-            //        	}
-
-        }
-
         private class AnimationObject : QObject
         {
             public int Value { get; set; }
@@ -274,7 +266,7 @@ namespace QtSharp.Tests.Manual.QtCore.Animation
 
         private class TestAnimation : QVariantAnimation
         {
-            public virtual void UpdateCurrentValue(QVariant value)
+            public virtual void UpdateCurrentValue(ref QVariant value)
             { }
 
             public virtual void UpdateState(QAbstractAnimation.State oldState,
