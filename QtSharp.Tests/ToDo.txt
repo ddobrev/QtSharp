@@ -88,3 +88,7 @@ QUuid (tests done):
 - variant to Variant
 - version to Version
 - How to handle << and >> operator
+
+QVariant:
+- Operators (==, !=) for int, double...
+- Operators To... need unsafe context

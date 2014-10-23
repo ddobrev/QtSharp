@@ -231,7 +231,443 @@ namespace QtSharp.Tests.Manual.QtCore.Animation
                 // Assert.IsTrue(children[i].IsNull);
         }
 
+        [Test]
+        public unsafe void TestPropagateGroupUpdateToChildren()
+        {
+            // this test verifies if group state changes are updating its children correctly
+            var group = new QParallelAnimationGroup();
+            var o = new QObject();
+            o.SetProperty("ole", new QVariant(42));
+            Assert.AreEqual(42, o.Property("ole").ToInt());
+
+            var anim1 = new QPropertyAnimation(o, new QByteArray("ole"));
+            anim1.EndValue = new QVariant(42);
+            anim1.SetDuration(100);
+            Assert.IsFalse(anim1.CurrentValue.IsValid);
+            Assert.AreEqual(0, anim1.CurrentValue.ToInt());
+            Assert.AreEqual(42, o.Property("ole").ToInt());
+
+            var anim2 = new TestAnimation();
+            anim2.StartValue = new QVariant(0);
+            anim2.EndValue = new QVariant(100);
+            anim2.SetDuration(200);
+
+            Assert.IsTrue(anim2.CurrentValue.IsValid);
+            Assert.AreEqual(0, anim2.CurrentValue.ToInt());
+
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, group.state);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, anim1.state);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, anim2.state);
+
+            group.AddAnimation(anim1);
+            group.AddAnimation(anim2);
+
+            group.Start();
+            Assert.AreEqual(QAbstractAnimation.State.Running, group.state);
+            Assert.AreEqual(QAbstractAnimation.State.Running, anim1.state);
+            Assert.AreEqual(QAbstractAnimation.State.Running, anim2.state);
+
+            group.Pause();
+            Assert.AreEqual(QAbstractAnimation.State.Paused, group.state);
+            Assert.AreEqual(QAbstractAnimation.State.Paused, anim1.state);
+            Assert.AreEqual(QAbstractAnimation.State.Paused, anim2.state);
+
+            group.Stop();
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, group.state);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, anim1.state);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, anim2.state);
+        }
+
+        [Test]
+        public void TestUpdateChildrenWithRunningGroup()
+        {
+            var group = new QParallelAnimationGroup();
+
+            var anim = new TestAnimation();
+            anim.StartValue = new QVariant(0);
+            anim.EndValue = new QVariant(100);
+            anim.SetDuration(200);
+
+            var groupStateChangedSpy = 0;
+            group.StateChanged += (arg1, arg2) => { groupStateChangedSpy++; };
+
+            var childStateChangedSpy = 0;
+            anim.StateChanged += (arg1, arg2) => { childStateChangedSpy++; };
+
+            Assert.AreEqual(0, groupStateChangedSpy);
+            Assert.AreEqual(0, childStateChangedSpy);
+
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, group.state);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, anim.state);
+
+            group.AddAnimation(anim);
+
+            group.Start();
+            Assert.AreEqual(QAbstractAnimation.State.Running, group.state);
+            Assert.AreEqual(QAbstractAnimation.State.Running, anim.state);
+
+            Assert.AreEqual(1, groupStateChangedSpy);
+            Assert.AreEqual(1, childStateChangedSpy);
+
+            anim.Start();
+            Assert.AreEqual(1, groupStateChangedSpy);
+            Assert.AreEqual(1, childStateChangedSpy);
+
+            anim.Pause();
+            Assert.AreEqual(QAbstractAnimation.State.Running, group.state);
+            Assert.AreEqual(QAbstractAnimation.State.Paused, anim.state);
+
+            // in the animation stops directly, the group will still be running
+            anim.Stop();
+            Assert.AreEqual(QAbstractAnimation.State.Running, group.state);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, anim.state);
+        }
+
+        [Test]
+        public unsafe void TestDeleteChildrenWithRunningGroup()
+        {
+            // test if children can be activated when their group is stopped
+            var group = new QParallelAnimationGroup();
+
+            QVariantAnimation anim1 = new TestAnimation();
+            anim1.StartValue = new QVariant(0);
+            anim1.EndValue = new QVariant(100);
+            anim1.SetDuration(200);
+            group.AddAnimation(anim1);
+
+            Assert.AreEqual(anim1.Duration, group.Duration);
+
+            group.Start();
+            Assert.AreEqual(QAbstractAnimation.State.Running, group.state);
+            Assert.AreEqual(QAbstractAnimation.State.Running, anim1.state);
+
+            System.Threading.Thread.Sleep(80);
+            Assert.Greater(group.CurrentLoopTime, 0);
+
+            group.RemoveAnimation(anim1);
+            anim1 = null;
+            Assert.AreEqual(0, group.AnimationCount);
+            Assert.AreEqual(0, group.Duration);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, group.state);
+            Assert.AreEqual(0, group.CurrentLoopTime);
+        }
+
+        [Test]
+        public void TestStartChildrenWithStoppedGroup()
+        {
+            // test if children can be activated when their group is stopped
+            var group = new QParallelAnimationGroup();
+
+            var anim1 = new TestAnimation();
+            anim1.StartValue = new QVariant(0);
+            anim1.EndValue = new QVariant(100);
+            anim1.SetDuration(200);
+
+            var anim2 = new TestAnimation();
+            anim2.StartValue = new QVariant(0);
+            anim2.EndValue = new QVariant(100);
+            anim2.SetDuration(200);
+
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, group.state);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, anim1.state);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, anim2.state);
+
+            group.AddAnimation(anim1);
+            group.AddAnimation(anim2);
+
+            group.Stop();
+
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, group.state);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, anim1.state);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, anim2.state);
+
+            anim1.Start();
+            anim2.Start();
+            anim2.Pause();
+
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, group.state);
+            Assert.AreEqual(QAbstractAnimation.State.Running, anim1.state);
+            Assert.AreEqual(QAbstractAnimation.State.Paused, anim2.state);
+        }
+
+        [Test]
+        public void TestStopGroupWithRunningChild()
+        {
+            // test if children can be activated when their group is stopped
+            var group = new QParallelAnimationGroup();
+
+            var anim1 = new TestAnimation();
+            anim1.StartValue = new QVariant(0);
+            anim1.EndValue = new QVariant(100);
+            anim1.SetDuration(200);
+
+            var anim2 = new TestAnimation();
+            anim2.StartValue = new QVariant(0);
+            anim2.EndValue = new QVariant(100);
+            anim2.SetDuration(200);
+
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, group.state);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, anim1.state);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, anim2.state);
+
+            group.AddAnimation(anim1);
+            group.AddAnimation(anim2);
+
+            anim1.Start();
+            anim2.Start();
+            anim2.Pause();
+
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, group.state);
+            Assert.AreEqual(QAbstractAnimation.State.Running, anim1.state);
+            Assert.AreEqual(QAbstractAnimation.State.Paused, anim2.state);
+            
+            group.Stop();
+
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, group.state);
+            Assert.AreEqual(QAbstractAnimation.State.Running, anim1.state);
+            Assert.AreEqual(QAbstractAnimation.State.Paused, anim2.state);
+
+            anim1.Stop();
+            anim2.Stop();
+
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, group.state);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, anim1.state);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, anim2.state);
+        }
+
+        [Test]
+        public void TestStartGroupWithRunningChild()
+        {
+            var group = new QParallelAnimationGroup();
+
+            var anim1 = new TestAnimation();
+            anim1.StartValue = new QVariant(0);
+            anim1.EndValue = new QVariant(100);
+            anim1.SetDuration(200);
+
+            var anim2 = new TestAnimation();
+            anim2.StartValue = new QVariant(0);
+            anim2.EndValue = new QVariant(100);
+            anim2.SetDuration(200);
+
+            var spy1 = 0;
+            anim1.StateChanged += (arg1, arg2) => { spy1++; };
+            var spy2 = 0;
+            anim2.StateChanged += (arg1, arg2) => { spy2++; };
+
+            Assert.AreEqual(0, spy1);
+            Assert.AreEqual(0, spy2);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, group.state);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, anim1.state);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, anim2.state);
+
+            group.AddAnimation(anim1);
+            group.AddAnimation(anim2);
+
+            anim1.Start();
+            anim2.Start();
+            anim2.Pause();
+
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, group.state);
+            Assert.AreEqual(QAbstractAnimation.State.Running, anim1.state);
+            Assert.AreEqual(QAbstractAnimation.State.Paused, anim2.state);
+
+            group.Start();
+            Assert.AreEqual(3, spy1);
+            Assert.AreEqual(4, spy2);
+
+            Assert.AreEqual(QAbstractAnimation.State.Running, group.state);
+            Assert.AreEqual(QAbstractAnimation.State.Running, anim1.state);
+            Assert.AreEqual(QAbstractAnimation.State.Running, anim2.state);
+        }
+
+        [Test]
+        public void TestZeroDurationAnimation()
+        {
+            var group = new QParallelAnimationGroup();
+
+            var anim1 = new TestAnimation();
+            anim1.StartValue = new QVariant(0);
+            anim1.EndValue = new QVariant(100);
+            anim1.SetDuration(0);
+
+            var anim2 = new TestAnimation();
+            anim2.StartValue = new QVariant(0);
+            anim2.EndValue = new QVariant(100);
+            anim2.SetDuration(100);
+
+            var anim3 = new TestAnimation();
+            anim3.StartValue = new QVariant(0);
+            anim3.EndValue = new QVariant(100);
+            anim3.SetDuration(10);
+
+            var stateChangedSpy1 = 0;
+            var finishedSpy1 = 0;
+            anim1.StateChanged += (arg1, arg2) => { stateChangedSpy1++; };
+            anim1.Finished += () => { finishedSpy1++; }; 
+
+            var stateChangedSpy2 = 0;
+            var finishedSpy2 = 0;
+            anim2.StateChanged += (arg1, arg2) => { stateChangedSpy2++; };
+            anim2.Finished += () => { finishedSpy2++; }; 
+
+            var stateChangedSpy3 = 0;
+            var finishedSpy3 = 0;
+            anim3.StateChanged += (arg1, arg2) => { stateChangedSpy3++; };
+            anim3.Finished += () => { finishedSpy3++; }; 
+
+            group.AddAnimation(anim1);
+            group.AddAnimation(anim2);
+            group.AddAnimation(anim3);
+
+            Assert.AreEqual(0, stateChangedSpy1);
+            group.Start();
+            Assert.AreEqual(2, stateChangedSpy1);
+            Assert.AreEqual(1, finishedSpy1);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, anim1.state);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, anim1.state);
+            
+            Assert.AreEqual(1, stateChangedSpy2);
+            Assert.AreEqual(0, finishedSpy2);
+
+            Assert.AreEqual(1, stateChangedSpy3);
+            Assert.AreEqual(0, finishedSpy3);
+
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, anim1.state);
+            Assert.AreEqual(QAbstractAnimation.State.Running, anim2.state);
+            Assert.AreEqual(QAbstractAnimation.State.Running, anim3.state);
+            Assert.AreEqual(QAbstractAnimation.State.Running, group.state);
+
+            group.Stop();
+            group.LoopCount = 4;
+
+            stateChangedSpy1 = 0;
+            stateChangedSpy2 = 0;
+            stateChangedSpy3 = 0;
+
+            group.Start();
+            Assert.AreEqual(2, stateChangedSpy1);
+            Assert.AreEqual(1, stateChangedSpy2);
+            Assert.AreEqual(1, stateChangedSpy3);
+            group.CurrentTime = 50;
+            Assert.AreEqual(2, stateChangedSpy1);
+            Assert.AreEqual(1, stateChangedSpy2);
+            Assert.AreEqual(2, stateChangedSpy3);
+            group.CurrentTime = 150;
+            Assert.AreEqual(4, stateChangedSpy1);
+            Assert.AreEqual(3, stateChangedSpy2);
+            Assert.AreEqual(4, stateChangedSpy3);
+            group.CurrentTime = 50;
+            Assert.AreEqual(6, stateChangedSpy1);
+            Assert.AreEqual(5, stateChangedSpy2);
+            Assert.AreEqual(6, stateChangedSpy3);
+        }
+
+        [Test]
+        public void TestStopUncontrolledAnimations()
+        {
+            
+        }
+
+        [Test]
+        public void TestLoopCount_data()
+        {
+
+        }
+
+        [Test]
+        public void TestLoopCount()
+        {
+
+        }
+
+        [Test]
+        public void TestAutoAdd()
+        {
+
+        }
+
         // TODO
+
+        [Test]
+        public void TestPauseResume()
+        {
+            var group = new QParallelAnimationGroup();
+            var anim = new TestAnimation2(250, group);      // 0, duration = 250;
+            
+            var stateChangedSpy1 = 0;
+            anim.StateChanged += (arg1, arg2) => { stateChangedSpy1++; };
+
+            Assert.AreEqual(250, group.Duration);
+
+            group.Start();
+
+            System.Threading.Thread.Sleep(100);
+
+            Assert.AreEqual(QAbstractAnimation.State.Running, group.state);
+            Assert.AreEqual(QAbstractAnimation.State.Running, anim.state);
+            Assert.AreEqual(1, stateChangedSpy1);
+            stateChangedSpy1 = 0;
+
+            var currentTime = group.CurrentLoopTime;
+            Assert.AreEqual(currentTime, anim.CurrentLoopTime);
+
+            group.Pause();
+
+            Assert.AreEqual(QAbstractAnimation.State.Paused, group.state);
+            Assert.AreEqual(currentTime, group.CurrentLoopTime);
+            Assert.AreEqual(QAbstractAnimation.State.Paused, anim.state);
+            Assert.AreEqual(currentTime, anim.CurrentLoopTime);
+            Assert.AreEqual(1, stateChangedSpy1);
+            stateChangedSpy1 = 0;
+
+            group.Resume();
+
+            Assert.AreEqual(QAbstractAnimation.State.Running, group.state);
+            Assert.AreEqual(currentTime, group.CurrentLoopTime);
+
+            Assert.AreEqual(QAbstractAnimation.State.Running, anim.state);
+            Assert.AreEqual(currentTime, anim.CurrentLoopTime);
+            Assert.AreEqual(1, stateChangedSpy1);
+
+            group.Stop();
+            stateChangedSpy1 = 0;
+
+            new TestAnimation2(500, group);
+            group.Start();
+            Assert.AreEqual(1, stateChangedSpy1); //the animation should have been started
+            Assert.AreEqual(QAbstractAnimation.State.Running, anim.state);
+            group.CurrentTime = 250; //end of first animation
+
+            Assert.AreEqual(2, stateChangedSpy1); //the animation should have been stopped
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, anim.state);
+
+            group.Pause();
+            Assert.AreEqual(2, stateChangedSpy1); //this shouldn't have changed
+
+            group.Resume();
+            Assert.AreEqual(2, stateChangedSpy1); //this shouldn't have changed
+        }
+
+        [Test]
+        public void TestCrashWhenRemovingUncontrolledAnimation()
+        {
+            var group = new QParallelAnimationGroup();
+
+            var anim = new TestAnimation();
+            anim.LoopCount = -1;
+
+            var anim2 = new TestAnimation();
+            anim2.LoopCount = -1;
+
+            group.AddAnimation(anim);
+            group.AddAnimation(anim2);
+
+            group.Start();
+
+            anim.Dispose();
+            anim2.Dispose();
+        }
 
         private class AnimationObject : QObject
         {
