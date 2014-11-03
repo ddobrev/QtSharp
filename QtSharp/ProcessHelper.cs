@@ -17,7 +17,6 @@ namespace QtSharp
                     process.StartInfo.RedirectStandardOutput = true;
                     process.StartInfo.RedirectStandardError = true;
                     process.Start();
-                    process.WaitForExit();
                     error = process.StandardError.ReadToEnd();
                     if (process.ExitCode != 0)
                     {

@@ -64,18 +64,18 @@ namespace QtSharp.CLI
                 return -1;
             }
             string docs = ProcessHelper.Run(qmake, "-query QT_INSTALL_DOCS", out error);
-            string output = ProcessHelper.Run("gcc", "-v", out error);
-            if (string.IsNullOrEmpty(output))
-            {
-                output = error;
-            }
+            string emptyFile = Environment.OSVersion.Platform == PlatformID.Win32NT ? "NUL" : "/dev/null";
+            string output;
+            ProcessHelper.Run("gcc", string.Format("-v -E -x c++ {0}", emptyFile), out output);
             string target = Regex.Match(output, @"Target:\s*(?<target>[^\r\n]+)").Groups["target"].Value;
-            string compilerVersion = Regex.Match(output, @"gcc\s+version\s+(?<version>\S+)").Groups["version"].Value;
+            const string includeDirsRegex = @"#include <\.\.\.> search starts here:(?<includes>.+)End of search list";
+            string allIncludes = Regex.Match(output, includeDirsRegex, RegexOptions.Singleline).Groups["includes"].Value;
+            var systemIncludeDirs = allIncludes.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Select(Path.GetFullPath);
             foreach (string libFile in libFiles)
             {
                 if (libFile == "Qt5Core.dll")
                 {
-                    ConsoleDriver.Run(new QtSharp(qmake, make, headers, libs, libFile, target, compilerVersion, docs));
+                    ConsoleDriver.Run(new QtSharp(qmake, make, headers, libs, libFile, target, systemIncludeDirs, docs));
                 }
             }
             return 0;

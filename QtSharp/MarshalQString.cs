@@ -236,17 +236,17 @@ namespace QtCore
         public partial struct Internal
         {
             [SuppressUnmanagedCodeSecurity]
-            [DllImport("Qt5Cored", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,
+            [DllImport("QtCore-inlines", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,
                 EntryPoint = "_ZN7QStringC2ERKS_")]
             internal static extern void ctor_5(global::System.IntPtr instance, global::System.IntPtr other);
 
             [SuppressUnmanagedCodeSecurity]
-            [DllImport("Qt5Cored", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+            [DllImport("Qt5Core", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
                 EntryPoint = "_ZN7QString9fromUtf16EPKti")]
             internal static extern void FromUtf16_0(global::System.IntPtr __return, ushort* unicode, int size);
 
             [SuppressUnmanagedCodeSecurity]
-            [DllImport("Qt5Cored", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,
+            [DllImport("Qt5Core", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,
                 EntryPoint = "_ZNK7QString5utf16Ev")]
             internal static extern ushort* Utf16_0(global::System.IntPtr instance);
         }

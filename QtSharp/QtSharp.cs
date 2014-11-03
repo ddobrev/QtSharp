@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -19,11 +20,11 @@ namespace QtSharp
 	    private readonly string module;
 	    private readonly string libraryPath;
 	    private readonly string library;
+	    private readonly IEnumerable<string> systemIncludeDirs;
 	    private readonly string target;
-	    private readonly string compilerVersion;
 	    private readonly string docs;
 
-	    public QtSharp(string qmake, string make, string includePath, string libraryPath, string library, string target, string compilerVersion, string docs)
+	    public QtSharp(string qmake, string make, string includePath, string libraryPath, string library, string target, IEnumerable<string> systemIncludeDirs, string docs)
 	    {
 	        this.qmake = qmake;
 	        this.includePath = includePath.Replace('/', Path.DirectorySeparatorChar);
@@ -31,7 +32,7 @@ namespace QtSharp
 	        this.libraryPath = libraryPath.Replace('/', Path.DirectorySeparatorChar);
 	        this.library = library;
 	        this.target = target;
-	        this.compilerVersion = compilerVersion;
+	        this.systemIncludeDirs = systemIncludeDirs;
 	        this.make = make;
             this.docs = docs;
 	    }
@@ -161,11 +162,10 @@ namespace QtSharp
 		    driver.Options.GenerateDefaultValuesForArguments = true;
 		    driver.Options.MarshalCharAsManagedChar = true;
             driver.Options.Headers.Add(qtModule);
-		    string gccPath = Path.GetDirectoryName(Path.GetDirectoryName(this.make));
-            driver.Options.addSystemIncludeDirs(Path.Combine(gccPath, this.target, "include"));
-            driver.Options.addSystemIncludeDirs(Path.Combine(gccPath, this.target, "include", "c++"));
-            driver.Options.addSystemIncludeDirs(Path.Combine(gccPath, this.target, "include", "c++", this.target));
-            driver.Options.addSystemIncludeDirs(Path.Combine(gccPath, "lib", "gcc", this.target, this.compilerVersion, "include"));
+		    foreach (var systemIncludeDir in this.systemIncludeDirs)
+		    {
+		        driver.Options.addSystemIncludeDirs(systemIncludeDir);
+		    }
             driver.Options.addIncludeDirs(this.includePath);
             driver.Options.addIncludeDirs(Path.Combine(this.includePath, qtModule));
             driver.Options.addLibraryDirs(this.libraryPath);
