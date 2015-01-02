@@ -140,7 +140,7 @@ namespace QtSharp
             {
                 returnVarName = string.Format("(*(QList.Internal*) {0})", returnVarName);
             }
-            supportBefore.WriteLine("var __qlistData = new QListData({0}._0.p);", returnVarName);
+            supportBefore.WriteLine("var __qlistData = QListData.{0}({1}._0.p);", Helpers.CreateInstanceIdentifier, returnVarName);
             supportBefore.WriteLine("var __size = __qlistData.Size;");
             supportBefore.WriteLine("var __list = new System.Collections.Generic.List<{0}>(__size);", type);
             supportBefore.WriteLine("for (int i = 0; i < __size; i++)");
