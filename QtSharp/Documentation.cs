@@ -408,7 +408,7 @@ namespace QtSharp
             {
                 signatureRegex.Append('(');
             }
-            signatureRegex.Append(@"[\w :*&<>]+\s*=\s*[^,\r\n]+(\(\s*\))?(,\s*)?)*)\s*\)\s*");
+            signatureRegex.Append(@"[\w :*&<>]+\s*=\s*[^,\r\n]+(\(\s*\))?(,\s*)?)*)\s*(,\s*\.{3}\s*)?\)\s*");
             Match match = Regex.Match(docs, string.Format(memberDoc, function.Namespace.Name, signatureRegex),
                                       RegexOptions.Singleline | RegexOptions.ExplicitCapture);
             if (match.Success)
