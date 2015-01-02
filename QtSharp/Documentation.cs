@@ -319,44 +319,72 @@ namespace QtSharp
 
         private static string StripTags(string source)
         {
-            char[] array = new char[source.Length];
+            List<char> array = new List<char>(source.Length);
             List<char> tagArray = new List<char>();
-            int arrayIndex = 0;
             bool inside = false;
+            StringBuilder literalBuilder = new StringBuilder();
 
-            foreach (char @let in source)
+            foreach (char character in source)
             {
-                if (@let == '<')
+                if (character == '<')
                 {
                     inside = true;
                     continue;
                 }
-                if (@let == '>')
+                if (character == '>')
                 {
-                    inside = false;
+                    if (tagArray.Count < 5 || tagArray[0] != '!' || tagArray[1] != '-' || tagArray[2] != '-' ||
+                        (tagArray[tagArray.Count - 2] == '-' && tagArray[tagArray.Count - 1] == '-'))
+                    {
+                        inside = false;
+                    }
                     continue;
                 }
                 if (inside)
                 {
-                    tagArray.Add(@let);
+                    tagArray.Add(character);
                 }
                 else
                 {
                     string tag = new string(tagArray.ToArray());
                     if (tag.Contains("/tdtd"))
                     {
-                        array[arrayIndex++] = '\t';
+                        array.Add('\t');
                     }
                     tagArray.Clear();
-                    array[arrayIndex++] = @let;
+                    switch (character)
+                    {
+                        case '&':
+                            literalBuilder.Append(character);
+                            break;
+                        case ';':
+                            literalBuilder.Append(character);
+                            var literal = literalBuilder.ToString();
+                            if (!string.IsNullOrEmpty(literal) && literal != "&#8203;")
+                            {
+                                array.AddRange(literal);
+                            }
+                            literalBuilder.Clear();
+                            break;
+                        default:
+                            if (literalBuilder.Length > 0)
+                            {
+                                literalBuilder.Append(character);
+                            }
+                            else
+                            {
+                                array.Add(character);
+                            }
+                            break;
+                    }
                 }
             }
-            return HtmlEncoder.HtmlDecode(new string(array, 0, arrayIndex));
+            return HtmlEncoder.HtmlDecode(new string(array.ToArray(), 0, array.Count));
         }
 
         private bool TryMatch(Function function, string docs, bool markObsolete, bool completeSignature = true)
         {
-            const string memberDoc = @"(^|( --)|\n)\n([\w :*&<>,]+)?(({0}(\s*&)?::)| ){1}(const)?( \[(\w+\s*)+\])?\n(?<docs>\w.*?)(\n\s*){{1,2}}((&?\S* --)|((\n\s*){{2}}))";
+            const string memberDoc = @"\n{{2}}(\[(\w+\s*)+\] )?([\w :*&<>,]+)?(({0}(\s*&)?::)| ){1}(const)?( \[(\w+\s*)+\])?\n(?<docs>\w.*?)(\n\s*){{1,2}}((\n\s*){{2}})";
             const string separator = @",\s*";
             StringBuilder signatureRegex = new StringBuilder(Regex.Escape(function.OriginalName)).Append(@"\s*\(\s*(");
             bool anyArgs = false;
