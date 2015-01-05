@@ -131,7 +131,9 @@ namespace QtSharp
         private static string GetOriginalParameterType(ITypedDecl parameter)
         {
             Class decl;
-            return parameter.Type.TryGetClass(out decl) ? decl.QualifiedOriginalName : parameter.Type.ToString();
+            return parameter.Type.Desugar().SkipPointerRefs().Desugar().TryGetClass(out decl)
+                ? decl.QualifiedOriginalName
+                : parameter.Type.ToString();
         }
 
         public override bool VisitClassDecl(Class @class)

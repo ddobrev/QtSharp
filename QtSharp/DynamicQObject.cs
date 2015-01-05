@@ -15,9 +15,7 @@ namespace QtCore
         public unsafe bool ConnectDynamicSlot(QObject sender, string signal, Delegate slot)
         {
             this.slots.Add(slot);
-            // TODO: fix this
-            //int signalId = sender.MetaObject.IndexOfSignal(QMetaObject.NormalizedSignature(signal));
-            int signalId = sender.MetaObject.IndexOfSignal(signal);
+            int signalId = sender.MetaObject.IndexOfSignal(QMetaObject.NormalizedSignature(signal));
             QMetaObject.Connection connection = QMetaObject.Connect(sender, signalId, this, this.slots.Count - 1 + MetaObject.MethodCount, 0, null);
             return connection != null;
         }
