@@ -32,7 +32,7 @@ namespace QtSharp.Tests.Manual.QtCore.Plugin
         [Test]
         public void TestEmpyConstructor()
         {
-            //var uid = new QUuid();
+            var uid = new QUuid();
             throw new AssertionException("Empty ctor not implemented!");
         }
 

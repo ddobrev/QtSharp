@@ -108,8 +108,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         {
             var s1 = new QPoint(3, 7);
 
-            throw new AssertionException("Not implemented!");
-            //s1 *= 5;
+            s1 *= 5;
 
             Assert.AreEqual(15, s1.X);
             Assert.AreEqual(35, s1.Y);
@@ -120,8 +119,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         {
             var s1 = new QPoint(3, 7);
 
-            throw new AssertionException("Not implemented!");
-            //s1 *= 5.0f;
+            s1 *= 5.0f;
 
             Assert.AreEqual(15, s1.X);
             Assert.AreEqual(35, s1.Y);
@@ -132,8 +130,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         {
             var s1 = new QPoint(3, 7);
 
-            throw new AssertionException("Not implemented!");
-            //s1 *= 5.0;
+            s1 *= 5.0;
 
             Assert.AreEqual(15, s1.X);
             Assert.AreEqual(35, s1.Y);
@@ -145,8 +142,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var s1 = new QPoint(3, 7);
             var s2 = new QPoint(-1, 4);
 
-            throw new AssertionException("Not implemented!");
-            //s1 += s2;
+            s1 += s2;
 
             Assert.AreEqual(2, s1.X);
             Assert.AreEqual(11, s1.Y);
@@ -158,8 +154,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var s1 = new QPoint(3, 7);
             var s2 = new QPoint(-1, 4);
 
-            throw new AssertionException("Not implemented!");
-            //s1 -= s2;
+            s1 -= s2;
 
             Assert.AreEqual(4, s1.X);
             Assert.AreEqual(3, s1.Y);
@@ -170,8 +165,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         {
             var s1 = new QPoint(-3, 10);
 
-            throw new AssertionException("Not implemented!");
-            //s1 /= 2.5;
+            s1 /= 2.5;
 
             Assert.AreEqual(-1, s1.X);
             Assert.AreEqual(4, s1.Y);
@@ -183,8 +177,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var s1 = new QPoint(3, 7);
             var s2 = new QPoint(-1, 4);
 
-            throw new AssertionException("Not implemented!");
-
             Assert.AreNotEqual(s1, s2);
         }
 
@@ -193,11 +185,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         {
             var s1 = new QPoint(3, 7);
 
-            throw new AssertionException("Not implemented!");
-            //var res = s1 * 5.0f;
+            var res = s1 * 5.0f;
 
-            //Assert.AreEqual(15, res.X);
-            //Assert.AreEqual(35, res.Y);
+            Assert.AreEqual(15, res.X);
+            Assert.AreEqual(35, res.Y);
         }
 
         [Test]
@@ -205,11 +196,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         {
             var s1 = new QPoint(3, 7);
 
-            throw new AssertionException("Not implemented!");
-            //var res = s1 * 5.0;
+            var res = s1 * 5.0;
 
-            //Assert.AreEqual(15, res.X);
-            //Assert.AreEqual(35, res.Y);
+            Assert.AreEqual(15, res.X);
+            Assert.AreEqual(35, res.Y);
         }
 
         [Test]
@@ -217,11 +207,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         {
             var s1 = new QPoint(3, 7);
 
-            throw new AssertionException("Not implemented!");
-            //var res = s1 * 5;
+            var res = s1 * 5;
 
-            //Assert.AreEqual(15, res.X);
-            //Assert.AreEqual(35, res.Y);
+            Assert.AreEqual(15, res.X);
+            Assert.AreEqual(35, res.Y);
         }
 
         [Test]
@@ -229,11 +218,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         {
             var s1 = new QPoint(3, 7);
 
-            throw new AssertionException("Not implemented!");
-            //var res = 5.0f * s1;
+            var res = 5.0f * s1;
 
-            //Assert.AreEqual(15, res.X);
-            //Assert.AreEqual(35, res.Y);
+            Assert.AreEqual(15, res.X);
+            Assert.AreEqual(35, res.Y);
         }
 
         [Test]
@@ -241,11 +229,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         {
             var s1 = new QPoint(3, 7);
 
-            throw new AssertionException("Not implemented!");
-            //var res =  5.0 * s1;
+            var res = 5.0 * s1;
 
-            //Assert.AreEqual(15, res.X);
-            //Assert.AreEqual(35, res.Y);
+            Assert.AreEqual(15, res.X);
+            Assert.AreEqual(35, res.Y);
         }
 
         [Test]
@@ -253,11 +240,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         {
             var s1 = new QPoint(3, 7);
 
-            throw new AssertionException("Not implemented!");
-            //var res = 5 * s1;
+            var res = 5 * s1;
 
-            //Assert.AreEqual(15, res.X);
-            //Assert.AreEqual(35, res.Y);
+            Assert.AreEqual(15, res.X);
+            Assert.AreEqual(35, res.Y);
         }
 
         [Test]
@@ -266,11 +252,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var s1 = new QPoint(3, 7);
             var s2 = new QPoint(-1, 4);
 
-            throw new AssertionException("Not implemented!");
-            //var res = s1 + s2;
+            var res = s1 + s2;
 
-            //Assert.AreEqual(2, res.X);
-            //Assert.AreEqual(11, res.Y);
+            Assert.AreEqual(2, res.X);
+            Assert.AreEqual(11, res.Y);
         }
 
         [Test]
@@ -278,11 +263,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         {
             var s1 = new QPoint(3, 7);
 
-            throw new AssertionException("Not implemented!");
-            //var res = +s1;
+            var res = +s1;
 
-            //Assert.AreEqual(3, res.X);
-            //Assert.AreEqual(7, res.Y);
+            Assert.AreEqual(3, res.X);
+            Assert.AreEqual(7, res.Y);
         }
 
         [Test]
@@ -291,11 +275,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var s1 = new QPoint(3, 7);
             var s2 = new QPoint(-1, 4);
 
-            throw new AssertionException("Not implemented!");
-            //var res = s1 - s2;
+            var res = s1 - s2;
 
-            //Assert.AreEqual(4, res.X);
-            //Assert.AreEqual(3, res.Y);
+            Assert.AreEqual(4, res.X);
+            Assert.AreEqual(3, res.Y);
         }
 
         [Test]
@@ -303,11 +286,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         {
             var s1 = new QPoint(3, 7);
 
-            throw new AssertionException("Not implemented!");
-            //var res = -s1;
+            var res = -s1;
 
-            //Assert.AreEqual(-3, res.X);
-            //Assert.AreEqual(-7, res.Y);
+            Assert.AreEqual(-3, res.X);
+            Assert.AreEqual(-7, res.Y);
         }
 
         [Test]
@@ -315,11 +297,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         {
             var s1 = new QPoint(3, 7);
 
-            throw new AssertionException("Not implemented!");
-            //var res = s1 / 1.0;
+            var res = s1 / 1.0;
 
-            //Assert.AreEqual(3, res.X);
-            //Assert.AreEqual(7, res.Y);
+            Assert.AreEqual(3, res.X);
+            Assert.AreEqual(7, res.Y);
         }
 
         [Test]
@@ -327,8 +308,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         {
             var s1 = new QPoint(3, 7);
             var s2 = new QPoint(3, 7);
-
-            throw new AssertionException("Not implemented!");
 
             Assert.AreEqual(s1, s2);
         }

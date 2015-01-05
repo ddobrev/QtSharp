@@ -58,8 +58,6 @@ namespace QtSharp.Tests
 
             var stringPointer = (char*)Marshal.StringToHGlobalAuto(arguments).ToPointer();
 
-            Marshal.FreeHGlobal(new IntPtr(stringPointer));
-
             var app = new QCoreApplication(&argc, null);
             //var app = new QCoreApplication(&argc, &stringPointer);
 

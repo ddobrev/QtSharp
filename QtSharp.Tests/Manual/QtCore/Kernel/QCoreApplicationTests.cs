@@ -19,10 +19,9 @@ namespace QtSharp.Tests.Manual.QtCore.Kernel
         public void Dispose()
         {
             // TODO: Add tear down code.
-            QCoreApplication.Exec();
+            QCoreApplication.Quit();
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestApplicationName()
         {
@@ -31,7 +30,6 @@ namespace QtSharp.Tests.Manual.QtCore.Kernel
             Assert.IsNotNull(n);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestApplicationVersion()
         {
@@ -40,7 +38,6 @@ namespace QtSharp.Tests.Manual.QtCore.Kernel
             Assert.IsNotNull(n);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestOrganizationDomain()
         {
@@ -49,7 +46,6 @@ namespace QtSharp.Tests.Manual.QtCore.Kernel
             Assert.IsNotNull(n);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestOrganizationName()
         {
@@ -58,7 +54,6 @@ namespace QtSharp.Tests.Manual.QtCore.Kernel
             Assert.IsNotNull(n);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestQuitLockEnabled()
         {
@@ -67,7 +62,6 @@ namespace QtSharp.Tests.Manual.QtCore.Kernel
             Assert.IsNotNull(n);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestAboutToQuit()
         {

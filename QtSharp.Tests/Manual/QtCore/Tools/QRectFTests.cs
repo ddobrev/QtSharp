@@ -113,7 +113,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
             var n = s.Bottom;
 
-            Assert.AreEqual(s.Top + s.Height - 1, n);
+            Assert.AreEqual(s.Top + s.Height, n);
         }
 
         [Test]
@@ -390,7 +390,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(50, s.Left);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestMarginsAdded()
         {
@@ -410,7 +409,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(700, newR.Bottom);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestMarginsRemoved()
         {
@@ -643,7 +641,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
             Assert.AreEqual(500, s.Width);
             Assert.AreEqual(600, s.Height);
-            Assert.AreEqual(s.Left + s.Width - 1, s.Right);
+            Assert.AreEqual(s.Left + s.Width, s.Right);
             Assert.AreEqual(80, s.Y);
         }
 
@@ -871,7 +869,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(100, s1.Height);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestAddMarginOperator()
         {
@@ -891,7 +888,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(600, s1.Height);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestSubMarginOperator()
         {
@@ -972,12 +968,9 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             s2.Width = 500;
             s2.Height = 600;
 
-            throw new AssertionException("Not implemented!");
-
             Assert.AreNotEqual(s1, s2);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestAddMarginToNewRectOperator()
         {
@@ -997,7 +990,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(600, n.Height);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestAddMarginToNewRectOperator2()
         {
@@ -1017,7 +1009,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(600, n.Height);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestSubMarginToNewRectOperator()
         {
@@ -1051,8 +1042,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             s2.Y = 0;
             s2.Width = 500;
             s2.Height = 600;
-
-            throw new AssertionException("Not implemented!");
 
             Assert.AreEqual(s1, s2);
         }

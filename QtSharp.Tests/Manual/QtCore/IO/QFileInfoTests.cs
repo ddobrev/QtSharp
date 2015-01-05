@@ -49,7 +49,6 @@ namespace QtSharp.Tests.Manual.QtCore.IO
             var q = new QFileInfo(f);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestDirConstructorNotThrowingAnException()
         {
@@ -59,7 +58,6 @@ namespace QtSharp.Tests.Manual.QtCore.IO
             var q = new QFileInfo(dir, f.Name);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestQFileInfoConstructorNotThrowingAnException()
         {
@@ -70,7 +68,6 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         [Test]
         public void TestAbsoluteDir()
         {
-            throw new AssertionException("Warning! Execution deletes all files.");
             var ad = _fileInfo.AbsoluteDir;
             var nad = _testFilePath1.Directory;
         }
@@ -196,8 +193,6 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         [Test]
         public void TestDir()
         {
-            throw new AssertionException("Warning! Execution deletes all files.");
-
             var parentDir = _fileInfo.Dir;
 
             var exp = _testFilePath1.Directory.FullName.Replace("\\", "/"); ;
@@ -208,7 +203,7 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         [Test]
         public void TestExists()
         {
-            throw new AssertionException("Not Implemented in QtCoreSharp");
+            Assert.IsTrue(_fileInfo.Exists());
         }
 
         [Test]
@@ -287,7 +282,6 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         [Test]
         public void TestIsDir()
         {
-            throw new AssertionException("Warning! Execution deletes all files.");
             var ad = _fileInfo.IsDir;
 
             Assert.IsFalse(ad);
@@ -364,8 +358,6 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         {
             var qd = _fileInfo.LastModified;
             var qday = qd.Date.Day;
-
-            throw new AssertionException("System.AccessViolationException was thrown.");
         }
 
         [Test]
@@ -373,8 +365,6 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         {
             var qd = _fileInfo.LastRead;
             var qday = qd.Date.Day;
-
-            throw new AssertionException("System.AccessViolationException was thrown.");
         }
 
         [Test]
@@ -428,7 +418,7 @@ namespace QtSharp.Tests.Manual.QtCore.IO
             var file = new QFileInfo("./TestData/TextFile1.txt");
             var res = file.Permissions;
 
-            Assert.IsTrue(res == QFileDevice.Permission.ReadOwner);
+            Assert.IsTrue((res & QFileDevice.Permission.ReadOwner) != 0);
         }
 
         [Test]
@@ -467,7 +457,6 @@ namespace QtSharp.Tests.Manual.QtCore.IO
             Assert.AreEqual("txt", s);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestSwap()
         {
@@ -487,7 +476,6 @@ namespace QtSharp.Tests.Manual.QtCore.IO
             Assert.AreNotEqual("", target);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestNotEqualOperator()
         {
@@ -503,7 +491,6 @@ namespace QtSharp.Tests.Manual.QtCore.IO
             Assert.NotNull(file);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestEqualOperator()
         {

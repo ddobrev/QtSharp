@@ -21,6 +21,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         public void Dispose()
         {
             // TODO: Add tear down code.
+            _qDate.Dispose();
         }
 
         #region Ctor
@@ -46,27 +47,32 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         public void TestAddDays()
         {
             var i = 5;
-            _qDate.AddDays(i);
-
-            Assert.AreEqual(20 + i, _qDate.Day);
+            using (var newDate = _qDate.AddDays(i))
+            {
+                Assert.AreEqual(20 + i, newDate.Day);
+            }
         }
 
         [Test]
         public void TestAddMonths()
         {
             var i = 2;
-            _qDate.AddMonths(i);
 
-            Assert.AreEqual(9 + i, _qDate.Month);
+            using (var newDate = _qDate.AddMonths(i))
+            {
+                Assert.AreEqual(9 + i, newDate.Month);                
+            }
         }
 
         [Test]
         public void TestAddYears()
         {
             var i = 2;
-            _qDate.AddYears(i);
 
-            Assert.AreEqual(2016 + i, _qDate.Year);
+            using (var newDate = _qDate.AddYears(i))
+            {
+                Assert.AreEqual(2014 + i, newDate.Year);                
+            }
         }
 
         [Test]
@@ -78,7 +84,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(net.Day, q.Day);
             Assert.AreEqual(net.Month, q.Month);
             Assert.AreEqual(net.Year, q.Year);
-            Assert.AreEqual(net.DayOfWeek, q.DayOfWeek);
+            Assert.AreEqual((int) net.DayOfWeek, q.DayOfWeek == 7 ? 0 : q.DayOfWeek);
             Assert.AreEqual(net.DayOfYear, q.DayOfYear);
         }
 
@@ -99,7 +105,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
                 q.DaysInYear);
         }
 
-        [Ignore("Bug")]
+        //[Ignore("Bug")]
         [Test]
         public void TestDaysTo()
         {

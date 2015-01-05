@@ -968,8 +968,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             s2.Width = 500;
             s2.Height = 600;
 
-            throw new AssertionException("Not implemented!");
-
             Assert.AreNotEqual(s1, s2);
         }
 
@@ -1044,8 +1042,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             s2.Y = 0;
             s2.Width = 500;
             s2.Height = 600;
-
-            throw new AssertionException("Not implemented!");
 
             Assert.AreEqual(s1, s2);
         }

@@ -110,7 +110,7 @@ namespace QtSharp
                 Class @class;
                 if (templateArgument.Type.Type.TryGetClass(out @class) && @class.IsValueType)
                 {
-                    supportBefore.WriteLine("{0}.Internal __value = {1}[i].ToInternal();", @class.Name, ctx.Parameter.Name, instance);
+                    supportBefore.WriteLine("{0}.Internal __value = {1}[i]{2};", @class.Name, ctx.Parameter.Name, instance, Helpers.InstanceIdentifier);
                     supportBefore.WriteLine("{0}->array[i] = &__value;", qListDataData, ctx.Parameter.Name, instance);         
                 }
                 else

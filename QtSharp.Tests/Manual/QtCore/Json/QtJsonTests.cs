@@ -31,7 +31,7 @@ namespace QtSharp.Tests.Manual.QtCore.Json
                 array.Append(new QJsonValue(i));
 
             var value = new QJsonValue(true);
-            Assert.AreEqual(value.type, typeof(bool));
+            Assert.AreEqual(value.type, QJsonValue.Type.Bool);
             Assert.AreEqual(value.ToDouble(), 0.0);
             Assert.AreEqual(value.ToString(), "");
             Assert.AreEqual(value.ToBool(), true);

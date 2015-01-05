@@ -1011,7 +1011,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var q = new QStringRef("something");
             var w = q.ToLatin1();
 
-            Assert.AreEqual(q.ToString(), w.ToString());
+            Assert.AreEqual(q.ToString(), w.ConstData);
         }
         #endregion
 
@@ -1022,7 +1022,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var q = new QStringRef("so");
             var w = q.ToLocal8Bit();
 
-            Assert.AreEqual(q.ToString(), w.ToString());
+            Assert.AreEqual(q.ToString(), w.ConstData);
         }
         #endregion
 
@@ -1099,7 +1099,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var q = new QStringRef("kklkl");
             var w = q.ToUtf8();
 
-            Assert.AreEqual("kklkl", w);
+            Assert.AreEqual("kklkl", w.ConstData);
         }
         #endregion
 

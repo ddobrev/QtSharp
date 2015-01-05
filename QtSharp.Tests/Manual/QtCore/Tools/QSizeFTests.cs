@@ -219,8 +219,8 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var size = new QSizeF(500, 100);
             size.Transpose();
 
-            Assert.AreEqual(100, _qSize.Width);
-            Assert.AreEqual(500, _qSize.Height);
+            Assert.AreEqual(100, size.Width);
+            Assert.AreEqual(500, size.Height);
         }
 
         [Test]
@@ -236,49 +236,21 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestMultWidthIntegerOperator()
         {
-            //var size = new QSizeF(500, 100);
-            //size *= 5;
+            var size = new QSizeF(500, 100);
+            size *= 5;
 
-            //Assert.AreEqual(2500, size.Width);
-            //Assert.AreEqual(500, size.Height);
-
-            throw new AssertionException("Not implemented");
-        }
-
-        [Test]
-        public void TestAddWidthIntegerOperator()
-        {
-            //var size = new QSizeF(500, 100);
-            //size += 5;
-
-            //Assert.AreEqual(505, size.Width);
-            //Assert.AreEqual(105, size.Height);
-
-            throw new AssertionException("Not implemented");
-        }
-
-        [Test]
-        public void TestSubWidthIntegerOperator()
-        {
-            //var size = new QSizeF(500, 100);
-            //size -= 5;
-
-            //Assert.AreEqual(495, size.Width);
-            //Assert.AreEqual(95, size.Height);
-
-            throw new AssertionException("Not implemented");
+            Assert.AreEqual(2500, size.Width);
+            Assert.AreEqual(500, size.Height);
         }
 
         [Test]
         public void TestDivWidthIntegerOperator()
         {
-            //var size = new QSizeF(500, 100);
-            //size /= 5;
+            var size = new QSizeF(500, 100);
+            size /= 5;
 
-            //Assert.AreEqual(100, size.Width);
-            //Assert.AreEqual(20, size.Height);
-
-            throw new AssertionException("Not implemented");
+            Assert.AreEqual(100, size.Width);
+            Assert.AreEqual(20, size.Height);
         }
 
         [Test]
@@ -288,7 +260,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var size2 = new QSizeF(100, 50);
 
             Assert.AreNotEqual(size, size2);
-            throw new AssertionException("Not implemented");
         }
 
         [Test]
@@ -296,12 +267,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         {
             var size = new QSizeF(500, 100);
 
-            //var res = size*50;
+            var res = size * 50;
 
-            //Assert.AreEqual(500 * 50, res.Width);
-            //Assert.AreEqual(50 * 100, res.Height);
-
-            throw new AssertionException("Not implemented");
+            Assert.AreEqual(500 * 50, res.Width);
+            Assert.AreEqual(50 * 100, res.Height);
         }
 
         [Test]
@@ -309,12 +278,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         {
             var size = new QSizeF(500, 100);
 
-            //var res = 50*size;
+            var res = 50 * size;
 
-            //Assert.AreEqual(500 * 50, res.Width);
-            //Assert.AreEqual(50 * 100, res.Height);
-
-            throw new AssertionException("Not implemented");
+            Assert.AreEqual(500 * 50, res.Width);
+            Assert.AreEqual(50 * 100, res.Height);
         }
 
         [Test]
@@ -323,12 +290,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var size = new QSizeF(500, 100);
             var size2 = new QSizeF(500, 100);
 
-            //var res = size + size2;
+            var res = size + size2;
 
-            //Assert.AreEqual(1000, res.Width);
-            //Assert.AreEqual(200, res.Height);
-
-            throw new AssertionException("Not implemented");
+            Assert.AreEqual(1000, res.Width);
+            Assert.AreEqual(200, res.Height);
         }
 
         [Test]
@@ -337,12 +302,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var size = new QSizeF(500, 100);
             var size2 = new QSizeF(500, 100);
 
-            //var res = size - size2;
+            var res = size - size2;
 
-            //Assert.AreEqual(0, res.Width);
-            //Assert.AreEqual(0, res.Height);
-
-            throw new AssertionException("Not implemented");
+            Assert.AreEqual(0, res.Width);
+            Assert.AreEqual(0, res.Height);
         }
 
         [Test]
@@ -350,12 +313,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         {
             var size = new QSizeF(500, 100);
 
-            //var res = size / 5;
+            var res = size / 5;
 
-            //Assert.AreEqual(100, res.Width);
-            //Assert.AreEqual(20, res.Height);
-
-            throw new AssertionException("Not implemented");
+            Assert.AreEqual(100, res.Width);
+            Assert.AreEqual(20, res.Height);
         }
 
         [Test]
@@ -365,8 +326,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var size2 = new QSizeF(500, 100);
 
             Assert.AreEqual(size, size2);
-
-            throw new AssertionException("Not implemented");
         }
     }
 }
