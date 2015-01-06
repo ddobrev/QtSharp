@@ -79,7 +79,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="QtSharp.cs" />
-    <Compile Include="RemoveStaticsFromDerivedTypesPass.cs" />
     <None Include="QEventArgs.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
