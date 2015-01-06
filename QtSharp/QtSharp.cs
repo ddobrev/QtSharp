@@ -134,7 +134,7 @@ namespace QtSharp
             new ClearCommentsPass().VisitLibrary(driver.ASTContext);
             new GetCommentsFromQtDocsPass(this.docs, this.module, collectTypeDefsPerTypePass.TypeDefsPerType).VisitLibrary(driver.ASTContext);
             new CaseRenamePass(
-                RenameTargets.Function | RenameTargets.Method | RenameTargets.Property | RenameTargets.Delegate | RenameTargets.Field,
+                RenameTargets.Function | RenameTargets.Method | RenameTargets.Property | RenameTargets.Delegate | RenameTargets.Field | RenameTargets.Variable,
                 RenameCasePattern.UpperCamelCase).VisitLibrary(driver.ASTContext);
         }
 
@@ -175,7 +175,7 @@ namespace QtSharp
                 string dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
                 driver.Options.CodeFiles.Add(Path.Combine(dir, "QEventArgs.cs"));
                 driver.Options.CodeFiles.Add(Path.Combine(dir, "QEventHandler.cs"));
-                driver.Options.CodeFiles.Add(Path.Combine(dir, "DynamicQObject.cs"));
+                driver.Options.CodeFiles.Add(Path.Combine(dir, "QObject.cs"));
                 driver.Options.CodeFiles.Add(Path.Combine(dir, "MarshalQString.cs"));
 		    }
 		}

@@ -15,7 +15,6 @@ namespace QtSharp
     {
         private bool eventAdded;
         private readonly HashSet<Event> events = new HashSet<Event>();
-        private bool addedDynamicQObject;
 
         public override bool VisitTranslationUnit(TranslationUnit unit)
         {
@@ -43,24 +42,6 @@ namespace QtSharp
                 {
                     block.Text.StringBuilder.Clear();
                     Class @class = (Class) @event.Namespace;
-                    if (!this.addedDynamicQObject && @class.Name == "QObject")
-                    {
-                        block.WriteLine(@"protected DynamicQObject dynamicQObject;");
-                        block.NewLine();
-                        block.WriteLine("protected DynamicQObject __DynamicQObject");
-                        block.WriteStartBraceIndent();
-                        block.WriteLine("get");
-                        block.WriteStartBraceIndent();
-                        block.WriteLine("if (dynamicQObject == null)");
-                        block.WriteStartBraceIndent();
-                        block.WriteLine("dynamicQObject = new DynamicQObject(null);");
-                        block.WriteCloseBraceIndent();
-                        block.WriteLine("return dynamicQObject;");
-                        block.WriteCloseBraceIndent();
-                        block.WriteCloseBraceIndent();
-                        block.NewLine();
-                        this.addedDynamicQObject = true;
-                    }
 
                     int argNum = 1;
                     StringBuilder fullNameBuilder = new StringBuilder("Action");
@@ -117,14 +98,27 @@ namespace QtSharp
 {{
 	add
 	{{
-        __DynamicQObject.ConnectDynamicSlot(this, ""{2}"", value);
+        ConnectDynamicSlot(this, ""{2}"", value);
 	}}
 	remove
 	{{
-        __DynamicQObject.DisconnectDynamicSlot(this, ""{2}"", value);
+        DisconnectDynamicSlot(this, ""{2}"", value);
 	}}
 }}", fullNameBuilder, char.ToUpperInvariant(@event.Name[0]) + @event.Name.Substring(1), signature));
                 }
+            }
+            foreach (Block block in from template in generatorOutput.Templates
+                                    from block in template.FindBlocks(CSharpBlockKind.Method)
+                                    where block.Declaration != null && block.Declaration.Name == "Qt_metacall"
+                                    select block)
+            {
+                block.Text.StringBuilder.Clear();
+                block.WriteLine(@"public {0} unsafe int Qt_metacall(QMetaObject.Call call, int id, void** arguments)
+{{
+    var index = Internal.Qt_metacall_0({1}, call, id, arguments);
+
+    return HandleQtMetacall(index, call, arguments);
+}}", block.Declaration.Namespace.Name == "QObject" ? "virtual" : "override", Helpers.InstanceIdentifier);
             }
         }
 

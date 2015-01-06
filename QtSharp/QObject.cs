@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace QtCore
 {
-    public class DynamicQObject : QObject
+    public unsafe partial class QObject
     {
         private struct Handler
         {
-            public Handler(int signalId, Delegate @delegate) : this()
+            public Handler(int signalId, Delegate @delegate)
+                : this()
             {
                 this.SignalId = signalId;
                 this.Delegate = @delegate;
@@ -19,13 +18,9 @@ namespace QtCore
             public Delegate Delegate { get; private set; }
         }
 
-        private readonly List<Handler> slots = new List<Handler>();
+        private readonly System.Collections.Generic.List<Handler> slots = new System.Collections.Generic.List<Handler>();
 
-        public DynamicQObject(QObject parent) : base(parent)
-        {
-        }
-
-        public unsafe bool ConnectDynamicSlot(QObject sender, string signal, Delegate slot)
+        protected unsafe bool ConnectDynamicSlot(QObject sender, string signal, Delegate slot)
         {
             int signalId = sender.MetaObject.IndexOfSignal(QMetaObject.NormalizedSignature(signal));
             this.slots.Add(new Handler(signalId, slot));
@@ -33,7 +28,7 @@ namespace QtCore
             return connection != null;
         }
 
-        public bool DisconnectDynamicSlot(QObject sender, string signal, Delegate value)
+        protected bool DisconnectDynamicSlot(QObject sender, string signal, Delegate value)
         {
             int i = this.slots.FindIndex(h => h.Delegate == value);
             if (i >= 0)
@@ -46,23 +41,19 @@ namespace QtCore
             return false;
         }
 
-        public override unsafe int Qt_metacall(QMetaObject.Call _1, int _2, void** _3)
+        protected int HandleQtMetacall(int index, QMetaObject.Call call, void** arguments)
         {
-            var arg0 = _1;
-            var arg2 = _3;
-            var __ret = base.Qt_metacall(arg0, _2, arg2);
-
-            if (__ret < 0 || _1 != QMetaObject.Call.InvokeMetaMethod)
+            if (index < 0 || call != QMetaObject.Call.InvokeMetaMethod)
             {
-                return __ret;
+                return index;
             }
-            Handler handler = this.slots[__ret];
-            ParameterInfo[] @params = handler.Delegate.Method.GetParameters();
+            Handler handler = this.slots[index];
+            System.Reflection.ParameterInfo[] @params = handler.Delegate.Method.GetParameters();
             object[] parameters = new object[@params.Length];
             for (int i = 0; i < @params.Length; i++)
             {
-                ParameterInfo parameter = @params[i];
-                var arg = new IntPtr(_3[1 + i]);
+                System.Reflection.ParameterInfo parameter = @params[i];
+                var arg = new IntPtr(arguments[1 + i]);
                 object value;
                 if (parameter.ParameterType.IsValueType)
                 {
@@ -84,7 +75,7 @@ namespace QtCore
                     }
                     else
                     {
-                        value = Activator.CreateInstance(parameter.ParameterType, arg);                        
+                        value = Activator.CreateInstance(parameter.ParameterType, arg);
                     }
                 }
                 parameters[i] = value;

@@ -58,9 +58,6 @@
     <Compile Include="CollectTypeDefsPerTypePass.cs" />
     <Compile Include="CompileInlinesPass.cs" />
     <Compile Include="Documentation.cs" />
-    <None Include="DynamicQObject.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <Compile Include="GenerateEventEventsPass.cs" />
     <Compile Include="GenerateSignalEventsPass.cs" />
     <Compile Include="GetCommentsFromQtDocsPass.cs" />
@@ -75,6 +72,9 @@
     <Compile Include="QList.cs">
       <SubType>Code</SubType>
     </Compile>
+    <None Include="QObject.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Compile Include="QString.cs">
       <SubType>Code</SubType>
     </Compile>
