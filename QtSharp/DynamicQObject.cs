@@ -1,12 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace QtCore
 {
     public class DynamicQObject : QObject
     {
-        private readonly List<Delegate> slots = new List<Delegate>();
+        private struct Handler
+        {
+            public Handler(int signalId, Delegate @delegate) : this()
+            {
+                this.SignalId = signalId;
+                this.Delegate = @delegate;
+            }
+
+            public int SignalId { get; private set; }
+            public Delegate Delegate { get; private set; }
+        }
+
+        private readonly List<Handler> slots = new List<Handler>();
 
         public DynamicQObject(QObject parent) : base(parent)
         {
@@ -14,18 +27,18 @@ namespace QtCore
 
         public unsafe bool ConnectDynamicSlot(QObject sender, string signal, Delegate slot)
         {
-            this.slots.Add(slot);
             int signalId = sender.MetaObject.IndexOfSignal(QMetaObject.NormalizedSignature(signal));
-            QMetaObject.Connection connection = QMetaObject.Connect(sender, signalId, this, this.slots.Count - 1 + MetaObject.MethodCount, 0, null);
+            this.slots.Add(new Handler(signalId, slot));
+            QMetaObject.Connection connection = QMetaObject.Connect(sender, signalId, this, this.slots.Count - 1 + MetaObject.MethodCount);
             return connection != null;
         }
 
         public bool DisconnectDynamicSlot(QObject sender, string signal, Delegate value)
         {
-            int i = this.slots.IndexOf(value);
+            int i = this.slots.FindIndex(h => h.Delegate == value);
             if (i >= 0)
             {
-                int signalId = sender.MetaObject.IndexOfSignal(QMetaObject.NormalizedSignature(signal));
+                int signalId = this.slots[i].SignalId;
                 bool disconnect = QMetaObject.Disconnect(sender, signalId, this, i + MetaObject.MethodCount);
                 this.slots.RemoveAt(i);
                 return disconnect;
@@ -43,13 +56,13 @@ namespace QtCore
             {
                 return __ret;
             }
-            Delegate @delegate = this.slots[__ret];
-            System.Reflection.ParameterInfo[] @params = @delegate.Method.GetParameters();
+            Handler handler = this.slots[__ret];
+            ParameterInfo[] @params = handler.Delegate.Method.GetParameters();
             object[] parameters = new object[@params.Length];
             for (int i = 0; i < @params.Length; i++)
             {
-                System.Reflection.ParameterInfo parameter = @params[i];
-                var arg = new IntPtr((int*) _3 + 1 + i);
+                ParameterInfo parameter = @params[i];
+                var arg = new IntPtr(_3[1 + i]);
                 object value;
                 if (parameter.ParameterType.IsValueType)
                 {
@@ -59,8 +72,15 @@ namespace QtCore
                 {
                     if (parameter.ParameterType.IsAssignableFrom(typeof(string)))
                     {
-                        // TODO: must properly handle QString here
-                        value = Marshal.PtrToStringUni(arg);
+                        var metaMethod = this.Sender.MetaObject.Method(handler.SignalId);
+                        if (metaMethod.ParameterType(i) == (int) QMetaType.Type.QString)
+                        {
+                            value = Marshal.PtrToStringUni(new IntPtr(new QString(arg).Utf16));
+                        }
+                        else
+                        {
+                            value = Marshal.PtrToStringUni(arg);
+                        }
                     }
                     else
                     {
@@ -69,7 +89,7 @@ namespace QtCore
                 }
                 parameters[i] = value;
             }
-            @delegate.DynamicInvoke(parameters);
+            handler.Delegate.DynamicInvoke(parameters);
             return -1;
         }
     }
