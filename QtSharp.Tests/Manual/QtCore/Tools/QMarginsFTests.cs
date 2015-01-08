@@ -134,7 +134,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestNotEqualOperator()
         {
-            var res = new QMarginsF(Left, Top, Right, Bottom);
+            var res = new QMarginsF(Left, Top, Right, Bottom + 1);
 
             Assert.AreNotEqual(res, _margins);
         }
