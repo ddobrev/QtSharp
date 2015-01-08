@@ -159,7 +159,6 @@ namespace QtSharp.Tests.Manual.QtCore.Kernel
         #endregion
 
         #region MoveToThread
-        [Ignore("Bug!")]
         [Test]
         public void TestMoveToThread()
         {

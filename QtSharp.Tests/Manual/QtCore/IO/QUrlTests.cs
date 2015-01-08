@@ -48,7 +48,6 @@ namespace QtSharp.Tests.Manual.QtCore.IO
             var s = new QUrl("http://www.example.com/List of holidays.xml", QUrl.ParsingMode.DecodedMode);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestCopyConstructor()
         {
@@ -233,7 +232,6 @@ namespace QtSharp.Tests.Manual.QtCore.IO
             Assert.AreEqual(58.ToString(), p);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestResolved()
         {
@@ -355,7 +353,6 @@ namespace QtSharp.Tests.Manual.QtCore.IO
             Assert.AreEqual("new", baseUrl.Query());
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestSetQuery2()
         {
@@ -424,7 +421,7 @@ namespace QtSharp.Tests.Manual.QtCore.IO
             Assert.AreEqual("tray2", baseUrl.UserName());
         }
 
-        [Ignore("Bug!")]
+        //[Ignore("Bug!")]
         [Test]
         public void TestSwap()
         {
@@ -530,7 +527,6 @@ namespace QtSharp.Tests.Manual.QtCore.IO
             //Assert.AreEqual(".com", baseUrl.Url());
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestNotEqualOperator()
         {
@@ -556,7 +552,6 @@ namespace QtSharp.Tests.Manual.QtCore.IO
             //Assert.AreEqual(n, _qUrl);           
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestEqualOperator()
         {

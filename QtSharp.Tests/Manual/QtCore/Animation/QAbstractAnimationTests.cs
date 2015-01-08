@@ -6,7 +6,7 @@ namespace QtSharp.Tests.Manual.QtCore.Animation
     [TestFixture]
     public class QAbstractAnimationTests
     {
-         [SetUp]
+        [SetUp]
         public void Init()
         {
             // TODO: Add Init code.
