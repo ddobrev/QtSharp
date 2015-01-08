@@ -480,7 +480,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(2014, q.Year);
         }
 
-        [Ignore("Bug")]
         [Test]
         public void TestNotEqualOperator()
         {
@@ -490,7 +489,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreNotEqual(q, q2);
         }
 
-        [Ignore("Bug")]
         [Test]
         public void TestLessOperator()
         {
@@ -504,11 +502,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.IsTrue(res);
         }
 
-        [Ignore("Bug")]
         [Test]
         public void TestLessEqualOperator()
         {
-            var q = new QDate(2014, 11, 22);
+            var q = new QDate(2014, 11, 21);
             var q2 = new QDate(2014, 11, 22);
 
             var res = (q <= q2); // true
@@ -518,17 +515,15 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.IsTrue(res);
         }
 
-        [Ignore("Bug")]
         [Test]
         public void TestEqualOperator()
         {
-            var q = new QDate(2014, 11, 20);
+            var q = new QDate(2014, 11, 22);
             var q2 = new QDate(2014, 11, 22);
 
             Assert.AreEqual(q, q2);
         }
 
-        [Ignore("Bug")]
         [Test]
         public void TestGreaterOperator()
         {
@@ -542,11 +537,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.IsFalse(res);
         }
 
-        [Ignore("Bug")]
         [Test]
         public unsafe void TestGreaterEqualOperator()
         {
-            var q = new QDate(2014, 11, 22);
+            var q = new QDate(2014, 11, 23);
             var q2 = new QDate(2014, 11, 22);
 
             var res = (q >= q2); // true

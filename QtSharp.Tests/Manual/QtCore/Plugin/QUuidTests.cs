@@ -98,28 +98,26 @@ namespace QtSharp.Tests.Manual.QtCore.Plugin
             Assert.IsFalse(uid.IsNull);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestCreateUuidV3()
         {
             var uid = QUuid.CreateUuidV3(_uuidNs, new QByteArray("www.widgets.com"));
             Assert.AreEqual(_uuidC, uid);
 
-            throw new AssertionException("string para not implemented!");
-            //var uid2 = QUuid.CreateUuidV3(_uuidNs, "www.widgets.com");
-            //Assert.AreEqual(_uuidC, uid2);
+            var uid2 = QUuid.CreateUuidV3(_uuidNs, "www.widgets.com");
+            Assert.AreEqual(_uuidC, uid2);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestCreateUuidV5()
         {
+            var s = _uuidD;
             var uid = QUuid.CreateUuidV3(_uuidNs, new QByteArray("www.widgets.com"));
             Assert.AreEqual(_uuidD, uid);
 
-            throw new AssertionException("string para not implemented!");
-            //var uid2 = QUuid.CreateUuidV3(_uuidNs, "www.widgets.com");
-            //Assert.AreEqual(_uuidD, uid2);
+            //throw new AssertionException("string para not implemented!");
+            var uid2 = QUuid.CreateUuidV3(_uuidNs, "www.widgets.com");
+            Assert.AreEqual(_uuidD, uid2);
         }
 
         [Test]
@@ -203,7 +201,6 @@ namespace QtSharp.Tests.Manual.QtCore.Plugin
             //Assert.IsTrue(_uuidA != g);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestLessOperator()
         {
@@ -218,7 +215,6 @@ namespace QtSharp.Tests.Manual.QtCore.Plugin
             //Assert.NotNull(uid);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestEqualOperator()
         {
@@ -232,17 +228,14 @@ namespace QtSharp.Tests.Manual.QtCore.Plugin
             //Assert.IsTrue(_uuidA == g);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestGreaterOperator()
         {
             Assert.IsTrue(_uuidA > _uuidB);
 
-            throw new AssertionException("Empty ctor not implemented!");
-            //Assert.IsFalse(new QUuid() > _uuidB);
+            Assert.IsFalse(new QUuid() > _uuidB);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestQHash()
         {

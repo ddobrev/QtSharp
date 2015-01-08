@@ -30,7 +30,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         }
 
         #region Ctor
-        [Ignore("Bug!")]
         [Test]
         public void TestQStringRefConstructor()
         {
@@ -39,7 +38,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(_testString, s.ToString());
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestQStringRefPointerConstructor()
         {
@@ -118,7 +116,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         #endregion
 
         #region Compare
-        [Ignore("Bug")]
         [Test]
         public void TestCompareQStringRefAndQStringLatinCaseInsensitive()
         {
@@ -144,7 +141,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             }
         }
 
-        [Ignore("Bug")]
         [Test]
         public void TestCompareQStringRefAndQStringLatinCaseSensitive()
         {
@@ -170,7 +166,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             }
         }
 
-        [Ignore("Bug")]
         [Test]
         public void TestCompareQStringRefAndQStringRefCaseInsensitive()
         {
@@ -196,7 +191,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             }
         }
 
-        [Ignore("Bug")]
         [Test]
         public void TestCompareQStringRefAndQStringRefCaseSensitive()
         {
@@ -222,7 +216,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             }
         }
 
-        [Ignore("Bug")]
         [Test]
         public void TestCompareQStringRefAndStringCaseInsensitive()
         {
@@ -248,7 +241,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             }
         }
 
-        [Ignore("Bug")]
         [Test]
         public void TestCompareQStringRefAndStringCaseSensitive()
         {
@@ -276,7 +268,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         #endregion
 
         #region Contains
-        [Ignore("Bug!")]
         [Test]
         public void TestContainsQStringRef_A_QStringRefCaseSensitive()
         {
@@ -297,7 +288,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(net, q);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestContainsQStringRef_A_QStringRefCaseInsensitive()
         {
@@ -505,7 +495,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(net, q);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestCountWithQStringRefArgsCaseInsensitive()
         {
@@ -522,7 +511,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(net, q);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestCountWithQStringRefArgsCaseSensitive()
         {
@@ -541,7 +529,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         #endregion
 
         #region Ends with
-        [Ignore("Bug")]
         [Test]
         public void TestEndsWith_WithQStringRefArgsCaseInsensitive()
         {
@@ -556,7 +543,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(net, q);
         }
 
-        [Ignore("Bug")]
         [Test]
         public void TestEndsWith_WithQStringRefArgsCaseSensitive()
         {
@@ -710,7 +696,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(net, q);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestIndexOfQStringRefInQStringRefCaseInsensitiveWithStartIndex()
         {
@@ -730,7 +715,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(net, q);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestIndexOfQStringRefInQStringRefCaseSensitive()
         {
@@ -789,7 +773,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(net, q);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestLastIndexOfQStringRefInQStringRef()
         {
@@ -845,7 +828,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         #endregion
 
         #region LocaleAwareCompare
-        [Ignore("Bug")]
         [Test]
         public void TestLocaleAwareCompare()
         {
@@ -914,7 +896,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(net, q);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestStartsWith_WithQStringRefArgs()
         {
@@ -1130,7 +1111,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(s, _testString);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestNotEqual_QString_QLatin1StringOperator()
         {
@@ -1140,7 +1120,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreNotEqual(s, s2);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestNotEqual_QStringRef_QStringRefOperator()
         {
@@ -1150,7 +1129,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreNotEqual(s, s2);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestNotEqual_QStringRef_StringOperator()
         {
@@ -1159,7 +1137,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreNotEqual(s, _testString);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestGreaterOperator()
         {
@@ -1177,7 +1154,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(net, q);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestGreaterEqualOperator()
         {
@@ -1195,7 +1171,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(net, q);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestLessOperator()
         {
@@ -1213,7 +1188,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(net, q);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestLessEqualOperator()
         {

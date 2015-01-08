@@ -61,7 +61,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(Right, _margins.Right);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestMultEqualOperator()
         {
@@ -75,7 +74,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(Bottom * factor, _margins.Bottom);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestAddEqualWithMarginsOperator()
         {
@@ -87,7 +85,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(Bottom + 4.0, _margins.Bottom);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestAddEqualWithIntOperator()
         {
@@ -99,7 +96,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(Bottom + 2.0, _margins.Bottom);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestSubEqualWithMarginsOperator()
         {
@@ -111,7 +107,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(Bottom - 4.0, _margins.Bottom);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestSubEqualWithIntOperator()
         {
@@ -123,7 +118,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(Bottom - 2.0, _margins.Bottom);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestDivEqualOperator()
         {
@@ -137,7 +131,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(Bottom / factor, _margins.Bottom);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestNotEqualOperator()
         {
@@ -146,7 +139,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreNotEqual(res, _margins);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestMult1Operator()
         {
@@ -160,7 +152,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(Bottom * factor, res.Bottom);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestMult2Operator()
         {
@@ -174,7 +165,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(Bottom * factor, res.Bottom);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestAddWithMarginsOperator()
         {
@@ -186,7 +176,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(Bottom + 4.0, res.Bottom);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestAdd1WithIntOperator()
         {
@@ -198,7 +187,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(Bottom + 2.0, res.Bottom);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestAdd2WithIntOperator()
         {
@@ -210,7 +198,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(Bottom + 2.0, res.Bottom);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestAddMarginsToThisOperator()
         {
@@ -222,7 +209,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(Bottom + 4.0, _margins.Bottom);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestSubWithMarginsOperator()
         {
@@ -234,7 +220,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(Bottom - 4.0, res.Bottom);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestSubWithIntOperator()
         {
@@ -246,7 +231,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(Bottom - 2.0, res.Bottom);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestSubMarginsToThisOperator()
         {
@@ -258,7 +242,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(Bottom - 4.0, _margins.Bottom);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestDivOperator()
         {
@@ -272,7 +255,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(Bottom / factor, res.Bottom);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestEqualOperator()
         {

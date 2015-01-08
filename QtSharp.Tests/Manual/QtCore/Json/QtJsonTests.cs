@@ -19,7 +19,6 @@ namespace QtSharp.Tests.Manual.QtCore.Json
             // TODO: Add tear down code.
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestSimpleValue()
         {

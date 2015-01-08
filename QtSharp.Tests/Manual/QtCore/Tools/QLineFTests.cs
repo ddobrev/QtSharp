@@ -169,7 +169,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(15.0, res.Y2);
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestNotEqualOperator()
         {
