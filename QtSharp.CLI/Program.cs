@@ -73,7 +73,7 @@ namespace QtSharp.CLI
             var systemIncludeDirs = allIncludes.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Select(Path.GetFullPath);
             foreach (string libFile in libFiles)
             {
-                if (libFile == "Qt5Core.dll"/* || libFile == "Qt5Gui.dll" */)
+                if ( libFile == "Qt5Core.dll"|| libFile == "Qt5Gui.dll")
                 {
                     ConsoleDriver.Run(new QtSharp(qmake, make, headers, libs, libFile, target, systemIncludeDirs, docs));
                 }

@@ -138,16 +138,17 @@ namespace QtSharp
                 RenameCasePattern.UpperCamelCase).VisitLibrary(driver.ASTContext);
         }
 
-        static public string GetOutputDir()
+        static public string GetOutputBaseDir()
         {
-            return Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "../../..", "Qt5Core.Gen")); // The base directory of QtSharp project + Qt5Core.Gen
+            // The base directory of QtSharp project generated wrappers
+            return Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "../../..", "Wrappers"));
         }
 
 		public void Setup(Driver driver)
 		{
 			driver.Options.GeneratorKind = GeneratorKind.CSharp;
 		    string qtModule = "Qt" + this.module;
-            driver.Options.OutputDir = GetOutputDir();
+            driver.Options.OutputDir = Path.Combine(GetOutputBaseDir(), qtModule);
             driver.Options.addDefines("_CRTIMP=");
 		    driver.Options.MicrosoftMode = false;
             driver.Options.TargetTriple = this.target;
@@ -178,7 +179,7 @@ namespace QtSharp
             driver.Options.Libraries.Add(this.library);
 		    if (this.module == "Core")
 		    {
-                string dir = GetOutputDir();
+                string dir = driver.Options.OutputDir;
                 driver.Options.CodeFiles.Add(Path.Combine(dir, "QEventArgs.cs"));
                 driver.Options.CodeFiles.Add(Path.Combine(dir, "QEventHandler.cs"));
                 driver.Options.CodeFiles.Add(Path.Combine(dir, "QObject.cs"));
