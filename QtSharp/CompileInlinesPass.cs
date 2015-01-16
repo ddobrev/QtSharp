@@ -30,13 +30,13 @@ namespace QtSharp
             proBuilder.AppendFormat("SOURCES += {0}\n", Path.ChangeExtension(pro, "cpp"));
             File.WriteAllText(path, proBuilder.ToString());
             string error;
-            ProcessHelper.Run(this.qmake, string.Format("\"{0}\"", path), out error);
+            ProcessHelper.Run(this.qmake, string.Format("\"{0}\"", path), out error, this.Driver.Options.OutputDir);
             if (!string.IsNullOrEmpty(error))
             {
                 Console.WriteLine(error);
                 return false;
             }
-            ProcessHelper.Run(this.make, "-f Makefile.Release", out error);
+            ProcessHelper.Run(this.make, "-f Makefile.Release", out error, this.Driver.Options.OutputDir);
             if (!string.IsNullOrEmpty(error))
             {
                 Console.WriteLine(error);

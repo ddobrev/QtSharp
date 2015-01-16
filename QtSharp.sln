@@ -1,13 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QtSharp", "QtSharp\QtSharp.csproj", "{861046E1-DA11-4229-B9B6-45426E7A723E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QtSharp.CLI", "QtSharp.CLI\QtSharp.CLI.csproj", "{DBDEB3EE-2EB3-4F03-8276-A7D5A350EB95}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QtSharp.Tests", "QtSharp.Tests\QtSharp.Tests.csproj", "{5E8F503D-1B37-4298-855D-06F81B5B4630}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Wrappers", "Wrappers", "{264E535D-0407-4BB7-95A1-7A06F75BA8A1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QtCore", "Wrappers\QtCore\QtCore.csproj", "{BACBCD61-F377-49CB-BD93-4FB539146B63}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QtGui", "Wrappers\QtGui\QtGui.csproj", "{CAFDBAA8-3BF5-434D-97ED-5D0234005EC5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,8 +44,24 @@ Global
 		{5E8F503D-1B37-4298-855D-06F81B5B4630}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E8F503D-1B37-4298-855D-06F81B5B4630}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5E8F503D-1B37-4298-855D-06F81B5B4630}.Release|x86.ActiveCfg = Release|Any CPU
+		{BACBCD61-F377-49CB-BD93-4FB539146B63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BACBCD61-F377-49CB-BD93-4FB539146B63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BACBCD61-F377-49CB-BD93-4FB539146B63}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BACBCD61-F377-49CB-BD93-4FB539146B63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BACBCD61-F377-49CB-BD93-4FB539146B63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BACBCD61-F377-49CB-BD93-4FB539146B63}.Release|x86.ActiveCfg = Release|Any CPU
+		{CAFDBAA8-3BF5-434D-97ED-5D0234005EC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAFDBAA8-3BF5-434D-97ED-5D0234005EC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAFDBAA8-3BF5-434D-97ED-5D0234005EC5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CAFDBAA8-3BF5-434D-97ED-5D0234005EC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAFDBAA8-3BF5-434D-97ED-5D0234005EC5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAFDBAA8-3BF5-434D-97ED-5D0234005EC5}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BACBCD61-F377-49CB-BD93-4FB539146B63} = {264E535D-0407-4BB7-95A1-7A06F75BA8A1}
+		{CAFDBAA8-3BF5-434D-97ED-5D0234005EC5} = {264E535D-0407-4BB7-95A1-7A06F75BA8A1}
 	EndGlobalSection
 EndGlobal
