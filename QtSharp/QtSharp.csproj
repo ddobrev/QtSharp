@@ -61,9 +61,6 @@
     <Compile Include="GenerateEventEventsPass.cs" />
     <Compile Include="GenerateSignalEventsPass.cs" />
     <Compile Include="GetCommentsFromQtDocsPass.cs" />
-    <None Include="MarshalQString.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProcessHelper.cs" />
     <Compile Include="QFlags.cs">
@@ -72,19 +69,10 @@
     <Compile Include="QList.cs">
       <SubType>Code</SubType>
     </Compile>
-    <None Include="QObject.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <Compile Include="QString.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="QtSharp.cs" />
-    <None Include="QEventArgs.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="QEventHandler.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\References\CppSharp.CppParser.dll">

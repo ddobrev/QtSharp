@@ -27,3 +27,6 @@ _ReSharper*/
 [Tt]est[Rr]esult*
 *.vssscc
 $tf*/
+packages
+*.Gen/Makefile*
+*.Gen/*-inlines.*
