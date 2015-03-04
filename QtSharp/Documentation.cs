@@ -5,74 +5,189 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.Util;
+using System.Xml.Linq;
 using CppSharp;
 using CppSharp.AST;
 using CppSharp.Generators.CSharp;
-using CppSharp.Types;
+using HtmlAgilityPack.Samples;
 using Mono.Data.Sqlite;
 using zlib;
 using Attribute = CppSharp.AST.Attribute;
-using Type = CppSharp.AST.Type;
 
 namespace QtSharp
 {
     public class Documentation
     {
         private readonly IDictionary<string, string> documentation;
-        private readonly Dictionary<string, List<TypedefDecl>> typeDefsPerType;
+        private readonly XDocument index;
+        private readonly Regex regexArgName = new Regex(@"((unsigned\s*)?[\w<>]+)\s*(\*|&)?\s*\w*(\s*=\s*[^=,]+?)?(,|$)", RegexOptions.Compiled);
+        private readonly Regex regexSpaceBetweenArgs = new Regex(@"\r?\n\s+", RegexOptions.Compiled);
+        private readonly Regex regexEnumMembers = new Regex(@"\s*<div class=""table"">\s*<table class=""valuelist"">(?<member>.+?)\s*</table>\s*</div>\s*" +
+                                                            @"([^\n]+?<p class=""figCaption"">(?<caption>.+?)</p>)?", RegexOptions.Singleline | RegexOptions.Compiled);
 
-        private static readonly Regex regexTypeName =
-            new Regex(@"^(const +)?(?<name>((un)?signed +)?.+?(__\*)?)( *(&|((\*|(\[\]))+)) *)?$",
-                RegexOptions.ExplicitCapture | RegexOptions.Compiled);
-
-        private static readonly Regex regexArg = new Regex(@"^(.+?\s+)(?<name>\w+)(\s*=\s*[^\(,\s]+(\(\s*\))?)?\s*$",
-            RegexOptions.ExplicitCapture | RegexOptions.Compiled);
-
-        public Documentation(string docsPath, string module, Dictionary<Type, List<TypedefDecl>> typeDefsPerType)
+        public Documentation(string docsPath, string module)
         {
             this.documentation = Get(docsPath, module);
-            CppTypePrinter cppTypePrinter = new CppTypePrinter(new TypeMapDatabase());
-            cppTypePrinter.PrintScopeKind = CppTypePrintScopeKind.Local;
-            this.typeDefsPerType = new Dictionary<string, List<TypedefDecl>>();
-            foreach (KeyValuePair<Type, List<TypedefDecl>> typeTypeDefs in typeDefsPerType)
+            var file = module.ToLowerInvariant();
+            this.index = XDocument.Load(Path.Combine(docsPath, string.Format("qt{0}", file), string.Format("qt{0}.index", file)));
+        }
+
+        public void DocumentFunction(Function function)
+        {
+            var lineStart = function.LineNumberStart.ToString();
+            var lineEnd = function.LineNumberEnd.ToString();
+            var node = this.index.Descendants("function")
+                .FirstOrDefault(f => f.Attribute("location").Value == function.TranslationUnit.FileName &&
+                                     (f.Attribute("lineno").Value == lineStart || f.Attribute("lineno").Value == lineEnd));
+            // HACK: functions in qglobal.h have weird additional definitions just for docs
+            if ((node == null || node.Attribute("href") == null) && function.TranslationUnit.FileName == "qglobal.h")
             {
-                if (!(typeTypeDefs.Key is DependentNameType) && !(typeTypeDefs.Key is InjectedClassNameType))
+                node = this.index.Descendants("function")
+                    .FirstOrDefault(c => c.Attribute("location").Value == function.TranslationUnit.FileName &&
+                                         c.Attribute("name").Value == function.OriginalName);
+            }
+            // HACK: some functions are "located" in a cpp, go figure...
+            var @params = function.Parameters.Where(p => p.Kind == ParameterKind.Regular).ToList();
+            if ((node == null || node.Attribute("href") == null) && function.Signature != null)
+            {
+                var nodes = this.index.Descendants("function").Where(f => f.Attribute("fullname") != null &&
+                                                                          f.Attribute("fullname").Value == function.QualifiedOriginalName &&
+                                                                          f.Descendants("parameter").Count() == @params.Count).ToList();
+                if (nodes.Count == 0)
                 {
-                    string typeName = typeTypeDefs.Key.Visit(cppTypePrinter);
-                    if (!this.typeDefsPerType.ContainsKey(typeName))
+                    var method = function as Method;
+                    if (method != null && !method.IsStatic && function.OriginalFunction == null)
                     {
-                        this.typeDefsPerType.Add(typeName, typeTypeDefs.Value);
+                        return;
+                    }
+                    nodes = this.index.Descendants("function").Where(f => f.Attribute("name").Value == function.OriginalName &&
+                                                                          f.Descendants("parameter").Count() == @params.Count).ToList();
+                }
+                if (nodes.Count == 1)
+                {
+                    node = nodes[0];
+                }
+                else
+                {
+                    if (function.Signature.Contains('('))
+                    {
+                        var startArgs = function.Signature.IndexOf('(') + 1;
+                        var signature = function.Signature;
+                        if (signature.Contains(": "))
+                        {
+                            signature = signature.Substring(0, signature.IndexOf(": ", StringComparison.Ordinal));
+                        }
+                        signature = signature.Substring(startArgs, signature.LastIndexOf(')') - startArgs);
+                        signature = this.regexSpaceBetweenArgs.Replace(this.regexArgName.Replace(signature, "$1$3$5"), " ");
+                        node = nodes.FirstOrDefault(f => string.Join(", ",
+                            f.Descendants("parameter").Select(d => d.Attribute("left").Value.Replace(" *", "*").Replace(" &", "&"))) == signature);
+                    }
+                }
+            }
+            if (node != null && node.Attribute("href") != null)
+            {
+                var link = node.Attribute("href").Value.Split('#');
+                var file = link[0];
+                // TODO: work around https://bugreports.qt.io/browse/QTBUG-46153
+                if (link[1] == "QDebug")
+                {
+                    link[1] = "QDebugx";
+                }
+                if (this.documentation.ContainsKey(file))
+                {
+                    var id = link[1].Split('-');
+                    var docs = Regex.Matches(this.documentation[file],
+                        string.Format(
+                            @"<h3 class=""fn"" id=""{0}"">.+?{1}</h3>\s*(?<docs>.*?)\s*<!-- @@@{2} -->",
+                            EscapeId(function.IsAmbiguous && node.Attribute("access").Value == "private" ? id[0] : link[1]),
+                            id.Length > 1 && id[1] == "prop" ? string.Empty : @"\((?<args>.*?)\).*?",
+                            Regex.Escape(function.OriginalName)),
+                        RegexOptions.Singleline);
+                    // HACK: work around bugs of the type of https://bugreports.qt.io/browse/QTBUG-46148
+                    Match doc = null;
+                    MatchCollection paramsMatches = null;
+                    if (docs.Count == 1 && docs[0].Success)
+                    {
+                        doc = docs[0];
+                        paramsMatches = Regex.Matches(doc.Groups["args"].Value, @"<i>\s*(.+?)\s*</i>");
+                    }
+                    else
+                    {
+                        foreach (var d in docs.Cast<Match>().Where(m => m.Success))
+                        {
+                            paramsMatches = Regex.Matches(d.Groups["args"].Value, @"<i>\s*(.+?)\s*</i>");
+                            if (paramsMatches.Count == @params.Count)
+                            {
+                                doc = d;
+                                break;
+                            }
+                        }
+                    }
+                    if (doc != null)
+                    {
+                        var i = 0;
+                        foreach (Match match in paramsMatches)
+                        {
+                            // TODO: remove this in the final version; for now it's just for more easily spotting doc regressions
+                            if (@params[i].Name.StartsWith("_", StringComparison.Ordinal) && char.IsDigit(@params[i].Name[1]))
+                            {
+                                @params[i].Name = Helpers.SafeIdentifier(match.Groups[1].Value);
+                            }
+                            i++;
+                        }
+                        // TODO: create links in the "See Also" section
+                        function.Comment = new RawComment { BriefText = StripTags(doc.Groups["docs"].Value) };
+                        if (node.Attribute("status").Value == "obsolete")
+                        {
+                            AddObsoleteAttribute(function);
+                        }   
                     }
                 }
             }
         }
 
-        public void DocumentFunction(Function function)
+        private static string EscapeId(string link)
         {
-            TranslationUnit unit = function.Namespace as TranslationUnit;
-            if (unit != null)
+            var idBuilder = new StringBuilder();
+            foreach (var c in link)
             {
-                if (unit.FileName.Contains("qmath"))
+                switch (c)
                 {
-                    this.TryMatch(function, this.documentation["qtmath.html"], false);
-                    return;
+                    case '<':
+                        idBuilder.Append("-lt");
+                        break;
+                    case '>':
+                        idBuilder.Append("-gt");
+                        break;
+                    case '=':
+                        idBuilder.Append("-eq");
+                        break;
+                    case '&':
+                        idBuilder.Append("-and");
+                        break;
+                    case '!':
+                        idBuilder.Append("-not");
+                        break;
+                    case ' ':
+                        idBuilder.Append("-");
+                        break;
+                    case '+':
+                    case '*':
+                    case '/':
+                    case '|':
+                    case '~':
+                    case '^':
+                    case '[':
+                    case ']':
+                        idBuilder.Append('-');
+                        idBuilder.Append(((int) c).ToString("x"));
+                        break;
+                    default:
+                        idBuilder.Append(c);
+                        break;
                 }
-                if (unit.FileName.Contains("qalgorithms"))
-                {
-                    this.TryMatch(function, this.documentation["qtalgorithms.html"], false);
-                    return;
-                }
             }
-            string file = GetFileForDeclarationContext(function.Namespace);
-            if (this.documentation.ContainsKey(file) && this.TryMatch(function, this.documentation[file], false))
-            {
-                return;
-            }
-            file = file.Replace(".html", "-obsolete.html");
-            if (this.documentation.ContainsKey(file) && this.TryMatch(function, this.documentation[file], true))
-            {
-                return;
-            }
+            return Regex.Escape(idBuilder.ToString());
         }
 
         public void DocumentProperty(Property property)
@@ -82,36 +197,43 @@ namespace QtSharp
             var properties = expansions.Where(e => e.Text.Contains("Q_PROPERTY") || e.Text.Contains("QDOC_PROPERTY"));
             string alternativeName = property.Name.Length == 1 ? property.Name :
                                      "is" + StringHelpers.UppercaseFirst(property.Name);
-            foreach (string name in from macroExpansion in properties
-                                    let name = macroExpansion.Text.Split(new[] { ' ' })[1]
-                                    where name == property.Name || name == alternativeName
-                                    select name)
-            {
-                property.Name = name;
-                this.DocumentQtProperty(property);
-                return;
-            }
+	        foreach (var macroExpansion in properties)
+	        {
+		        var name = macroExpansion.Text.Split(' ')[1];
+		        if (name == property.Name || name == alternativeName)
+		        {
+                    property.LineNumberStart = macroExpansion.LineNumberStart;
+                    property.LineNumberEnd = macroExpansion.LineNumberEnd;
+                    property.Name = name;
+					this.DocumentQtProperty(property);
+					return;
+		        }
+	        }
             if (property.Field == null)
             {
-                Method getter = property.GetMethod;
-                if (getter.Comment == null)
+                var comment = new RawComment();
+                var getter = property.GetMethod;
+                if (getter.Comment == null && getter.Namespace.OriginalName == property.Namespace.OriginalName)
                 {
                     this.DocumentFunction(getter);
                 }
-                var comment = new RawComment();
                 if (getter.Comment != null)
                 {
                     comment.BriefText = getter.Comment.BriefText;
                 }
-                Method setter = property.SetMethod;
+                var setter = property.SetMethod;
                 if (setter != null)
                 {
-                    if (setter.Comment == null)
+                    if (setter.Comment == null && setter.Namespace.OriginalName == property.Namespace.OriginalName)
                     {
                         this.DocumentFunction(setter);
                     }
                     if (setter.Comment != null)
                     {
+                        if (property.IsOverride)
+                        {
+                            comment.BriefText = ((Class) property.Namespace).GetRootBaseProperty(property).Comment.BriefText;
+                        }
                         if (!string.IsNullOrEmpty(comment.BriefText))
                         {
                             comment.BriefText += Environment.NewLine;
@@ -126,125 +248,103 @@ namespace QtSharp
             }
         }
 
-        private void DocumentQtProperty(Property property)
+        private void DocumentQtProperty(Declaration property)
         {
-            string file = GetFileForDeclarationContext(property.Namespace);
-            if (this.documentation.ContainsKey(file))
-            {
-                string docs = this.documentation[file];
-                CppTypePrinter cppTypePrinter = new CppTypePrinter(new TypeMapDatabase());
-                cppTypePrinter.PrintScopeKind = CppTypePrintScopeKind.Local;
-                string type = property.Type.Visit(cppTypePrinter);
-                Match match = Regex.Match(docs, "Property Documentation.*" + property.Name + @" : (const )?(\w+::)?" + type.Replace("*", @"\s*\*") +
-                                          @"(\s+const)?\n(?<docs>.*?)\nAccess functions:", RegexOptions.Singleline | RegexOptions.ExplicitCapture);
-                if (match.Success)
-                {
-                    property.Comment = new RawComment();
-                    property.Comment.BriefText = match.Groups["docs"].Value;
-                }
-            }
+            var node = this.index.Descendants("property")
+                .FirstOrDefault(c => c.Attribute("location").Value == property.TranslationUnit.FileName &&
+                                     c.Attribute("name").Value == property.Name);
+	        if (node != null && node.Attribute("href") != null)
+			{
+				var link = node.Attribute("href").Value.Split('#');
+				var file = link[0];
+		        if (this.documentation.ContainsKey(file))
+		        {
+			        string docs = this.documentation[file];
+			        var match = Regex.Match(docs,
+				        string.Format(
+                            @"<h3 class=""fn"" id=""{0}-prop"">.+?</h3>\s*(?<docs>.+?)(\s*<p><b>[^:]+?:</b></p>\s*<div class=""table"">.+?</div>)+(?<notes>.*?)\s+?<!-- @@@{0} -->",
+					        property.Name),
+				        RegexOptions.Singleline | RegexOptions.ExplicitCapture);
+			        if (match.Success)
+			        {
+						var docsBuilder = new StringBuilder(match.Groups["docs"].Value);
+						if (!string.IsNullOrEmpty(match.Groups["notes"].Value))
+						{
+							docsBuilder.Append(match.Groups["notes"].Value);
+						}
+			            property.Comment = new RawComment { BriefText = StripTags(docsBuilder.ToString()) };
+			        }
+		        }
+	        }
         }
 
         public void DocumentType(Class type)
         {
-            string file = GetFileForDeclarationContext(type);
-            if (this.documentation.ContainsKey(file))
+            var node = this.index.Descendants("class").FirstOrDefault(
+                c => c.Attribute("location").Value == type.TranslationUnit.FileName &&
+                     c.Attribute("name").Value == type.OriginalName);
+            if (node != null)
             {
-                string typeDocs = this.documentation[file];
-                Match match = Regex.Match(typeDocs, string.Format(@"(?<class>((The {0})|(This class)).+?)More\.\.\..*?\n" +
-                                                                   @"Detailed Description\s+(?<detailed>.*?)(\n){{3,}}", type.Name),
-                                          RegexOptions.Singleline | RegexOptions.ExplicitCapture);
-                if (match.Success)
+                var file = node.Attribute("href").Value;
+                if (this.documentation.ContainsKey(file))
                 {
-                    type.Comment = new RawComment();
-                    type.Comment.BriefText = match.Groups["class"].Value.Trim();
-                    type.Comment.Text = match.Groups["detailed"].Value.Replace(match.Groups["class"].Value.Trim(), string.Empty);
+                    var docs = this.documentation[file];
+                    var match = Regex.Match(docs,
+                        string.Format(@"<h2 id=""details"">Detailed Description</h2>\s*<p>(.+?)</p>\s*(.+?)\s*<!-- @@@{0} -->", type.Name),
+                        RegexOptions.Singleline);
+                    type.Comment = new RawComment
+                    {
+                        BriefText = StripTags(match.Groups[1].Value),
+                        // TODO: create links in the "See Also" section; in general, convert all links
+                        Text = StripTags(match.Groups[2].Value)
+                    };
                 }
             }
         }
 
         public void DocumentEnum(Enumeration @enum)
         {
-            string file = GetFileForDeclarationContext(@enum.Namespace);
-            if (this.documentation.ContainsKey(file))
+            var node = this.index.Descendants("enum")
+                .FirstOrDefault(c => c.Attribute("location").Value == @enum.TranslationUnit.FileName &&
+                                     c.Attribute("name").Value == @enum.OriginalName);
+            if (node != null)
             {
-                string typeDocs = this.documentation[file];
-                const string enumDoc = @"enum {0}(\s*flags {1}::\w+\s+)?(?<docsStart>.*?)(\n){{3}}";
-                string enumName = string.IsNullOrEmpty(@enum.Namespace.Name) ? @enum.Name : (@enum.Namespace.Name + "::" + @enum.Name);
-                Match matchEnum = Regex.Match(typeDocs, string.Format(enumDoc, enumName, @enum.Namespace.Name),
-                                              RegexOptions.Singleline | RegexOptions.ExplicitCapture);
-                if (matchEnum.Success)
+                var link = node.Attribute("href").Value.Split('#');
+                var file = link[0];
+                if (this.documentation.ContainsKey(file))
                 {
-                    string doc = matchEnum.Groups["docsStart"].Value.Trim();
-                    if (!string.IsNullOrEmpty(doc))
+                    var match = Regex.Match(this.documentation[file],
+                        string.Format(
+                            @"<h3 class=""\w+?"" id=""{0}"">.+?</h3>\s*(.+?)\s*<!-- @@@{1} -->",
+                            Regex.Escape(link[1]), Regex.Escape(link[1].Split('-')[0])),
+                        RegexOptions.Singleline);
+                    if (match.Success)
                     {
-                        doc = Regex.Replace(doc,
-                                            @"(The \S+ type is a typedef for QFlags<\S+>\. It stores an OR combination of \S+ values\.)",
-                                            string.Empty);
-                        doc = Regex.Replace(doc, @"ConstantValue(Description)?.*?(((\n){2})|$)", string.Empty,
-                                            RegexOptions.Singleline | RegexOptions.ExplicitCapture).Trim();
-                        @enum.Comment = new RawComment();
-                        @enum.Comment.BriefText = doc;
+                        @enum.Comment = new RawComment
+                        {
+                            BriefText = HtmlToText.ConvertHtml(this.regexEnumMembers.Replace(match.Groups[1].Value, m =>
+                            {
+                                foreach (var item in @enum.Items)
+                                {
+                                    var matchItem = Regex.Match(m.Groups["member"].Value,
+                                        string.Format(
+                                            @"<code>{0}</code></td><td class=""topAlign"">((<code>[^\n]+?</code>)|\?)</td>(<td class=""topAlign"">\s*(?<docs>.+?)\s*</td>)?</tr>",
+                                            (@enum.Namespace is TranslationUnit ? "" : (@enum.Namespace.Name + "::")) + item.Name),
+                                        RegexOptions.Singleline);
+                                    if (matchItem.Success)
+                                    {
+                                        item.Comment = new RawComment
+                                        {
+                                            BriefText = StripTags(m.Groups["caption"].Success ? m.Groups["caption"].Value : matchItem.Groups["docs"].Value, true)
+                                        };
+                                    }
+                                }
+                                return string.Empty;
+                            }))
+                        };
                     }
                 }
             }
-            foreach (Enumeration.Item item in @enum.Items)
-            {
-                this.DocumentEnumItem(@enum, item);
-            }
-        }
-
-        private void DocumentEnumItem(Declaration @enum, Declaration enumItem)
-        {
-            string file = GetFileForDeclarationContext(@enum.Namespace);
-            if (this.documentation.ContainsKey(file))
-            {
-                string typeDocs = this.documentation[file];
-                string typeName;
-                string memberName;
-                if (string.IsNullOrEmpty(@enum.Namespace.Name))
-                {
-                    typeName = @enum.Name;
-                    memberName = enumItem.Name;
-                }
-                else
-                {
-                    typeName = @enum.Namespace.Name + "::" + @enum.Name;
-                    memberName = @enum.Namespace.Name + "::" + enumItem.Name;
-                }
-                const string memberDoc = @"enum {0}.*?{1}\t[^\t\n]+\t(?<docs>.*?)(&\w+;)?(\n)";
-                Match match = Regex.Match(typeDocs, string.Format(memberDoc, typeName, memberName),
-                                          RegexOptions.Singleline | RegexOptions.ExplicitCapture);
-                if (match.Success)
-                {
-                    string doc = match.Groups["docs"].Value.Trim();
-                    if (!string.IsNullOrEmpty(doc))
-                    {
-                        enumItem.Comment = new RawComment();
-                        enumItem.Comment.BriefText = doc;
-                    }
-                }
-            }
-        }
-
-        private static string GetFileForDeclarationContext(DeclarationContext declarationContext)
-        {
-            if (string.IsNullOrEmpty(declarationContext.Name))
-            {
-                return "qtglobal.html";
-            }
-            StringBuilder fileNameBuilder = new StringBuilder(declarationContext.Name.ToLowerInvariant());
-            if (declarationContext is Class && ((Class) declarationContext).IsInterface)
-            {
-                fileNameBuilder.Remove(0, 1);
-            }
-            Class parentClass = declarationContext.Namespace as Class;
-            if (parentClass != null)
-            {
-                fileNameBuilder.Insert(0, string.Format("{0}-", parentClass.Name.ToLowerInvariant()));
-            }
-            fileNameBuilder.Append(".html");
-            return fileNameBuilder.ToString();
         }
 
         private static IDictionary<string, string> Get(string docsPath, string module)
@@ -272,42 +372,40 @@ namespace QtSharp
             {
                 return new Dictionary<string, string>();
             }
-            return Directory.GetFiles(docs, "*.html").ToDictionary(Path.GetFileName,
-                f => StripTags(new StringBuilder(File.ReadAllText(f)).Replace("\r", string.Empty).Replace(@"\", @"\\").ToString()));
+            return Directory.GetFiles(docs, "*.html").ToDictionary(Path.GetFileName, File.ReadAllText);
         }
 
         private static IDictionary<string, string> GetFromQch(string docsPath, string module)
         {
-            string dataSource = Path.Combine(docsPath, string.Format("qt{0}.qch", module.ToLowerInvariant()));
+            var dataSource = Path.Combine(docsPath, string.Format("qt{0}.qch", module.ToLowerInvariant()));
             if (!File.Exists(dataSource))
             {
                 return new Dictionary<string, string>();
             }
-            SqliteConnectionStringBuilder sqliteConnectionStringBuilder = new SqliteConnectionStringBuilder();
-            sqliteConnectionStringBuilder.DataSource = dataSource;
-            using (SqliteConnection sqliteConnection = new SqliteConnection(sqliteConnectionStringBuilder.ConnectionString))
+            var sqliteConnectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = dataSource };
+            using (var sqliteConnection = new SqliteConnection(sqliteConnectionStringBuilder.ConnectionString))
             {
                 sqliteConnection.Open();
-                using (SqliteCommand sqliteCommand = new SqliteCommand(
+                using (var sqliteCommand = new SqliteCommand(
                     "SELECT Name, Data FROM FileNameTable INNER JOIN FileDataTable ON FileNameTable.FileId = FileDataTable.Id " +
                     "WHERE Name LIKE '%.html' " +
                     "ORDER BY Name", sqliteConnection))
                 {
-                    using (SqliteDataReader sqliteDataReader = sqliteCommand.ExecuteReader())
+                    using (var sqliteDataReader = sqliteCommand.ExecuteReader())
                     {
-                        Dictionary<string, string> documentation = new Dictionary<string, string>();
+                        var documentation = new Dictionary<string, string>();
                         while (sqliteDataReader.Read())
                         {
                             byte[] blob = new byte[ushort.MaxValue];
-                            int length = (int) sqliteDataReader.GetBytes(1, 0, blob, 0, blob.Length);
-                            using (MemoryStream output = new MemoryStream(length - 4))
+                            var length = (int) sqliteDataReader.GetBytes(1, 0, blob, 0, blob.Length);
+                            using (var output = new MemoryStream(length - 4))
                             {
-                                using (ZOutputStream zOutputStream = new ZOutputStream(output))
+                                using (var zOutputStream = new ZOutputStream(output))
                                 {
                                     zOutputStream.Write(blob, 4, length - 4);
                                     zOutputStream.Flush();
                                     documentation.Add(sqliteDataReader.GetString(0),
-                                                      StripTags(Encoding.UTF8.GetString(output.ToArray())));
+                                                      Encoding.UTF8.GetString(output.ToArray()));
                                 }
                             }
                         }
@@ -317,14 +415,14 @@ namespace QtSharp
             }
         }
 
-        private static string StripTags(string source)
+        private static string StripTags(string source, bool trim = false)
         {
-            List<char> array = new List<char>(source.Length);
-            List<char> tagArray = new List<char>();
-            bool inside = false;
-            StringBuilder literalBuilder = new StringBuilder();
+            var array = new List<char>(source.Length);
+            var tagArray = new List<char>();
+            var inside = false;
+            var literalBuilder = new StringBuilder();
 
-            foreach (char character in source)
+            foreach (var character in source)
             {
                 if (character == '<')
                 {
@@ -379,214 +477,20 @@ namespace QtSharp
                     }
                 }
             }
-            return HtmlEncoder.HtmlDecode(new string(array.ToArray(), 0, array.Count));
-        }
-
-        private bool TryMatch(Function function, string docs, bool markObsolete, bool completeSignature = true)
-        {
-            const string memberDoc = @"\n{{2}}(\[(\w+\s*)+\] )?([\w :*&<>,]+)?(({0}(\s*&)?::)| ){1}(const)?( \[(\w+\s*)+\])?\n(?<docs>\w.*?)(\n\s*){{1,2}}((\n\s*){{2}})";
-            const string separator = @",\s*";
-            StringBuilder signatureRegex = new StringBuilder(Regex.Escape(function.OriginalName)).Append(@"\s*\(\s*(");
-            bool anyArgs = false;
-            CppTypePrinter cppTypePrinter = new CppTypePrinter(new TypeMapDatabase());
-            cppTypePrinter.PrintScopeKind = CppTypePrintScopeKind.Local;
-            foreach (string argType in function.Parameters.Where(p => p.Kind == ParameterKind.Regular).Select(p => p.Type.Visit(cppTypePrinter)))
-            {
-                if (!anyArgs)
-                {
-                    signatureRegex.Append("?<args>");
-                    anyArgs = true;
-                }
-                signatureRegex.Append(this.GetTypeRegex(argType, completeSignature)).Append(@"(\s+\w+(\s*=\s*[^,\r\n]+(\(\s*\))?)?)?");
-                signatureRegex.Append(separator);
-            }
-            if (anyArgs)
-            {
-                signatureRegex.Insert(signatureRegex.Length - separator.Length, '(');
-            }
-            else
-            {
-                signatureRegex.Append('(');
-            }
-            signatureRegex.Append(@"[\w :*&<>]+\s*=\s*[^,\r\n]+(\(\s*\))?(,\s*)?)*)\s*(,\s*\.{3}\s*)?\)\s*");
-            Match match = Regex.Match(docs, string.Format(memberDoc, function.Namespace.Name, signatureRegex),
-                                      RegexOptions.Singleline | RegexOptions.ExplicitCapture);
-            if (match.Success)
-            {
-                function.Comment = new RawComment();
-                function.Comment.BriefText = match.Groups["docs"].Value;
-                FillMissingParameterNames(function, match.Groups["args"].Value);
-                if (markObsolete)
-                {
-                    AddObsoleteAttribute(function);
-                }
-                return true;
-            }
-            return false;
-        }
-
-        private string GetTypeRegex(string argType, bool completeSignature = true)
-        {
-            string typeName = regexTypeName.Match(argType).Groups["name"].Value;
-            StringBuilder typeBuilder = new StringBuilder(typeName);
-            this.FormatType(typeBuilder);
-            typeBuilder.Insert(0, @"(const +)?(((\w+::)?");
-            typeBuilder.Append(')');
-            if (this.typeDefsPerType.ContainsKey(typeName))
-            {
-                foreach (string typeDef in (from typedef in this.typeDefsPerType[typeName]
-                                            select typedef.OriginalName).Distinct())
-                {
-                    StringBuilder typeDefBuilder = new StringBuilder(typeDef);
-                    this.FormatType(typeDefBuilder);
-                    typeBuilder.Append("|(").Append(typeDefBuilder).Append(')');
-                }
-            }
-            // C++ long is mapped to int
-            switch (argType)
-            {
-                case "int":
-                case "int*":
-                    typeBuilder.Append(@"|(long)");
-                    break;
-                case "unsigned int":
-                case "unsigned int*":
-                    typeBuilder.Append(@"|(unsigned\s+long)");
-                    break;
-                case "char":
-                case "char*":
-                    typeBuilder.Append(@"|(wchar_t)");
-                    break;
-                case "const char*":
-                    typeBuilder.Append(@"|(const wchar_t*)");
-                    break;
-            }
-            typeBuilder.Append(@")");
-            if (completeSignature)
-            {
-                if (argType.EndsWith("&", StringComparison.Ordinal) && !typeName.EndsWith("&", StringComparison.Ordinal))
-                {
-                    typeBuilder.Append(@" *& *");
-                }
-                else
-                {
-                    if (argType.EndsWith("*", StringComparison.Ordinal) && !typeName.EndsWith("*", StringComparison.Ordinal))
-                    {
-                        typeBuilder.Append(@" *(\*|(\[\]))+ *");
-                    }
-                }
-            }
-            else
-            {
-                typeBuilder.Append(@"( *(&|((\*|(\[\]))+)) *)?");
-            }
-            return typeBuilder.ToString();
-        }
-
-        private void FormatType(StringBuilder typeBuilder)
-        {
-            int indexOfLt = Int32.MinValue;
-            int indexOfGt = Int32.MinValue;
-            int indexOfColon = Int32.MinValue;
-            int firstColonIndex = Int32.MinValue;
-            List<int> commas = new List<int>();
-            List<char> templateType = new List<char>(typeBuilder.Length);
-            for (int i = typeBuilder.Length - 1; i >= 0; i--)
-            {
-                char @char = typeBuilder[i];
-                switch (@char)
-                {
-                    case '<':
-                        indexOfLt = i;
-                        break;
-                    case '>':
-                        indexOfGt = i;
-                        break;
-                    case ':':
-                        if (firstColonIndex < 0)
-                        {
-                            firstColonIndex = i;
-                        }
-                        else
-                        {
-                            if (i == firstColonIndex - 1)
-                            {
-                                indexOfColon = firstColonIndex;
-                                firstColonIndex = Int32.MinValue;
-                            }
-                        }
-                        break;
-                    case ',':
-                        commas.Add(i);
-                        break;
-                }
-                if (i > indexOfLt && i < indexOfGt)
-                {
-                    typeBuilder.Remove(i, 1);
-                    templateType.Insert(0, @char);
-                }
-            }
-            if (indexOfGt > indexOfLt)
-            {
-                typeBuilder.Replace("(", @"\(").Replace(")", @"\)");
-                typeBuilder.Replace(@"*", @"\s*(\*|(\[\]))").Replace(@"&", @"\s*&").Replace(",", @",\s*");
-                typeBuilder.Insert(indexOfLt + 1, this.GetTypeRegex(new string(templateType.ToArray())));
-            }
-            else
-            {
-                if (indexOfColon > 0)
-                {
-                    int comma = int.MinValue;
-                    IEnumerable<int> last = commas.Where(i => i < indexOfColon).ToList();
-                    if (last.Any())
-                    {
-                        comma = last.Last();
-                    }
-                    int parentTypeStart = Math.Max(Math.Max(indexOfLt + 1, 0), comma + 1);
-                    typeBuilder.Remove(parentTypeStart, indexOfColon + 1 - parentTypeStart);
-                    typeBuilder.Insert(parentTypeStart, @"(\w+::)?");
-                }
-                else
-                {
-                    typeBuilder.Replace("(", @"\(").Replace(")", @"\)");
-                }
-                typeBuilder.Replace(@"*", @"\s*(\*|(\[\]))").Replace(@"&", @"\s*&").Replace(",", @",\s*");
-            }
-        }
-
-        private static void FillMissingParameterNames(Function function, string signature)
-        {
-            List<string> args = new List<string>(signature.Split(','));
-            if (args.Count < function.Parameters.Count)
-            {
-                // operator
-                args.Insert(0, "one");
-            }
-            List<string> argNames = (from arg in args
-                                     select regexArg.Match(arg).Groups["name"].Value).ToList();
-            for (int i = 0; i < function.Parameters.Count; i++)
-            {
-                Parameter parameter = function.Parameters[i];
-                if (parameter.Name.StartsWith("_", StringComparison.Ordinal) && char.IsDigit(parameter.Name[1]))
-                {
-                    string name = argNames[i];
-                    if (!string.IsNullOrEmpty(name))
-                    {
-                        parameter.Name = Helpers.SafeIdentifier(name);
-                    }
-                }
-            }
+            var decoded = HtmlEncoder.HtmlDecode(new string(array.ToArray(), 0, array.Count));
+            return trim ? decoded.Trim() : decoded;
         }
 
         private static void AddObsoleteAttribute(Declaration function)
         {
-            StringBuilder obsoleteMessageBuilder = new StringBuilder();
+            var obsoleteMessageBuilder = new StringBuilder();
             obsoleteMessageBuilder.Append(HtmlEncoder.HtmlDecode(HtmlEncoder.HtmlEncode(function.Comment.BriefText).Split(
                 Environment.NewLine.ToCharArray()).FirstOrDefault(line => line.Contains("instead") || line.Contains("deprecated"))));
-            Attribute annotation = new Attribute();
-            annotation.Type = typeof(ObsoleteAttribute);
-            annotation.Value = string.Format("\"{0}\"", obsoleteMessageBuilder);
-            function.Attributes.Add(annotation);
+            function.Attributes.Add(new Attribute
+            {
+                Type = typeof(ObsoleteAttribute),
+                Value = string.Format("\"{0}\"", obsoleteMessageBuilder)
+            });
         }
     }
 }

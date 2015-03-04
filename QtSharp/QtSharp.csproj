@@ -43,24 +43,29 @@
     <Reference Include="CppSharp.Parser.CLI">
       <HintPath>..\References\CppSharp.Parser.CLI.dll</HintPath>
     </Reference>
+    <Reference Include="HtmlAgilityPack">
+      <HintPath>..\packages\HtmlAgilityPack.1.4.9\lib\Net40\HtmlAgilityPack.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Data.Sqlite">
       <HintPath>..\References\Mono.Data.Sqlite.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="System.XML" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="zlib.net">
       <HintPath>..\References\zlib.net.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClearCommentsPass.cs" />
-    <Compile Include="CollectTypeDefsPerTypePass.cs" />
     <Compile Include="CompileInlinesPass.cs" />
     <Compile Include="Documentation.cs" />
     <Compile Include="GenerateEventEventsPass.cs" />
     <Compile Include="GenerateSignalEventsPass.cs" />
     <Compile Include="GetCommentsFromQtDocsPass.cs" />
+    <Compile Include="HtmlConvert.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProcessHelper.cs" />
     <Compile Include="QFlags.cs">
@@ -79,6 +84,7 @@
       <Link>CppSharp.CppParser.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\References\sqlite3.dll">

@@ -129,21 +129,11 @@ namespace QtSharp
 
         public void Postprocess(Driver driver, ASTContext lib)
         {
-            CollectTypeDefsPerTypePass collectTypeDefsPerTypePass = new CollectTypeDefsPerTypePass();
-            collectTypeDefsPerTypePass.VisitLibrary(driver.ASTContext);
-            TranslationUnitPass pass = new ClearCommentsPass();
-            driver.Diagnostics.Debug("Pass '{0}'", pass);
-            pass.VisitLibrary(driver.ASTContext);
-
-            pass = new GetCommentsFromQtDocsPass(this.docs, this.module, collectTypeDefsPerTypePass.TypeDefsPerType);
-            driver.Diagnostics.Debug("Pass '{0}'", pass);
-            pass.VisitLibrary(driver.ASTContext);
-
-            pass = new CaseRenamePass(
+            new ClearCommentsPass().VisitLibrary(driver.ASTContext);
+            new GetCommentsFromQtDocsPass(this.docs, this.module).VisitLibrary(driver.ASTContext);
+            new CaseRenamePass(
                 RenameTargets.Function | RenameTargets.Method | RenameTargets.Property | RenameTargets.Delegate | RenameTargets.Field | RenameTargets.Variable,
-                RenameCasePattern.UpperCamelCase);
-            driver.Diagnostics.Debug("Pass '{0}'", pass);
-            pass.VisitLibrary(driver.ASTContext);
+                RenameCasePattern.UpperCamelCase).VisitLibrary(driver.ASTContext);
         }
 
         static public string GetOutputBaseDir()

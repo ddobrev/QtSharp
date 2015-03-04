@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using CppSharp.AST;
+﻿using CppSharp.AST;
 using CppSharp.Passes;
-using Type = CppSharp.AST.Type;
 
 namespace QtSharp
 {
@@ -9,23 +7,25 @@ namespace QtSharp
     {
         private readonly Documentation documentation;
 
-        public GetCommentsFromQtDocsPass(string docsPath, string module, Dictionary<Type, List<TypedefDecl>> typeDefsPerType)
+        public GetCommentsFromQtDocsPass(string docsPath, string module)
         {
-            this.documentation = new Documentation(docsPath, module, typeDefsPerType);
+            this.documentation = new Documentation(docsPath, module);
+            this.Options.VisitFunctionParameters = false;
         }
 
         public override bool VisitClassDecl(Class @class)
         {
-            if (@class.Comment == null)
+            if (!@class.IsIncomplete && base.VisitClassDecl(@class))
             {
                 this.documentation.DocumentType(@class);
+                return true;
             }
-            return base.VisitClassDecl(@class);
+            return false;
         }
 
         public override bool VisitEnumDecl(Enumeration @enum)
         {
-            if (@enum.Comment == null)
+            if (!this.AlreadyVisited(@enum))
             {
                 this.documentation.DocumentEnum(@enum);
             }
@@ -43,7 +43,7 @@ namespace QtSharp
 
         public override bool VisitProperty(Property property)
         {
-            if (!property.IsSynthetized && property.Comment == null)
+            if (!property.IsSynthetized && !this.AlreadyVisited(property))
             {
                 this.documentation.DocumentProperty(property);
             }
@@ -53,7 +53,7 @@ namespace QtSharp
         public override bool VisitEvent(Event @event)
         {
             Function function = @event.OriginalDeclaration as Function;
-            if (function != null)
+            if (function != null && !this.AlreadyVisited(@event))
             {
                 this.DocumentFunction(function);
             }
@@ -62,18 +62,21 @@ namespace QtSharp
 
         private void DocumentFunction(Function function)
         {
-            if (function.Comment == null)
+            if (!this.AlreadyVisited(function))
             {
-                if (function.IsSynthetized)
+                if (function.Comment == null)
                 {
-                    if (function.SynthKind == FunctionSynthKind.DefaultValueOverload)
+                    if (function.IsSynthetized)
                     {
-                        function.Comment = function.OriginalFunction.Comment;
+                        if (function.SynthKind == FunctionSynthKind.DefaultValueOverload)
+                        {
+                            function.Comment = function.OriginalFunction.Comment;
+                        }
                     }
-                }
-                else
-                {
-                    this.documentation.DocumentFunction(function);
+                    else
+                    {
+                        this.documentation.DocumentFunction(function);
+                    }
                 }
             }
         }
