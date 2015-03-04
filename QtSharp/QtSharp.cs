@@ -129,10 +129,8 @@ namespace QtSharp
 
         public void Postprocess(Driver driver, ASTContext lib)
         {
-            CollectTypeDefsPerTypePass collectTypeDefsPerTypePass = new CollectTypeDefsPerTypePass();
-            collectTypeDefsPerTypePass.VisitLibrary(driver.ASTContext);
             new ClearCommentsPass().VisitLibrary(driver.ASTContext);
-            new GetCommentsFromQtDocsPass(this.docs, this.module, collectTypeDefsPerTypePass.TypeDefsPerType).VisitLibrary(driver.ASTContext);
+            new GetCommentsFromQtDocsPass(this.docs, this.module).VisitLibrary(driver.ASTContext);
             new CaseRenamePass(
                 RenameTargets.Function | RenameTargets.Method | RenameTargets.Property | RenameTargets.Delegate | RenameTargets.Field | RenameTargets.Variable,
                 RenameCasePattern.UpperCamelCase).VisitLibrary(driver.ASTContext);

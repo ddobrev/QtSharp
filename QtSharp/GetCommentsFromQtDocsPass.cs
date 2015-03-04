@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using CppSharp.AST;
+﻿using CppSharp.AST;
 using CppSharp.Passes;
-using Type = CppSharp.AST.Type;
 
 namespace QtSharp
 {
@@ -9,9 +7,9 @@ namespace QtSharp
     {
         private readonly Documentation documentation;
 
-        public GetCommentsFromQtDocsPass(string docsPath, string module, Dictionary<Type, List<TypedefDecl>> typeDefsPerType)
+        public GetCommentsFromQtDocsPass(string docsPath, string module)
         {
-            this.documentation = new Documentation(docsPath, module, typeDefsPerType);
+            this.documentation = new Documentation(docsPath, module);
         }
 
         public override bool VisitClassDecl(Class @class)

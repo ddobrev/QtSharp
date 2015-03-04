@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.Util;
+using System.Xml.Linq;
 using CppSharp;
 using CppSharp.AST;
 using CppSharp.Generators.CSharp;
@@ -12,14 +13,12 @@ using CppSharp.Types;
 using Mono.Data.Sqlite;
 using zlib;
 using Attribute = CppSharp.AST.Attribute;
-using Type = CppSharp.AST.Type;
 
 namespace QtSharp
 {
     public class Documentation
     {
         private readonly IDictionary<string, string> documentation;
-        private readonly Dictionary<string, List<TypedefDecl>> typeDefsPerType;
 
         private static readonly Regex regexTypeName =
             new Regex(@"^(const +)?(?<name>((un)?signed +)?.+?(__\*)?)( *(&|((\*|(\[\]))+)) *)?$",
@@ -28,23 +27,16 @@ namespace QtSharp
         private static readonly Regex regexArg = new Regex(@"^(.+?\s+)(?<name>\w+)(\s*=\s*[^\(,\s]+(\(\s*\))?)?\s*$",
             RegexOptions.ExplicitCapture | RegexOptions.Compiled);
 
-        public Documentation(string docsPath, string module, Dictionary<Type, List<TypedefDecl>> typeDefsPerType)
+        private readonly XDocument index;
+
+        public Documentation(string docsPath, string module)
         {
             this.documentation = Get(docsPath, module);
+            var file = module.ToLowerInvariant();
+            this.index = XDocument.Load(Path.Combine(docsPath, string.Format("qt{0}", file),
+                                        string.Format("qt{0}.index", file)));
             CppTypePrinter cppTypePrinter = new CppTypePrinter(new TypeMapDatabase());
             cppTypePrinter.PrintScopeKind = CppTypePrintScopeKind.Local;
-            this.typeDefsPerType = new Dictionary<string, List<TypedefDecl>>();
-            foreach (KeyValuePair<Type, List<TypedefDecl>> typeTypeDefs in typeDefsPerType)
-            {
-                if (!(typeTypeDefs.Key is DependentNameType) && !(typeTypeDefs.Key is InjectedClassNameType))
-                {
-                    string typeName = typeTypeDefs.Key.Visit(cppTypePrinter);
-                    if (!this.typeDefsPerType.ContainsKey(typeName))
-                    {
-                        this.typeDefsPerType.Add(typeName, typeTypeDefs.Value);
-                    }
-                }
-            }
         }
 
         public void DocumentFunction(Function function)
@@ -147,18 +139,26 @@ namespace QtSharp
 
         public void DocumentType(Class type)
         {
-            string file = GetFileForDeclarationContext(type);
-            if (this.documentation.ContainsKey(file))
+            var line1 = type.LineNumber.ToString();
+            var line2 = (type.LineNumber + 1).ToString();
+            var node = this.index.Descendants("class")
+                .FirstOrDefault(c => c.Attribute("location").Value == type.TranslationUnit.FileName &&
+                                     (c.Attribute("lineno").Value == line1 ||
+                                      c.Attribute("lineno").Value == line2));
+            if (node != null)
             {
-                string typeDocs = this.documentation[file];
-                Match match = Regex.Match(typeDocs, string.Format(@"(?<class>((The {0})|(This class)).+?)More\.\.\..*?\n" +
-                                                                   @"Detailed Description\s+(?<detailed>.*?)(\n){{3,}}", type.Name),
-                                          RegexOptions.Singleline | RegexOptions.ExplicitCapture);
-                if (match.Success)
+                var file = node.Attribute("href").Value;
+                if (this.documentation.ContainsKey(file))
                 {
+                    string typeDocs = this.documentation[file];
                     type.Comment = new RawComment();
-                    type.Comment.BriefText = match.Groups["class"].Value.Trim();
-                    type.Comment.Text = match.Groups["detailed"].Value.Replace(match.Groups["class"].Value.Trim(), string.Empty);
+                    // TODO: to avoid repetition, extract just the description and use the first paragraph as "brief"
+                    type.Comment.BriefText = StripTags(Regex.Match(typeDocs,
+                        string.Format(@"<!-- \$\$\${0}-brief -->\s*(.+?)\s*<!-- @@@{0} -->", type.Name),
+                        RegexOptions.Singleline).Groups[1].Value);
+                    type.Comment.Text = StripTags(Regex.Match(typeDocs,
+                        string.Format(@"<h2 id=""details"">Detailed Description</h2>\s*(.+?)\s*<!-- @@@{0} -->", type.Name),
+                        RegexOptions.Singleline).Groups[1].Value);
                 }
             }
         }
@@ -272,8 +272,7 @@ namespace QtSharp
             {
                 return new Dictionary<string, string>();
             }
-            return Directory.GetFiles(docs, "*.html").ToDictionary(Path.GetFileName,
-                f => StripTags(new StringBuilder(File.ReadAllText(f)).Replace("\r", string.Empty).Replace(@"\", @"\\").ToString()));
+            return Directory.GetFiles(docs, "*.html").ToDictionary(Path.GetFileName, File.ReadAllText);
         }
 
         private static IDictionary<string, string> GetFromQch(string docsPath, string module)
@@ -307,7 +306,7 @@ namespace QtSharp
                                     zOutputStream.Write(blob, 4, length - 4);
                                     zOutputStream.Flush();
                                     documentation.Add(sqliteDataReader.GetString(0),
-                                                      StripTags(Encoding.UTF8.GetString(output.ToArray())));
+                                                      Encoding.UTF8.GetString(output.ToArray()));
                                 }
                             }
                         }
@@ -432,16 +431,6 @@ namespace QtSharp
             this.FormatType(typeBuilder);
             typeBuilder.Insert(0, @"(const +)?(((\w+::)?");
             typeBuilder.Append(')');
-            if (this.typeDefsPerType.ContainsKey(typeName))
-            {
-                foreach (string typeDef in (from typedef in this.typeDefsPerType[typeName]
-                                            select typedef.OriginalName).Distinct())
-                {
-                    StringBuilder typeDefBuilder = new StringBuilder(typeDef);
-                    this.FormatType(typeDefBuilder);
-                    typeBuilder.Append("|(").Append(typeDefBuilder).Append(')');
-                }
-            }
             // C++ long is mapped to int
             switch (argType)
             {
