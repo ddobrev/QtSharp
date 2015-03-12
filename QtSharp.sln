@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QtSharp", "QtSharp\QtSharp.csproj", "{861046E1-DA11-4229-B9B6-45426E7A723E}"
 EndProject
@@ -14,6 +14,14 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QtCore", "Wrappers\QtCore\QtCore.csproj", "{BACBCD61-F377-49CB-BD93-4FB539146B63}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QtGui", "Wrappers\QtGui\QtGui.csproj", "{CAFDBAA8-3BF5-434D-97ED-5D0234005EC5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{345349CF-F2FF-407A-A38E-A3816616208A}"
+	ProjectSection(SolutionItems) = preProject
+		Docs\1. Building - QtSharp.md = Docs\1. Building - QtSharp.md
+		Docs\2. Running - QtSharp.CLI.md = Docs\2. Running - QtSharp.CLI.md
+		Docs\3. Running - NUnit Tests.md = Docs\3. Running - NUnit Tests.md
+		Docs\4. Building - CppSharp.md = Docs\4. Building - CppSharp.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
