@@ -5,7 +5,6 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Security;
-using QtCore;
 
 namespace QtGui
 {
@@ -485,6 +484,72 @@ namespace QtGui
                     public ushort pad;
                 }
             }
+
+            public unsafe partial class __
+            {
+                [StructLayout(LayoutKind.Explicit, Size = 10)]
+                public partial struct Internal
+                {
+                    [FieldOffset(0)]
+                    public ushort alpha;
+
+                    [FieldOffset(2)]
+                    public ushort hue;
+
+                    [FieldOffset(4)]
+                    public ushort saturation;
+
+                    [FieldOffset(6)]
+                    public ushort value;
+
+                    [FieldOffset(8)]
+                    public ushort pad;
+                }
+            }
+
+            public unsafe partial class __
+            {
+                [StructLayout(LayoutKind.Explicit, Size = 10)]
+                public partial struct Internal
+                {
+                    [FieldOffset(0)]
+                    public ushort alpha;
+
+                    [FieldOffset(2)]
+                    public ushort cyan;
+
+                    [FieldOffset(4)]
+                    public ushort magenta;
+
+                    [FieldOffset(6)]
+                    public ushort yellow;
+
+                    [FieldOffset(8)]
+                    public ushort black;
+                }
+            }
+
+            public unsafe partial class __
+            {
+                [StructLayout(LayoutKind.Explicit, Size = 10)]
+                public partial struct Internal
+                {
+                    [FieldOffset(0)]
+                    public ushort alpha;
+
+                    [FieldOffset(2)]
+                    public ushort hue;
+
+                    [FieldOffset(4)]
+                    public ushort saturation;
+
+                    [FieldOffset(6)]
+                    public ushort lightness;
+
+                    [FieldOffset(8)]
+                    public ushort pad;
+                }
+            }
         }
 
         public global::System.IntPtr __Instance { get; protected set; }
@@ -562,7 +627,7 @@ namespace QtGui
         /// </summary>
         public string Name()
         {
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.Name_0(new IntPtr(&__ret), __Instance);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -575,7 +640,7 @@ namespace QtGui
         public string Name(QColor.NameFormat format)
         {
             var arg0 = format;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.Name_1(new IntPtr(&__ret), __Instance, arg0);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -1446,7 +1511,7 @@ namespace QtGui
             public partial struct Internal
             {
                 [FieldOffset(0)]
-                internal QtPrivate.RefCount.Internal @ref;
+                internal QtCore.QtPrivate.RefCount.Internal @ref;
 
                 [FieldOffset(4)]
                 public global::System.IntPtr qt_rgn;
@@ -2441,7 +2506,7 @@ namespace QtGui
         public string ToString(QKeySequence.SequenceFormat format = QKeySequence.SequenceFormat.PortableText)
         {
             var arg0 = format;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.ToString_0(new IntPtr(&__ret), __Instance, arg0);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -2567,7 +2632,7 @@ namespace QtGui
             }
             var arg0 = new global::System.IntPtr(&__qList);
             var arg1 = format;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.ListToString_0(new IntPtr(&__ret), arg0, arg1);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -3116,7 +3181,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.Name_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -3236,7 +3301,7 @@ namespace QtGui
         public partial struct Internal
         {
             [FieldOffset(12)]
-            internal Qt.KeyboardModifier modState;
+            internal QtCore.Qt.KeyboardModifier modState;
 
             [FieldOffset(16)]
             public uint ts;
@@ -3380,13 +3445,13 @@ namespace QtGui
         public partial struct Internal
         {
             [FieldOffset(16)]
-            internal QPointF.Internal l;
+            internal QtCore.QPointF.Internal l;
 
             [FieldOffset(32)]
-            internal QPointF.Internal w;
+            internal QtCore.QPointF.Internal w;
 
             [FieldOffset(48)]
-            internal QPointF.Internal s;
+            internal QtCore.QPointF.Internal s;
 
             [FieldOffset(0)]
             public global::System.IntPtr vfptr0;
@@ -3556,25 +3621,25 @@ namespace QtGui
         public new partial struct Internal
         {
             [FieldOffset(12)]
-            internal Qt.KeyboardModifier modState;
+            internal QtCore.Qt.KeyboardModifier modState;
 
             [FieldOffset(16)]
             public uint ts;
 
             [FieldOffset(24)]
-            internal QPointF.Internal l;
+            internal QtCore.QPointF.Internal l;
 
             [FieldOffset(40)]
-            internal QPointF.Internal w;
+            internal QtCore.QPointF.Internal w;
 
             [FieldOffset(56)]
-            internal QPointF.Internal s;
+            internal QtCore.QPointF.Internal s;
 
             [FieldOffset(72)]
-            public Qt.MouseButton b;
+            public QtCore.Qt.MouseButton b;
 
             [FieldOffset(76)]
-            internal Qt.MouseButton mouseState;
+            internal QtCore.Qt.MouseButton mouseState;
 
             [FieldOffset(80)]
             public int caps;
@@ -3622,7 +3687,7 @@ namespace QtGui
         }
 
         protected QMouseEvent(QMouseEvent.Internal* native, bool isInternalImpl = false)
-            : base((QInputEvent.Internal*) native)
+            : base((QtGui.QInputEvent.Internal*) native)
         {
         }
 
@@ -3763,16 +3828,16 @@ namespace QtGui
         public new partial struct Internal
         {
             [FieldOffset(12)]
-            internal Qt.KeyboardModifier modState;
+            internal QtCore.Qt.KeyboardModifier modState;
 
             [FieldOffset(16)]
             public uint ts;
 
             [FieldOffset(24)]
-            internal QPointF.Internal p;
+            internal QtCore.QPointF.Internal p;
 
             [FieldOffset(40)]
-            internal QPointF.Internal op;
+            internal QtCore.QPointF.Internal op;
 
             [FieldOffset(0)]
             public global::System.IntPtr vfptr0;
@@ -3814,7 +3879,7 @@ namespace QtGui
         }
 
         protected QHoverEvent(QHoverEvent.Internal* native, bool isInternalImpl = false)
-            : base((QInputEvent.Internal*) native)
+            : base((QtGui.QInputEvent.Internal*) native)
         {
         }
 
@@ -3920,31 +3985,31 @@ namespace QtGui
         public new partial struct Internal
         {
             [FieldOffset(12)]
-            internal Qt.KeyboardModifier modState;
+            internal QtCore.Qt.KeyboardModifier modState;
 
             [FieldOffset(16)]
             public uint ts;
 
             [FieldOffset(24)]
-            internal QPointF.Internal p;
+            internal QtCore.QPointF.Internal p;
 
             [FieldOffset(40)]
-            internal QPointF.Internal g;
+            internal QtCore.QPointF.Internal g;
 
             [FieldOffset(56)]
-            internal QPoint.Internal pixelD;
+            internal QtCore.QPoint.Internal pixelD;
 
             [FieldOffset(64)]
-            internal QPoint.Internal angleD;
+            internal QtCore.QPoint.Internal angleD;
 
             [FieldOffset(72)]
             public int qt4D;
 
             [FieldOffset(76)]
-            public Qt.Orientation qt4O;
+            public QtCore.Qt.Orientation qt4O;
 
             [FieldOffset(80)]
-            internal Qt.MouseButton mouseState;
+            internal QtCore.Qt.MouseButton mouseState;
 
             [FieldOffset(84)]
             public uint ph;
@@ -3992,7 +4057,7 @@ namespace QtGui
         }
 
         protected QWheelEvent(QWheelEvent.Internal* native, bool isInternalImpl = false)
-            : base((QInputEvent.Internal*) native)
+            : base((QtGui.QInputEvent.Internal*) native)
         {
         }
 
@@ -4157,16 +4222,16 @@ namespace QtGui
         public new partial struct Internal
         {
             [FieldOffset(12)]
-            internal Qt.KeyboardModifier modState;
+            internal QtCore.Qt.KeyboardModifier modState;
 
             [FieldOffset(16)]
             public uint ts;
 
             [FieldOffset(24)]
-            internal QPointF.Internal mPos;
+            internal QtCore.QPointF.Internal mPos;
 
             [FieldOffset(40)]
-            internal QPointF.Internal mGPos;
+            internal QtCore.QPointF.Internal mGPos;
 
             [FieldOffset(56)]
             public int mDev;
@@ -4277,7 +4342,7 @@ namespace QtGui
         }
 
         protected QTabletEvent(QTabletEvent.Internal* native, bool isInternalImpl = false)
-            : base((QInputEvent.Internal*) native)
+            : base((QtGui.QInputEvent.Internal*) native)
         {
         }
 
@@ -4461,22 +4526,22 @@ namespace QtGui
         public new partial struct Internal
         {
             [FieldOffset(12)]
-            internal Qt.KeyboardModifier modState;
+            internal QtCore.Qt.KeyboardModifier modState;
 
             [FieldOffset(16)]
             public uint ts;
 
             [FieldOffset(20)]
-            public Qt.NativeGestureType mGestureType;
+            public QtCore.Qt.NativeGestureType mGestureType;
 
             [FieldOffset(24)]
-            internal QPointF.Internal mLocalPos;
+            internal QtCore.QPointF.Internal mLocalPos;
 
             [FieldOffset(40)]
-            internal QPointF.Internal mWindowPos;
+            internal QtCore.QPointF.Internal mWindowPos;
 
             [FieldOffset(56)]
-            internal QPointF.Internal mScreenPos;
+            internal QtCore.QPointF.Internal mScreenPos;
 
             [FieldOffset(72)]
             public double mRealValue;
@@ -4527,7 +4592,7 @@ namespace QtGui
         }
 
         protected QNativeGestureEvent(QNativeGestureEvent.Internal* native, bool isInternalImpl = false)
-            : base((QInputEvent.Internal*) native)
+            : base((QtGui.QInputEvent.Internal*) native)
         {
         }
 
@@ -4568,7 +4633,7 @@ namespace QtGui
         public new partial struct Internal
         {
             [FieldOffset(12)]
-            internal Qt.KeyboardModifier modState;
+            internal QtCore.Qt.KeyboardModifier modState;
 
             [FieldOffset(16)]
             public uint ts;
@@ -4640,7 +4705,7 @@ namespace QtGui
         }
 
         protected QKeyEvent(QKeyEvent.Internal* native, bool isInternalImpl = false)
-            : base((QInputEvent.Internal*) native)
+            : base((QtGui.QInputEvent.Internal*) native)
         {
         }
 
@@ -4763,7 +4828,7 @@ namespace QtGui
         public partial struct Internal
         {
             [FieldOffset(12)]
-            public Qt.FocusReason m_reason;
+            public QtCore.Qt.FocusReason m_reason;
 
             [FieldOffset(0)]
             public global::System.IntPtr vfptr0;
@@ -4921,7 +4986,7 @@ namespace QtGui
         public partial struct Internal
         {
             [FieldOffset(12)]
-            internal QRect.Internal m_rect;
+            internal QtCore.QRect.Internal m_rect;
 
             [FieldOffset(28)]
             public QRegion.Internal m_region;
@@ -5116,10 +5181,10 @@ namespace QtGui
         public partial struct Internal
         {
             [FieldOffset(12)]
-            internal QPoint.Internal p;
+            internal QtCore.QPoint.Internal p;
 
             [FieldOffset(20)]
-            internal QPoint.Internal oldp;
+            internal QtCore.QPoint.Internal oldp;
 
             [FieldOffset(0)]
             public global::System.IntPtr vfptr0;
@@ -5437,10 +5502,10 @@ namespace QtGui
         public partial struct Internal
         {
             [FieldOffset(12)]
-            internal QSize.Internal s;
+            internal QtCore.QSize.Internal s;
 
             [FieldOffset(20)]
-            internal QSize.Internal olds;
+            internal QtCore.QSize.Internal olds;
 
             [FieldOffset(0)]
             public global::System.IntPtr vfptr0;
@@ -6258,16 +6323,16 @@ namespace QtGui
         public new partial struct Internal
         {
             [FieldOffset(12)]
-            internal Qt.KeyboardModifier modState;
+            internal QtCore.Qt.KeyboardModifier modState;
 
             [FieldOffset(16)]
             public uint ts;
 
             [FieldOffset(20)]
-            internal QPoint.Internal p;
+            internal QtCore.QPoint.Internal p;
 
             [FieldOffset(28)]
-            internal QPoint.Internal gp;
+            internal QtCore.QPoint.Internal gp;
 
             [FieldOffset(36)]
             public uint reas;
@@ -6325,7 +6390,7 @@ namespace QtGui
         }
 
         protected QContextMenuEvent(QContextMenuEvent.Internal* native, bool isInternalImpl = false)
-            : base((QInputEvent.Internal*) native)
+            : base((QtGui.QInputEvent.Internal*) native)
         {
         }
 
@@ -6512,7 +6577,7 @@ namespace QtGui
                 public int length;
 
                 [FieldOffset(16)]
-                internal QVariant.Internal value;
+                internal QtCore.QVariant.Internal value;
 
                 [SuppressUnmanagedCodeSecurity]
                 [DllImport("QtGuiSharp", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,
@@ -6752,7 +6817,7 @@ namespace QtGui
         public partial struct Internal
         {
             [FieldOffset(12)]
-            internal Qt.InputMethodQuery m_queries;
+            internal QtCore.Qt.InputMethodQuery m_queries;
 
             [FieldOffset(16)]
             internal QVector.Internal m_values;
@@ -6777,10 +6842,10 @@ namespace QtGui
             public partial struct Internal
             {
                 [FieldOffset(0)]
-                public Qt.InputMethodQuery query;
+                public QtCore.Qt.InputMethodQuery query;
 
                 [FieldOffset(8)]
-                internal QVariant.Internal value;
+                internal QtCore.QVariant.Internal value;
             }
         }
 
@@ -6929,22 +6994,22 @@ namespace QtGui
         public partial struct Internal
         {
             [FieldOffset(16)]
-            internal QPointF.Internal p;
+            internal QtCore.QPointF.Internal p;
 
             [FieldOffset(32)]
-            internal Qt.MouseButton mouseState;
+            internal QtCore.Qt.MouseButton mouseState;
 
             [FieldOffset(36)]
-            internal Qt.KeyboardModifier modState;
+            internal QtCore.Qt.KeyboardModifier modState;
 
             [FieldOffset(40)]
-            internal Qt.DropAction act;
+            internal QtCore.Qt.DropAction act;
 
             [FieldOffset(44)]
-            public Qt.DropAction drop_action;
+            public QtCore.Qt.DropAction drop_action;
 
             [FieldOffset(48)]
-            public Qt.DropAction default_action;
+            public QtCore.Qt.DropAction default_action;
 
             [FieldOffset(52)]
             public global::System.IntPtr mdata;
@@ -7098,28 +7163,28 @@ namespace QtGui
         public new partial struct Internal
         {
             [FieldOffset(16)]
-            internal QPointF.Internal p;
+            internal QtCore.QPointF.Internal p;
 
             [FieldOffset(32)]
-            internal Qt.MouseButton mouseState;
+            internal QtCore.Qt.MouseButton mouseState;
 
             [FieldOffset(36)]
-            internal Qt.KeyboardModifier modState;
+            internal QtCore.Qt.KeyboardModifier modState;
 
             [FieldOffset(40)]
-            internal Qt.DropAction act;
+            internal QtCore.Qt.DropAction act;
 
             [FieldOffset(44)]
-            public Qt.DropAction drop_action;
+            public QtCore.Qt.DropAction drop_action;
 
             [FieldOffset(48)]
-            public Qt.DropAction default_action;
+            public QtCore.Qt.DropAction default_action;
 
             [FieldOffset(52)]
             public global::System.IntPtr mdata;
 
             [FieldOffset(56)]
-            internal QRect.Internal rect;
+            internal QtCore.QRect.Internal rect;
 
             [FieldOffset(0)]
             public global::System.IntPtr vfptr0;
@@ -7161,7 +7226,7 @@ namespace QtGui
         }
 
         protected QDragMoveEvent(QDragMoveEvent.Internal* native, bool isInternalImpl = false)
-            : base((QDropEvent.Internal*) native)
+            : base((QtGui.QDropEvent.Internal*) native)
         {
         }
 
@@ -7257,28 +7322,28 @@ namespace QtGui
         public new partial struct Internal
         {
             [FieldOffset(16)]
-            internal QPointF.Internal p;
+            internal QtCore.QPointF.Internal p;
 
             [FieldOffset(32)]
-            internal Qt.MouseButton mouseState;
+            internal QtCore.Qt.MouseButton mouseState;
 
             [FieldOffset(36)]
-            internal Qt.KeyboardModifier modState;
+            internal QtCore.Qt.KeyboardModifier modState;
 
             [FieldOffset(40)]
-            internal Qt.DropAction act;
+            internal QtCore.Qt.DropAction act;
 
             [FieldOffset(44)]
-            public Qt.DropAction drop_action;
+            public QtCore.Qt.DropAction drop_action;
 
             [FieldOffset(48)]
-            public Qt.DropAction default_action;
+            public QtCore.Qt.DropAction default_action;
 
             [FieldOffset(52)]
             public global::System.IntPtr mdata;
 
             [FieldOffset(56)]
-            internal QRect.Internal rect;
+            internal QtCore.QRect.Internal rect;
 
             [FieldOffset(0)]
             public global::System.IntPtr vfptr0;
@@ -7320,7 +7385,7 @@ namespace QtGui
         }
 
         protected QDragEnterEvent(QDragEnterEvent.Internal* native, bool isInternalImpl = false)
-            : base((QDragMoveEvent.Internal*) native)
+            : base((QtGui.QDragMoveEvent.Internal*) native)
         {
         }
 
@@ -7571,10 +7636,10 @@ namespace QtGui
         public partial struct Internal
         {
             [FieldOffset(12)]
-            internal QPoint.Internal p;
+            internal QtCore.QPoint.Internal p;
 
             [FieldOffset(20)]
-            internal QPoint.Internal gp;
+            internal QtCore.QPoint.Internal gp;
 
             [FieldOffset(0)]
             public global::System.IntPtr vfptr0;
@@ -8232,7 +8297,7 @@ namespace QtGui
             internal QString.Internal f;
 
             [FieldOffset(16)]
-            internal QUrl.Internal m_url;
+            internal QtCore.QUrl.Internal m_url;
 
             [FieldOffset(0)]
             public global::System.IntPtr vfptr0;
@@ -8736,7 +8801,7 @@ namespace QtGui
         public partial struct Internal
         {
             [FieldOffset(12)]
-            internal Qt.WindowState ostate;
+            internal QtCore.Qt.WindowState ostate;
 
             [FieldOffset(16)]
             public bool m_override;
@@ -9007,7 +9072,7 @@ namespace QtGui
         public new partial struct Internal
         {
             [FieldOffset(12)]
-            internal Qt.KeyboardModifier modState;
+            internal QtCore.Qt.KeyboardModifier modState;
 
             [FieldOffset(16)]
             public uint ts;
@@ -9022,7 +9087,7 @@ namespace QtGui
             public global::System.IntPtr _device;
 
             [FieldOffset(32)]
-            internal Qt.TouchPointState _touchPointStates;
+            internal QtCore.Qt.TouchPointState _touchPointStates;
 
             [FieldOffset(36)]
             internal QList.Internal _touchPoints;
@@ -9260,7 +9325,7 @@ namespace QtGui
         }
 
         protected QTouchEvent(QTouchEvent.Internal* native, bool isInternalImpl = false)
-            : base((QInputEvent.Internal*) native)
+            : base((QtGui.QInputEvent.Internal*) native)
         {
         }
 
@@ -9419,16 +9484,16 @@ namespace QtGui
             public global::System.IntPtr m_target;
 
             [FieldOffset(16)]
-            internal QPointF.Internal m_startPos;
+            internal QtCore.QPointF.Internal m_startPos;
 
             [FieldOffset(32)]
-            internal QSizeF.Internal m_viewportSize;
+            internal QtCore.QSizeF.Internal m_viewportSize;
 
             [FieldOffset(48)]
-            internal QRectF.Internal m_contentPosRange;
+            internal QtCore.QRectF.Internal m_contentPosRange;
 
             [FieldOffset(80)]
-            internal QPointF.Internal m_contentPos;
+            internal QtCore.QPointF.Internal m_contentPos;
 
             [FieldOffset(0)]
             public global::System.IntPtr vfptr0;
@@ -9573,10 +9638,10 @@ namespace QtGui
         public partial struct Internal
         {
             [FieldOffset(16)]
-            internal QPointF.Internal m_contentPos;
+            internal QtCore.QPointF.Internal m_contentPos;
 
             [FieldOffset(32)]
-            internal QPointF.Internal m_overshoot;
+            internal QtCore.QPointF.Internal m_overshoot;
 
             [FieldOffset(48)]
             public QScrollEvent.ScrollState m_state;
@@ -9752,7 +9817,7 @@ namespace QtGui
             public global::System.IntPtr m_screen;
 
             [FieldOffset(16)]
-            public Qt.ScreenOrientation m_orientation;
+            public QtCore.Qt.ScreenOrientation m_orientation;
 
             [FieldOffset(0)]
             public global::System.IntPtr vfptr0;
@@ -9899,7 +9964,7 @@ namespace QtGui
         public partial struct Internal
         {
             [FieldOffset(12)]
-            public Qt.ApplicationState m_applicationState;
+            public QtCore.Qt.ApplicationState m_applicationState;
 
             [FieldOffset(0)]
             public global::System.IntPtr vfptr0;
@@ -10956,7 +11021,7 @@ namespace QtGui
         {
             var __qstring0 = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni(actionName).ToPointer(), actionName.Length);
             var arg0 = ReferenceEquals(__qstring0, null) ? global::System.IntPtr.Zero : __qstring0.__Instance;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.QAccessibleLocalizedActionDescription_0(new IntPtr(&__ret), arg0);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -11495,7 +11560,7 @@ namespace QtGui
             var target = (QAccessibleInterface) _References[instance].Target;
             var _ret = target.Text(t);
             var __qstring0 = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni(_ret).ToPointer(), _ret.Length);
-            return ReferenceEquals(__qstring0, null) ? new QString.Internal() : *(QString.Internal*) (__qstring0.__Instance);
+            return ReferenceEquals(__qstring0, null) ? new QtCore.QString.Internal() : *(QtCore.QString.Internal*) (__qstring0.__Instance);
         }
 
         // void setText(QAccessible::Text t, const QString &text)
@@ -11824,7 +11889,7 @@ namespace QtGui
             var arg1 = boundaryType;
             var arg2 = startOffset;
             var arg3 = endOffset;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.TextBeforeOffset_0(new IntPtr(&__ret), __Instance, offset, arg1, arg2, arg3);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -11886,7 +11951,7 @@ namespace QtGui
             var arg1 = boundaryType;
             var arg2 = startOffset;
             var arg3 = endOffset;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.TextAfterOffset_0(new IntPtr(&__ret), __Instance, offset, arg1, arg2, arg3);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -11930,7 +11995,7 @@ namespace QtGui
             var arg1 = boundaryType;
             var arg2 = startOffset;
             var arg3 = endOffset;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.TextAtOffset_0(new IntPtr(&__ret), __Instance, offset, arg1, arg2, arg3);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -12102,7 +12167,7 @@ namespace QtGui
             var target = (QAccessibleTextInterface) _References[instance].Target;
             var _ret = target.Text(startOffset, endOffset);
             var __qstring0 = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni(_ret).ToPointer(), _ret.Length);
-            return ReferenceEquals(__qstring0, null) ? new QString.Internal() : *(QString.Internal*) (__qstring0.__Instance);
+            return ReferenceEquals(__qstring0, null) ? new QtCore.QString.Internal() : *(QtCore.QString.Internal*) (__qstring0.__Instance);
         }
 
         // QString textBeforeOffset(int offset, QAccessible::TextBoundaryType boundaryType, int *startOffset, int *endOffset)
@@ -12119,7 +12184,7 @@ namespace QtGui
             var target = (QAccessibleTextInterface) _References[instance].Target;
             var _ret = target.TextBeforeOffset(offset, boundaryType, startOffset, endOffset);
             var __qstring0 = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni(_ret).ToPointer(), _ret.Length);
-            return ReferenceEquals(__qstring0, null) ? new QString.Internal() : *(QString.Internal*) (__qstring0.__Instance);
+            return ReferenceEquals(__qstring0, null) ? new QtCore.QString.Internal() : *(QtCore.QString.Internal*) (__qstring0.__Instance);
         }
 
         // QString textAfterOffset(int offset, QAccessible::TextBoundaryType boundaryType, int *startOffset, int *endOffset)
@@ -12136,7 +12201,7 @@ namespace QtGui
             var target = (QAccessibleTextInterface) _References[instance].Target;
             var _ret = target.TextAfterOffset(offset, boundaryType, startOffset, endOffset);
             var __qstring0 = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni(_ret).ToPointer(), _ret.Length);
-            return ReferenceEquals(__qstring0, null) ? new QString.Internal() : *(QString.Internal*) (__qstring0.__Instance);
+            return ReferenceEquals(__qstring0, null) ? new QtCore.QString.Internal() : *(QtCore.QString.Internal*) (__qstring0.__Instance);
         }
 
         // QString textAtOffset(int offset, QAccessible::TextBoundaryType boundaryType, int *startOffset, int *endOffset)
@@ -12153,7 +12218,7 @@ namespace QtGui
             var target = (QAccessibleTextInterface) _References[instance].Target;
             var _ret = target.TextAtOffset(offset, boundaryType, startOffset, endOffset);
             var __qstring0 = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni(_ret).ToPointer(), _ret.Length);
-            return ReferenceEquals(__qstring0, null) ? new QString.Internal() : *(QString.Internal*) (__qstring0.__Instance);
+            return ReferenceEquals(__qstring0, null) ? new QtCore.QString.Internal() : *(QtCore.QString.Internal*) (__qstring0.__Instance);
         }
 
         // int characterCount()
@@ -12201,7 +12266,7 @@ namespace QtGui
             var target = (QAccessibleTextInterface) _References[instance].Target;
             var _ret = target.Attributes(offset, startOffset, endOffset);
             var __qstring0 = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni(_ret).ToPointer(), _ret.Length);
-            return ReferenceEquals(__qstring0, null) ? new QString.Internal() : *(QString.Internal*) (__qstring0.__Instance);
+            return ReferenceEquals(__qstring0, null) ? new QtCore.QString.Internal() : *(QtCore.QString.Internal*) (__qstring0.__Instance);
         }
 
         private static void*[] _OldVTables;
@@ -13171,7 +13236,7 @@ namespace QtGui
             var target = (QAccessibleTableInterface) _References[instance].Target;
             var _ret = target.ColumnDescription(column);
             var __qstring0 = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni(_ret).ToPointer(), _ret.Length);
-            return ReferenceEquals(__qstring0, null) ? new QString.Internal() : *(QString.Internal*) (__qstring0.__Instance);
+            return ReferenceEquals(__qstring0, null) ? new QtCore.QString.Internal() : *(QtCore.QString.Internal*) (__qstring0.__Instance);
         }
 
         // QString rowDescription(int row)
@@ -13188,7 +13253,7 @@ namespace QtGui
             var target = (QAccessibleTableInterface) _References[instance].Target;
             var _ret = target.RowDescription(row);
             var __qstring0 = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni(_ret).ToPointer(), _ret.Length);
-            return ReferenceEquals(__qstring0, null) ? new QString.Internal() : *(QString.Internal*) (__qstring0.__Instance);
+            return ReferenceEquals(__qstring0, null) ? new QtCore.QString.Internal() : *(QtCore.QString.Internal*) (__qstring0.__Instance);
         }
 
         // int selectedColumnCount()
@@ -13666,7 +13731,7 @@ namespace QtGui
         {
             var __qstring0 = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni(name).ToPointer(), name.Length);
             var arg0 = ReferenceEquals(__qstring0, null) ? global::System.IntPtr.Zero : __qstring0.__Instance;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.LocalizedActionName_0(new IntPtr(&__ret), __Instance, arg0);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -13682,7 +13747,7 @@ namespace QtGui
         {
             var __qstring0 = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni(name).ToPointer(), name.Length);
             var arg0 = ReferenceEquals(__qstring0, null) ? global::System.IntPtr.Zero : __qstring0.__Instance;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.LocalizedActionDescription_0(new IntPtr(&__ret), __Instance, arg0);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -13790,7 +13855,7 @@ namespace QtGui
             var target = (QAccessibleActionInterface) _References[instance].Target;
             var _ret = target.LocalizedActionName(Marshal.PtrToStringUni(new IntPtr(new QString(name).Utf16)));
             var __qstring0 = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni(_ret).ToPointer(), _ret.Length);
-            return ReferenceEquals(__qstring0, null) ? new QString.Internal() : *(QString.Internal*) (__qstring0.__Instance);
+            return ReferenceEquals(__qstring0, null) ? new QtCore.QString.Internal() : *(QtCore.QString.Internal*) (__qstring0.__Instance);
         }
 
         // QString localizedActionDescription(const QString &name)
@@ -13807,7 +13872,7 @@ namespace QtGui
             var target = (QAccessibleActionInterface) _References[instance].Target;
             var _ret = target.LocalizedActionDescription(Marshal.PtrToStringUni(new IntPtr(new QString(name).Utf16)));
             var __qstring0 = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni(_ret).ToPointer(), _ret.Length);
-            return ReferenceEquals(__qstring0, null) ? new QString.Internal() : *(QString.Internal*) (__qstring0.__Instance);
+            return ReferenceEquals(__qstring0, null) ? new QtCore.QString.Internal() : *(QtCore.QString.Internal*) (__qstring0.__Instance);
         }
 
         // void doAction(const QString &actionName)
@@ -13943,7 +14008,7 @@ namespace QtGui
             var target = (QAccessibleImageInterface) _References[instance].Target;
             var _ret = target.ImageDescription;
             var __qstring0 = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni(_ret).ToPointer(), _ret.Length);
-            return ReferenceEquals(__qstring0, null) ? new QString.Internal() : *(QString.Internal*) (__qstring0.__Instance);
+            return ReferenceEquals(__qstring0, null) ? new QtCore.QString.Internal() : *(QtCore.QString.Internal*) (__qstring0.__Instance);
         }
 
         private static void*[] _OldVTables;
@@ -14281,7 +14346,7 @@ namespace QtGui
         }
 
         protected QAccessibleStateChangeEvent(QAccessibleStateChangeEvent.Internal* native, bool isInternalImpl = false)
-            : base((QAccessibleEvent.Internal*) native)
+            : base((QtGui.QAccessibleEvent.Internal*) native)
         {
         }
 
@@ -14436,7 +14501,7 @@ namespace QtGui
         }
 
         protected QAccessibleTextCursorEvent(QAccessibleTextCursorEvent.Internal* native, bool isInternalImpl = false)
-            : base((QAccessibleEvent.Internal*) native)
+            : base((QtGui.QAccessibleEvent.Internal*) native)
         {
         }
 
@@ -14588,7 +14653,7 @@ namespace QtGui
         }
 
         protected QAccessibleTextSelectionEvent(QAccessibleTextSelectionEvent.Internal* native, bool isInternalImpl = false)
-            : base((QAccessibleTextCursorEvent.Internal*) native)
+            : base((QtGui.QAccessibleTextCursorEvent.Internal*) native)
         {
         }
 
@@ -14762,7 +14827,7 @@ namespace QtGui
         }
 
         protected QAccessibleTextInsertEvent(QAccessibleTextInsertEvent.Internal* native, bool isInternalImpl = false)
-            : base((QAccessibleTextCursorEvent.Internal*) native)
+            : base((QtGui.QAccessibleTextCursorEvent.Internal*) native)
         {
         }
 
@@ -14923,7 +14988,7 @@ namespace QtGui
         }
 
         protected QAccessibleTextRemoveEvent(QAccessibleTextRemoveEvent.Internal* native, bool isInternalImpl = false)
-            : base((QAccessibleTextCursorEvent.Internal*) native)
+            : base((QtGui.QAccessibleTextCursorEvent.Internal*) native)
         {
         }
 
@@ -15089,7 +15154,7 @@ namespace QtGui
         }
 
         protected QAccessibleTextUpdateEvent(QAccessibleTextUpdateEvent.Internal* native, bool isInternalImpl = false)
-            : base((QAccessibleTextCursorEvent.Internal*) native)
+            : base((QtGui.QAccessibleTextCursorEvent.Internal*) native)
         {
         }
 
@@ -15203,7 +15268,7 @@ namespace QtGui
             internal QAccessibleEvent._.Internal __;
 
             [FieldOffset(16)]
-            internal QVariant.Internal m_value;
+            internal QtCore.QVariant.Internal m_value;
 
             [FieldOffset(0)]
             public global::System.IntPtr vfptr0;
@@ -15245,7 +15310,7 @@ namespace QtGui
         }
 
         protected QAccessibleValueChangeEvent(QAccessibleValueChangeEvent.Internal* native, bool isInternalImpl = false)
-            : base((QAccessibleEvent.Internal*) native)
+            : base((QtGui.QAccessibleEvent.Internal*) native)
         {
         }
 
@@ -15421,7 +15486,7 @@ namespace QtGui
         }
 
         protected QAccessibleTableModelChangeEvent(QAccessibleTableModelChangeEvent.Internal* native, bool isInternalImpl = false)
-            : base((QAccessibleEvent.Internal*) native)
+            : base((QtGui.QAccessibleEvent.Internal*) native)
         {
         }
 
@@ -15590,7 +15655,7 @@ namespace QtGui
         }
 
         protected QAccessibleInterfaceInternal(QAccessibleInterface.Internal* native, bool isInternalImpl = false)
-            : base((QAccessibleInterface.Internal*) native, true)
+            : base((QtGui.QAccessibleInterface.Internal*) native, true)
         {
         }
 
@@ -15635,7 +15700,7 @@ namespace QtGui
             void* slot = *(void**) (((QAccessibleInterface.Internal*) __Instance)->vfptr0 + 12 * 4);
             var ___Text_0Delegate = (_Text_0Delegate) Marshal.GetDelegateForFunctionPointer(new IntPtr(slot), typeof(_Text_0Delegate));
             var arg0 = t;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             ___Text_0Delegate(new IntPtr(&__ret), __Instance, arg0);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -15735,7 +15800,7 @@ namespace QtGui
         }
 
         protected QAccessibleTextInterfaceInternal(QAccessibleTextInterface.Internal* native, bool isInternalImpl = false)
-            : base((QAccessibleTextInterface.Internal*) native, true)
+            : base((QtGui.QAccessibleTextInterface.Internal*) native, true)
         {
         }
 
@@ -15782,7 +15847,7 @@ namespace QtGui
         {
             void* slot = *(void**) (((QAccessibleTextInterface.Internal*) __Instance)->vfptr0 + 9 * 4);
             var ___Text_0Delegate = (_Text_0Delegate) Marshal.GetDelegateForFunctionPointer(new IntPtr(slot), typeof(_Text_0Delegate));
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             ___Text_0Delegate(new IntPtr(&__ret), __Instance, startOffset, endOffset);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -15800,7 +15865,7 @@ namespace QtGui
             var ___Attributes_0Delegate = (_Attributes_0Delegate) Marshal.GetDelegateForFunctionPointer(new IntPtr(slot), typeof(_Attributes_0Delegate));
             var arg1 = startOffset;
             var arg2 = endOffset;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             ___Attributes_0Delegate(new IntPtr(&__ret), __Instance, offset, arg1, arg2);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -15874,7 +15939,7 @@ namespace QtGui
         }
 
         protected QAccessibleEditableTextInterfaceInternal(QAccessibleEditableTextInterface.Internal* native, bool isInternalImpl = false)
-            : base((QAccessibleEditableTextInterface.Internal*) native, true)
+            : base((QtGui.QAccessibleEditableTextInterface.Internal*) native, true)
         {
         }
 
@@ -15941,7 +16006,7 @@ namespace QtGui
         }
 
         protected QAccessibleValueInterfaceInternal(QAccessibleValueInterface.Internal* native, bool isInternalImpl = false)
-            : base((QAccessibleValueInterface.Internal*) native, true)
+            : base((QtGui.QAccessibleValueInterface.Internal*) native, true)
         {
         }
 
@@ -15983,7 +16048,7 @@ namespace QtGui
         }
 
         protected QAccessibleTableCellInterfaceInternal(QAccessibleTableCellInterface.Internal* native, bool isInternalImpl = false)
-            : base((QAccessibleTableCellInterface.Internal*) native, true)
+            : base((QtGui.QAccessibleTableCellInterface.Internal*) native, true)
         {
         }
 
@@ -16128,7 +16193,7 @@ namespace QtGui
         }
 
         protected QAccessibleTableInterfaceInternal(QAccessibleTableInterface.Internal* native, bool isInternalImpl = false)
-            : base((QAccessibleTableInterface.Internal*) native, true)
+            : base((QtGui.QAccessibleTableInterface.Internal*) native, true)
         {
         }
 
@@ -16154,7 +16219,7 @@ namespace QtGui
         {
             void* slot = *(void**) (((QAccessibleTableInterface.Internal*) __Instance)->vfptr0 + 7 * 4);
             var ___ColumnDescription_0Delegate = (_ColumnDescription_0Delegate) Marshal.GetDelegateForFunctionPointer(new IntPtr(slot), typeof(_ColumnDescription_0Delegate));
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             ___ColumnDescription_0Delegate(new IntPtr(&__ret), __Instance, column);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -16163,7 +16228,7 @@ namespace QtGui
         {
             void* slot = *(void**) (((QAccessibleTableInterface.Internal*) __Instance)->vfptr0 + 8 * 4);
             var ___RowDescription_0Delegate = (_RowDescription_0Delegate) Marshal.GetDelegateForFunctionPointer(new IntPtr(slot), typeof(_RowDescription_0Delegate));
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             ___RowDescription_0Delegate(new IntPtr(&__ret), __Instance, row);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -16386,7 +16451,7 @@ namespace QtGui
         }
 
         protected QAccessibleActionInterfaceInternal(QAccessibleActionInterface.Internal* native, bool isInternalImpl = false)
-            : base((QAccessibleActionInterface.Internal*) native, true)
+            : base((QtGui.QAccessibleActionInterface.Internal*) native, true)
         {
         }
 
@@ -16437,7 +16502,7 @@ namespace QtGui
         }
 
         protected QAccessibleImageInterfaceInternal(QAccessibleImageInterface.Internal* native, bool isInternalImpl = false)
-            : base((QAccessibleImageInterface.Internal*) native, true)
+            : base((QtGui.QAccessibleImageInterface.Internal*) native, true)
         {
         }
 
@@ -16456,7 +16521,7 @@ namespace QtGui
             {
                 void* slot = *(void**) (((QAccessibleImageInterface.Internal*) __Instance)->vfptr0 + 2 * 4);
                 var ___ImageDescription_0Delegate = (_ImageDescription_0Delegate) Marshal.GetDelegateForFunctionPointer(new IntPtr(slot), typeof(_ImageDescription_0Delegate));
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 ___ImageDescription_0Delegate(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -16507,7 +16572,7 @@ namespace QtGui
             }
         }
 
-        public abstract void SetRootObject(QAccessibleInterface _198);
+        public abstract void SetRootObject(QAccessibleInterface _194);
 
         public abstract void NotifyAccessibilityUpdate(QAccessibleEvent _event);
 
@@ -16516,16 +16581,16 @@ namespace QtGui
         // void setRootObject(QAccessibleInterface *)
         [SuppressUnmanagedCodeSecurity]
         [UnmanagedFunctionPointerAttribute(global::System.Runtime.InteropServices.CallingConvention.ThisCall)]
-        internal delegate void _SetRootObject_0Delegate(global::System.IntPtr instance, global::System.IntPtr _198);
+        internal delegate void _SetRootObject_0Delegate(global::System.IntPtr instance, global::System.IntPtr _194);
         private static _SetRootObject_0Delegate _SetRootObject_0DelegateInstance;
 
-        private static void _SetRootObject_0DelegateHook(global::System.IntPtr instance, global::System.IntPtr _198)
+        private static void _SetRootObject_0DelegateHook(global::System.IntPtr instance, global::System.IntPtr _194)
         {
             if (!_References.ContainsKey(instance))
                 throw new global::System.Exception("No managed instance was found");
 
             var target = (QAccessibleBridge) _References[instance].Target;
-            target.SetRootObject((_198 == IntPtr.Zero) ? null : QAccessibleInterfaceInternal.__CreateInstance(_198));
+            target.SetRootObject((_194 == IntPtr.Zero) ? null : QAccessibleInterfaceInternal.__CreateInstance(_194));
         }
 
         // void notifyAccessibilityUpdate(QAccessibleEvent *event)
@@ -16764,7 +16829,7 @@ namespace QtGui
         }
 
         protected QAccessibleBridgeInternal(QAccessibleBridge.Internal* native, bool isInternalImpl = false)
-            : base((QAccessibleBridge.Internal*) native, true)
+            : base((QtGui.QAccessibleBridge.Internal*) native, true)
         {
         }
 
@@ -16777,11 +16842,11 @@ namespace QtGui
             base.Dispose(disposing);
         }
 
-        public override void SetRootObject(QAccessibleInterface _198)
+        public override void SetRootObject(QAccessibleInterface _194)
         {
             void* slot = *(void**) (((QAccessibleBridge.Internal*) __Instance)->vfptr0 + 2 * 4);
             var ___SetRootObject_0Delegate = (_SetRootObject_0Delegate) Marshal.GetDelegateForFunctionPointer(new IntPtr(slot), typeof(_SetRootObject_0Delegate));
-            var arg0 = ReferenceEquals(_198, null) ? global::System.IntPtr.Zero : _198.__Instance;
+            var arg0 = ReferenceEquals(_194, null) ? global::System.IntPtr.Zero : _194.__Instance;
             ___SetRootObject_0Delegate(__Instance, arg0);
         }
 
@@ -16822,7 +16887,7 @@ namespace QtGui
         }
 
         protected QAccessibleBridgePluginInternal(QAccessibleBridgePlugin.Internal* native, bool isInternalImpl = false)
-            : base((QAccessibleBridgePlugin.Internal*) native, true)
+            : base((QtGui.QAccessibleBridgePlugin.Internal*) native, true)
         {
         }
 
@@ -16902,7 +16967,7 @@ namespace QtGui
         private readonly bool __ownsNativeInstance;
 
         protected QAccessibleObject(QAccessibleObject.Internal* native, bool isInternalImpl = false)
-            : base((QAccessibleInterface.Internal*) native)
+            : base((QtGui.QAccessibleInterface.Internal*) native)
         {
         }
 
@@ -17107,7 +17172,7 @@ namespace QtGui
             var target = (QAccessibleObject) _References[instance].Target;
             var _ret = target.Text(t);
             var __qstring0 = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni(_ret).ToPointer(), _ret.Length);
-            return ReferenceEquals(__qstring0, null) ? new QString.Internal() : *(QString.Internal*) (__qstring0.__Instance);
+            return ReferenceEquals(__qstring0, null) ? new QtCore.QString.Internal() : *(QtCore.QString.Internal*) (__qstring0.__Instance);
         }
 
         // void setText(QAccessible::Text t, const QString &text)
@@ -17326,7 +17391,7 @@ namespace QtGui
             [SuppressUnmanagedCodeSecurity]
             [DllImport("Qt5Gui", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,
                 EntryPoint="_ZNK22QAccessibleApplication12indexOfChildEPK20QAccessibleInterface")]
-            internal static extern int IndexOfChild_0(global::System.IntPtr instance, global::System.IntPtr _203);
+            internal static extern int IndexOfChild_0(global::System.IntPtr instance, global::System.IntPtr _199);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport("Qt5Gui", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,
@@ -17395,7 +17460,7 @@ namespace QtGui
         }
 
         protected QAccessibleApplication(QAccessibleApplication.Internal* native, bool isInternalImpl = false)
-            : base((QAccessibleObject.Internal*) native)
+            : base((QtGui.QAccessibleObject.Internal*) native)
         {
         }
 
@@ -17417,9 +17482,9 @@ namespace QtGui
             base.Dispose(disposing);
         }
 
-        public override int IndexOfChild(QAccessibleInterface _203)
+        public override int IndexOfChild(QAccessibleInterface _199)
         {
-            var arg0 = ReferenceEquals(_203, null) ? global::System.IntPtr.Zero : _203.__Instance;
+            var arg0 = ReferenceEquals(_199, null) ? global::System.IntPtr.Zero : _199.__Instance;
             var __ret = Internal.IndexOfChild_0(__Instance, arg0);
             return __ret;
         }
@@ -17441,7 +17506,7 @@ namespace QtGui
         public override string Text(QAccessible.Text t)
         {
             var arg0 = t;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.Text_0(new IntPtr(&__ret), __Instance, arg0);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -17610,16 +17675,16 @@ namespace QtGui
         // int indexOfChild(const QAccessibleInterface*)
         [SuppressUnmanagedCodeSecurity]
         [UnmanagedFunctionPointerAttribute(global::System.Runtime.InteropServices.CallingConvention.ThisCall)]
-        internal delegate int _IndexOfChild_0Delegate(global::System.IntPtr instance, global::System.IntPtr _203);
+        internal delegate int _IndexOfChild_0Delegate(global::System.IntPtr instance, global::System.IntPtr _199);
         private static _IndexOfChild_0Delegate _IndexOfChild_0DelegateInstance;
 
-        private static int _IndexOfChild_0DelegateHook(global::System.IntPtr instance, global::System.IntPtr _203)
+        private static int _IndexOfChild_0DelegateHook(global::System.IntPtr instance, global::System.IntPtr _199)
         {
             if (!_References.ContainsKey(instance))
                 throw new global::System.Exception("No managed instance was found");
 
             var target = (QAccessibleApplication) _References[instance].Target;
-            var _ret = target.IndexOfChild((_203 == IntPtr.Zero) ? null : QAccessibleInterfaceInternal.__CreateInstance(_203));
+            var _ret = target.IndexOfChild((_199 == IntPtr.Zero) ? null : QAccessibleInterfaceInternal.__CreateInstance(_199));
             return _ret;
         }
 
@@ -17637,7 +17702,7 @@ namespace QtGui
             var target = (QAccessibleApplication) _References[instance].Target;
             var _ret = target.Text(t);
             var __qstring0 = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni(_ret).ToPointer(), _ret.Length);
-            return ReferenceEquals(__qstring0, null) ? new QString.Internal() : *(QString.Internal*) (__qstring0.__Instance);
+            return ReferenceEquals(__qstring0, null) ? new QtCore.QString.Internal() : *(QtCore.QString.Internal*) (__qstring0.__Instance);
         }
 
         // void setText(QAccessible::Text t, const QString &text)
@@ -17853,7 +17918,7 @@ namespace QtGui
         }
 
         protected QAccessibleObjectInternal(QAccessibleObject.Internal* native, bool isInternalImpl = false)
-            : base((QAccessibleObject.Internal*) native, true)
+            : base((QtGui.QAccessibleObject.Internal*) native, true)
         {
         }
 
@@ -17889,7 +17954,7 @@ namespace QtGui
             void* slot = *(void**) (((QAccessibleObject.Internal*) __Instance)->vfptr0 + 12 * 4);
             var ___Text_0Delegate = (_Text_0Delegate) Marshal.GetDelegateForFunctionPointer(new IntPtr(slot), typeof(_Text_0Delegate));
             var arg0 = t;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             ___Text_0Delegate(new IntPtr(&__ret), __Instance, arg0);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -18106,7 +18171,7 @@ namespace QtGui
         }
 
         protected QAccessiblePluginInternal(QAccessiblePlugin.Internal* native, bool isInternalImpl = false)
-            : base((QAccessiblePlugin.Internal*) native, true)
+            : base((QtGui.QAccessiblePlugin.Internal*) native, true)
         {
         }
 
@@ -18209,6 +18274,11 @@ namespace QtGui
             internal static extern int Metric_0(global::System.IntPtr instance, QPaintDevice.PaintDeviceMetric metric);
 
             [SuppressUnmanagedCodeSecurity]
+            [DllImport("Qt5Gui", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+                EntryPoint="_Z22qt_paint_device_metricPK12QPaintDeviceNS_17PaintDeviceMetricE")]
+            internal static extern int Qt_paint_device_metric_0(global::System.IntPtr device, QPaintDevice.PaintDeviceMetric metric);
+
+            [SuppressUnmanagedCodeSecurity]
             [DllImport("Qt5Gui", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,
                 EntryPoint="_ZNK12QPaintDevice13sharedPainterEv")]
             internal static extern global::System.IntPtr SharedPainter_0(global::System.IntPtr instance);
@@ -18304,6 +18374,14 @@ namespace QtGui
         {
             var arg0 = metric;
             var __ret = Internal.Metric_0(__Instance, arg0);
+            return __ret;
+        }
+
+        public static int Qt_paint_device_metric(QPaintDevice device, QPaintDevice.PaintDeviceMetric metric)
+        {
+            var arg0 = ReferenceEquals(device, null) ? global::System.IntPtr.Zero : device.__Instance;
+            var arg1 = metric;
+            var __ret = Internal.Qt_paint_device_metric_0(arg0, arg1);
             return __ret;
         }
 
@@ -18492,7 +18570,7 @@ namespace QtGui
         }
 
         protected QPaintDeviceInternal(QPaintDevice.Internal* native, bool isInternalImpl = false)
-            : base((QPaintDevice.Internal*) native, true)
+            : base((QtGui.QPaintDevice.Internal*) native, true)
         {
         }
 
@@ -21626,7 +21704,7 @@ namespace QtGui
         }
 
         protected QImage(QImage.Internal* native, bool isInternalImpl = false)
-            : base((QPaintDevice.Internal*) native)
+            : base((QtGui.QPaintDevice.Internal*) native)
         {
         }
 
@@ -21915,7 +21993,7 @@ namespace QtGui
         {
             var __qstring0 = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni(key).ToPointer(), key.Length);
             var arg0 = ReferenceEquals(__qstring0, null) ? global::System.IntPtr.Zero : __qstring0.__Instance;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.Text_0(new IntPtr(&__ret), __Instance, arg0);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -22618,7 +22696,7 @@ namespace QtGui
             [SuppressUnmanagedCodeSecurity]
             [DllImport("Qt5Gui", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,
                 EntryPoint="_ZNK7QPixmap6metricEN12QPaintDevice17PaintDeviceMetricE")]
-            internal static extern int Metric_0(global::System.IntPtr instance, QPaintDevice.PaintDeviceMetric _208);
+            internal static extern int Metric_0(global::System.IntPtr instance, QPaintDevice.PaintDeviceMetric _204);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport("Qt5Gui", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,
@@ -22743,7 +22821,7 @@ namespace QtGui
         }
 
         protected QPixmap(QPixmap.Internal* native, bool isInternalImpl = false)
-            : base((QPaintDevice.Internal*) native)
+            : base((QtGui.QPaintDevice.Internal*) native)
         {
         }
 
@@ -22798,9 +22876,9 @@ namespace QtGui
             Internal.Fill_0(__Instance, arg0);
         }
 
-        protected override int Metric(QPaintDevice.PaintDeviceMetric _208)
+        protected override int Metric(QPaintDevice.PaintDeviceMetric _204)
         {
-            var arg0 = _208;
+            var arg0 = _204;
             var __ret = Internal.Metric_0(__Instance, arg0);
             return __ret;
         }
@@ -23131,16 +23209,16 @@ namespace QtGui
         // int metric(PaintDeviceMetric)
         [SuppressUnmanagedCodeSecurity]
         [UnmanagedFunctionPointerAttribute(global::System.Runtime.InteropServices.CallingConvention.ThisCall)]
-        internal delegate int _Metric_0Delegate(global::System.IntPtr instance, QPaintDevice.PaintDeviceMetric _208);
+        internal delegate int _Metric_0Delegate(global::System.IntPtr instance, QPaintDevice.PaintDeviceMetric _204);
         private static _Metric_0Delegate _Metric_0DelegateInstance;
 
-        private static int _Metric_0DelegateHook(global::System.IntPtr instance, QPaintDevice.PaintDeviceMetric _208)
+        private static int _Metric_0DelegateHook(global::System.IntPtr instance, QPaintDevice.PaintDeviceMetric _204)
         {
             if (!_References.ContainsKey(instance))
                 throw new global::System.Exception("No managed instance was found");
 
             var target = (QPixmap) _References[instance].Target;
-            var _ret = target.Metric(_208);
+            var _ret = target.Metric(_204);
             return _ret;
         }
 
@@ -23351,7 +23429,7 @@ namespace QtGui
         }
 
         protected QBitmap(QBitmap.Internal* native, bool isInternalImpl = false)
-            : base((QPixmap.Internal*) native)
+            : base((QtGui.QPixmap.Internal*) native)
         {
         }
 
@@ -23493,16 +23571,16 @@ namespace QtGui
         // int metric(PaintDeviceMetric)
         [SuppressUnmanagedCodeSecurity]
         [UnmanagedFunctionPointerAttribute(global::System.Runtime.InteropServices.CallingConvention.ThisCall)]
-        internal delegate int _Metric_0Delegate(global::System.IntPtr instance, QPaintDevice.PaintDeviceMetric _208);
+        internal delegate int _Metric_0Delegate(global::System.IntPtr instance, QPaintDevice.PaintDeviceMetric _204);
         private static _Metric_0Delegate _Metric_0DelegateInstance;
 
-        private static int _Metric_0DelegateHook(global::System.IntPtr instance, QPaintDevice.PaintDeviceMetric _208)
+        private static int _Metric_0DelegateHook(global::System.IntPtr instance, QPaintDevice.PaintDeviceMetric _204)
         {
             if (!_References.ContainsKey(instance))
                 throw new global::System.Exception("No managed instance was found");
 
             var target = (QBitmap) _References[instance].Target;
-            var _ret = target.Metric(_208);
+            var _ret = target.Metric(_204);
             return _ret;
         }
 
@@ -24009,7 +24087,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.ThemeName_0(new IntPtr(&__ret));
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -24035,7 +24113,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.Name_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -24306,7 +24384,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.Key_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -24323,7 +24401,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.IconName_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -24375,7 +24453,7 @@ namespace QtGui
             var target = (QIconEngine) _References[instance].Target;
             var _ret = target.Key;
             var __qstring0 = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni(_ret).ToPointer(), _ret.Length);
-            return ReferenceEquals(__qstring0, null) ? new QString.Internal() : *(QString.Internal*) (__qstring0.__Instance);
+            return ReferenceEquals(__qstring0, null) ? new QtCore.QString.Internal() : *(QtCore.QString.Internal*) (__qstring0.__Instance);
         }
 
         // QIconEngine *clone()
@@ -24408,7 +24486,7 @@ namespace QtGui
             var target = (QIconEngine) _References[instance].Target;
             var _ret = target.IconName;
             var __qstring0 = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni(_ret).ToPointer(), _ret.Length);
-            return ReferenceEquals(__qstring0, null) ? new QString.Internal() : *(QString.Internal*) (__qstring0.__Instance);
+            return ReferenceEquals(__qstring0, null) ? new QtCore.QString.Internal() : *(QtCore.QString.Internal*) (__qstring0.__Instance);
         }
 
         // void virtual_hook(int id, void *data)
@@ -24520,7 +24598,7 @@ namespace QtGui
         }
 
         protected QIconEngineInternal(QIconEngine.Internal* native, bool isInternalImpl = false)
-            : base((QIconEngine.Internal*) native, true)
+            : base((QtGui.QIconEngine.Internal*) native, true)
         {
         }
 
@@ -24741,7 +24819,7 @@ namespace QtGui
         }
 
         protected QIconEnginePluginInternal(QIconEnginePlugin.Internal* native, bool isInternalImpl = false)
-            : base((QIconEnginePlugin.Internal*) native, true)
+            : base((QtGui.QIconEnginePlugin.Internal*) native, true)
         {
         }
 
@@ -25540,7 +25618,7 @@ namespace QtGui
         }
 
         protected QImageIOHandlerInternal(QImageIOHandler.Internal* native, bool isInternalImpl = false)
-            : base((QImageIOHandler.Internal*) native, true)
+            : base((QtGui.QImageIOHandler.Internal*) native, true)
         {
         }
 
@@ -25599,7 +25677,7 @@ namespace QtGui
         }
 
         protected QImageIOPluginInternal(QImageIOPlugin.Internal* native, bool isInternalImpl = false)
-            : base((QImageIOPlugin.Internal*) native, true)
+            : base((QtGui.QImageIOPlugin.Internal*) native, true)
         {
         }
 
@@ -25925,7 +26003,7 @@ namespace QtGui
         {
             var __qstring0 = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni(key).ToPointer(), key.Length);
             var arg0 = ReferenceEquals(__qstring0, null) ? global::System.IntPtr.Zero : __qstring0.__Instance;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.Text_0(new IntPtr(&__ret), __Instance, arg0);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -26144,7 +26222,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.FileName_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -26325,7 +26403,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.ErrorString_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -26633,7 +26711,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.FileName_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -26744,7 +26822,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.Description_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -26779,7 +26857,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.ErrorString_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -27193,7 +27271,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.FileName_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -27630,7 +27708,7 @@ namespace QtGui
         }
 
         protected QPicture(QPicture.Internal* native, bool isInternalImpl = false)
-            : base((QPaintDevice.Internal*) native)
+            : base((QtGui.QPaintDevice.Internal*) native)
         {
         }
 
@@ -28336,7 +28414,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.FileName_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -28389,7 +28467,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.Description_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -28737,7 +28815,7 @@ namespace QtGui
         }
 
         protected QPictureFormatPluginInternal(QPictureFormatPlugin.Internal* native, bool isInternalImpl = false)
-            : base((QPictureFormatPlugin.Internal*) native, true)
+            : base((QtGui.QPictureFormatPlugin.Internal*) native, true)
         {
         }
 
@@ -29338,6 +29416,12 @@ namespace QtGui
             internal static extern bool OperatorEqualEqual_0(global::System.IntPtr instance, global::System.IntPtr b);
 
             [SuppressUnmanagedCodeSecurity]
+            [DllImport("Qt5Gui", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+                EntryPoint="_Z17qHasPixmapTextureRK6QBrush")]
+            [return: MarshalAsAttribute(UnmanagedType.I1)]
+            internal static extern bool QHasPixmapTexture_0(global::System.IntPtr brush);
+
+            [SuppressUnmanagedCodeSecurity]
             [DllImport("Qt5Gui", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,
                 EntryPoint="_ZNK6QBrush7textureEv")]
             internal static extern void Texture_0(global::System.IntPtr @return, global::System.IntPtr instance);
@@ -29562,6 +29646,13 @@ namespace QtGui
             return this == obj as QBrush;
         }
 
+        public static bool QHasPixmapTexture(QBrush brush)
+        {
+            var arg0 = ReferenceEquals(brush, null) ? global::System.IntPtr.Zero : brush.__Instance;
+            var __ret = Internal.QHasPixmapTexture_0(arg0);
+            return __ret;
+        }
+
         /// <summary>
         /// <para>Returns the custom brush pattern, or a null pixmap if no custom
         /// brush pattern has been set.</para>
@@ -29664,10 +29755,10 @@ namespace QtGui
         public partial struct Internal
         {
             [FieldOffset(0)]
-            internal QAtomicInt.Internal @ref;
+            internal QtCore.QAtomicInt.Internal @ref;
 
             [FieldOffset(4)]
-            public Qt.BrushStyle style;
+            public QtCore.Qt.BrushStyle style;
 
             [FieldOffset(8)]
             public QColor.Internal color;
@@ -29970,6 +30061,44 @@ namespace QtGui
                     public double y2;
                 }
             }
+
+            public unsafe partial class __
+            {
+                [StructLayout(LayoutKind.Explicit, Size = 40)]
+                public partial struct Internal
+                {
+                    [FieldOffset(0)]
+                    public double cx;
+
+                    [FieldOffset(8)]
+                    public double cy;
+
+                    [FieldOffset(16)]
+                    public double fx;
+
+                    [FieldOffset(24)]
+                    public double fy;
+
+                    [FieldOffset(32)]
+                    public double cradius;
+                }
+            }
+
+            public unsafe partial class __
+            {
+                [StructLayout(LayoutKind.Explicit, Size = 24)]
+                public partial struct Internal
+                {
+                    [FieldOffset(0)]
+                    public double cx;
+
+                    [FieldOffset(8)]
+                    public double cy;
+
+                    [FieldOffset(16)]
+                    public double angle;
+                }
+            }
         }
 
         public global::System.IntPtr __Instance { get; protected set; }
@@ -30183,7 +30312,7 @@ namespace QtGui
         }
 
         protected QLinearGradient(QLinearGradient.Internal* native, bool isInternalImpl = false)
-            : base((QGradient.Internal*) native)
+            : base((QtGui.QGradient.Internal*) native)
         {
         }
 
@@ -30307,7 +30436,7 @@ namespace QtGui
         }
 
         protected QRadialGradient(QRadialGradient.Internal* native, bool isInternalImpl = false)
-            : base((QGradient.Internal*) native)
+            : base((QtGui.QGradient.Internal*) native)
         {
         }
 
@@ -30421,7 +30550,7 @@ namespace QtGui
         }
 
         protected QConicalGradient(QConicalGradient.Internal* native, bool isInternalImpl = false)
-            : base((QGradient.Internal*) native)
+            : base((QtGui.QGradient.Internal*) native)
         {
         }
 
@@ -31342,7 +31471,7 @@ namespace QtGui
         /// </summary>
         public string ToString()
         {
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.ToString_0(new IntPtr(&__ret), __Instance);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -31386,7 +31515,7 @@ namespace QtGui
         {
             var __qstring0 = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni(familyName).ToPointer(), familyName.Length);
             var arg0 = ReferenceEquals(__qstring0, null) ? global::System.IntPtr.Zero : __qstring0.__Instance;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.Substitute_0(new IntPtr(&__ret), arg0);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -31452,7 +31581,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.Family_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -31484,7 +31613,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.StyleName_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -31872,7 +32001,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.RawName_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -31925,7 +32054,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.Key_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -31940,7 +32069,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.DefaultFamily_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -31957,7 +32086,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.LastResortFamily_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -31983,7 +32112,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.LastResortFont_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -34091,7 +34220,7 @@ namespace QtGui
         public string Text(QClipboard.Mode mode = QClipboard.Mode.Clipboard)
         {
             var arg0 = mode;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.Text_0(new IntPtr(&__ret), __Instance, arg0);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -34117,7 +34246,7 @@ namespace QtGui
             var __qstring0 = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni(subtype).ToPointer(), subtype.Length);
             var arg0 = ReferenceEquals(__qstring0, null) ? global::System.IntPtr.Zero : __qstring0.__Instance;
             var arg1 = mode;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.Text_1(new IntPtr(&__ret), __Instance, arg0, arg1);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -35070,7 +35199,7 @@ namespace QtGui
         }
 
         protected QGenericPluginInternal(QGenericPlugin.Internal* native, bool isInternalImpl = false)
-            : base((QGenericPlugin.Internal*) native, true)
+            : base((QtGui.QGenericPlugin.Internal*) native, true)
         {
         }
 
@@ -36103,7 +36232,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.ApplicationDisplayName_0(new IntPtr(&__ret));
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -36356,7 +36485,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.PlatformName_0(new IntPtr(&__ret));
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -36385,8 +36514,8 @@ namespace QtGui
         /// <summary>
         /// <para>Returns the primary (or default) screen of the
         /// application.</para>
-        /// <para>This will be the screen where QWindows are shown, unless
-        /// otherwise specified.</para>
+        /// <para>This will be the screen where QWindows are initially shown,
+        /// unless otherwise specified.</para>
         /// </summary>
         public static QScreen PrimaryScreen
         {
@@ -36495,7 +36624,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.SessionId_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -36515,7 +36644,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.SessionKey_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -36691,6 +36820,12 @@ namespace QtGui
                 EntryPoint="_ZeqRK14QSurfaceFormatS1_")]
             [return: MarshalAsAttribute(UnmanagedType.I1)]
             internal static extern bool OperatorEqualEqual_0(global::System.IntPtr a, global::System.IntPtr b);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport("Qt5Gui", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+                EntryPoint="_ZneRK14QSurfaceFormatS1_")]
+            [return: MarshalAsAttribute(UnmanagedType.I1)]
+            internal static extern bool OperatorExclaimEqual_0(global::System.IntPtr a, global::System.IntPtr b);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport("Qt5Gui", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,
@@ -37083,11 +37218,6 @@ namespace QtGui
             return __ret;
         }
 
-        public static bool operator !=(QSurfaceFormat a, QSurfaceFormat b)
-        {
-            return !(a == b);
-        }
-
         /// <summary>
         /// <para>Returns true if all the options of the two QSurfaceFormat objects
         /// a and b are equal.</para>
@@ -37107,6 +37237,18 @@ namespace QtGui
         public override bool Equals(object obj)
         {
             return this == obj as QSurfaceFormat;
+        }
+
+        /// <summary>
+        /// <para>Returns false if all the options of the two QSurfaceFormat
+        /// objects a and b are equal; otherwise returns true.</para>
+        /// </summary>
+        public static bool operator !=(QSurfaceFormat a, QSurfaceFormat b)
+        {
+            var arg0 = ReferenceEquals(a, null) ? global::System.IntPtr.Zero : a.__Instance;
+            var arg1 = ReferenceEquals(b, null) ? global::System.IntPtr.Zero : b.__Instance;
+            var __ret = Internal.OperatorExclaimEqual_0(arg0, arg1);
+            return __ret;
         }
 
         /// <summary>
@@ -37803,7 +37945,7 @@ namespace QtGui
         }
 
         protected QSurfaceInternal(QSurface.Internal* native, bool isInternalImpl = false)
-            : base((QSurface.Internal*) native, true)
+            : base((QtGui.QSurface.Internal*) native, true)
         {
         }
 
@@ -38599,7 +38741,7 @@ namespace QtGui
             public global::System.IntPtr context;
 
             [FieldOffset(4)]
-            internal QAtomicInt.Internal refs;
+            internal QtCore.QAtomicInt.Internal refs;
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport("QtGuiSharp", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,
@@ -38852,7 +38994,7 @@ namespace QtGui
             public global::System.IntPtr context;
 
             [FieldOffset(4)]
-            internal QAtomicInt.Internal refs;
+            internal QtCore.QAtomicInt.Internal refs;
 
             [FieldOffset(8)]
             public global::System.IntPtr Viewport;
@@ -39030,7 +39172,7 @@ namespace QtGui
         }
 
         protected QOpenGLFunctions_1_0_CoreBackend(QOpenGLFunctions_1_0_CoreBackend.Internal* native, bool isInternalImpl = false)
-            : base((QOpenGLVersionFunctionsBackend.Internal*) native)
+            : base((QtGui.QOpenGLVersionFunctionsBackend.Internal*) native)
         {
         }
 
@@ -39079,7 +39221,7 @@ namespace QtGui
             public global::System.IntPtr context;
 
             [FieldOffset(4)]
-            internal QAtomicInt.Internal refs;
+            internal QtCore.QAtomicInt.Internal refs;
 
             [FieldOffset(8)]
             public global::System.IntPtr Indexubv;
@@ -39161,7 +39303,7 @@ namespace QtGui
         }
 
         protected QOpenGLFunctions_1_1_CoreBackend(QOpenGLFunctions_1_1_CoreBackend.Internal* native, bool isInternalImpl = false)
-            : base((QOpenGLVersionFunctionsBackend.Internal*) native)
+            : base((QtGui.QOpenGLVersionFunctionsBackend.Internal*) native)
         {
         }
 
@@ -39184,7 +39326,7 @@ namespace QtGui
             public global::System.IntPtr context;
 
             [FieldOffset(4)]
-            internal QAtomicInt.Internal refs;
+            internal QtCore.QAtomicInt.Internal refs;
 
             [FieldOffset(8)]
             public global::System.IntPtr CopyTexSubImage3D;
@@ -39236,7 +39378,7 @@ namespace QtGui
         }
 
         protected QOpenGLFunctions_1_2_CoreBackend(QOpenGLFunctions_1_2_CoreBackend.Internal* native, bool isInternalImpl = false)
-            : base((QOpenGLVersionFunctionsBackend.Internal*) native)
+            : base((QtGui.QOpenGLVersionFunctionsBackend.Internal*) native)
         {
         }
 
@@ -39259,7 +39401,7 @@ namespace QtGui
             public global::System.IntPtr context;
 
             [FieldOffset(4)]
-            internal QAtomicInt.Internal refs;
+            internal QtCore.QAtomicInt.Internal refs;
 
             [FieldOffset(8)]
             public global::System.IntPtr GetCompressedTexImage;
@@ -39320,7 +39462,7 @@ namespace QtGui
         }
 
         protected QOpenGLFunctions_1_3_CoreBackend(QOpenGLFunctions_1_3_CoreBackend.Internal* native, bool isInternalImpl = false)
-            : base((QOpenGLVersionFunctionsBackend.Internal*) native)
+            : base((QtGui.QOpenGLVersionFunctionsBackend.Internal*) native)
         {
         }
 
@@ -39343,7 +39485,7 @@ namespace QtGui
             public global::System.IntPtr context;
 
             [FieldOffset(4)]
-            internal QAtomicInt.Internal refs;
+            internal QtCore.QAtomicInt.Internal refs;
 
             [FieldOffset(8)]
             public global::System.IntPtr PointParameteriv;
@@ -39398,7 +39540,7 @@ namespace QtGui
         }
 
         protected QOpenGLFunctions_1_4_CoreBackend(QOpenGLFunctions_1_4_CoreBackend.Internal* native, bool isInternalImpl = false)
-            : base((QOpenGLVersionFunctionsBackend.Internal*) native)
+            : base((QtGui.QOpenGLVersionFunctionsBackend.Internal*) native)
         {
         }
 
@@ -39421,7 +39563,7 @@ namespace QtGui
             public global::System.IntPtr context;
 
             [FieldOffset(4)]
-            internal QAtomicInt.Internal refs;
+            internal QtCore.QAtomicInt.Internal refs;
 
             [FieldOffset(8)]
             public global::System.IntPtr GetBufferPointerv;
@@ -39512,7 +39654,7 @@ namespace QtGui
         }
 
         protected QOpenGLFunctions_1_5_CoreBackend(QOpenGLFunctions_1_5_CoreBackend.Internal* native, bool isInternalImpl = false)
-            : base((QOpenGLVersionFunctionsBackend.Internal*) native)
+            : base((QtGui.QOpenGLVersionFunctionsBackend.Internal*) native)
         {
         }
 
@@ -39535,7 +39677,7 @@ namespace QtGui
             public global::System.IntPtr context;
 
             [FieldOffset(4)]
-            internal QAtomicInt.Internal refs;
+            internal QtCore.QAtomicInt.Internal refs;
 
             [FieldOffset(8)]
             public global::System.IntPtr VertexAttribPointer;
@@ -39740,7 +39882,7 @@ namespace QtGui
         }
 
         protected QOpenGLFunctions_2_0_CoreBackend(QOpenGLFunctions_2_0_CoreBackend.Internal* native, bool isInternalImpl = false)
-            : base((QOpenGLVersionFunctionsBackend.Internal*) native)
+            : base((QtGui.QOpenGLVersionFunctionsBackend.Internal*) native)
         {
         }
 
@@ -39763,7 +39905,7 @@ namespace QtGui
             public global::System.IntPtr context;
 
             [FieldOffset(4)]
-            internal QAtomicInt.Internal refs;
+            internal QtCore.QAtomicInt.Internal refs;
 
             [FieldOffset(8)]
             public global::System.IntPtr UniformMatrix4x3fv;
@@ -39815,7 +39957,7 @@ namespace QtGui
         }
 
         protected QOpenGLFunctions_2_1_CoreBackend(QOpenGLFunctions_2_1_CoreBackend.Internal* native, bool isInternalImpl = false)
-            : base((QOpenGLVersionFunctionsBackend.Internal*) native)
+            : base((QtGui.QOpenGLVersionFunctionsBackend.Internal*) native)
         {
         }
 
@@ -39838,7 +39980,7 @@ namespace QtGui
             public global::System.IntPtr context;
 
             [FieldOffset(4)]
-            internal QAtomicInt.Internal refs;
+            internal QtCore.QAtomicInt.Internal refs;
 
             [FieldOffset(8)]
             public global::System.IntPtr IsVertexArray;
@@ -40064,7 +40206,7 @@ namespace QtGui
         }
 
         protected QOpenGLFunctions_3_0_CoreBackend(QOpenGLFunctions_3_0_CoreBackend.Internal* native, bool isInternalImpl = false)
-            : base((QOpenGLVersionFunctionsBackend.Internal*) native)
+            : base((QtGui.QOpenGLVersionFunctionsBackend.Internal*) native)
         {
         }
 
@@ -40113,7 +40255,7 @@ namespace QtGui
             public global::System.IntPtr context;
 
             [FieldOffset(4)]
-            internal QAtomicInt.Internal refs;
+            internal QtCore.QAtomicInt.Internal refs;
 
             [FieldOffset(8)]
             public global::System.IntPtr CopyBufferSubData;
@@ -40183,7 +40325,7 @@ namespace QtGui
         }
 
         protected QOpenGLFunctions_3_1_CoreBackend(QOpenGLFunctions_3_1_CoreBackend.Internal* native, bool isInternalImpl = false)
-            : base((QOpenGLVersionFunctionsBackend.Internal*) native)
+            : base((QtGui.QOpenGLVersionFunctionsBackend.Internal*) native)
         {
         }
 
@@ -40206,7 +40348,7 @@ namespace QtGui
             public global::System.IntPtr context;
 
             [FieldOffset(4)]
-            internal QAtomicInt.Internal refs;
+            internal QtCore.QAtomicInt.Internal refs;
 
             [FieldOffset(8)]
             public global::System.IntPtr SampleMaski;
@@ -40297,7 +40439,7 @@ namespace QtGui
         }
 
         protected QOpenGLFunctions_3_2_CoreBackend(QOpenGLFunctions_3_2_CoreBackend.Internal* native, bool isInternalImpl = false)
-            : base((QOpenGLVersionFunctionsBackend.Internal*) native)
+            : base((QtGui.QOpenGLVersionFunctionsBackend.Internal*) native)
         {
         }
 
@@ -40320,7 +40462,7 @@ namespace QtGui
             public global::System.IntPtr context;
 
             [FieldOffset(4)]
-            internal QAtomicInt.Internal refs;
+            internal QtCore.QAtomicInt.Internal refs;
 
             [FieldOffset(8)]
             public global::System.IntPtr VertexAttribP4uiv;
@@ -40528,7 +40670,7 @@ namespace QtGui
         }
 
         protected QOpenGLFunctions_3_3_CoreBackend(QOpenGLFunctions_3_3_CoreBackend.Internal* native, bool isInternalImpl = false)
-            : base((QOpenGLVersionFunctionsBackend.Internal*) native)
+            : base((QtGui.QOpenGLVersionFunctionsBackend.Internal*) native)
         {
         }
 
@@ -40551,7 +40693,7 @@ namespace QtGui
             public global::System.IntPtr context;
 
             [FieldOffset(4)]
-            internal QAtomicInt.Internal refs;
+            internal QtCore.QAtomicInt.Internal refs;
 
             [FieldOffset(8)]
             public global::System.IntPtr GetQueryIndexediv;
@@ -40723,7 +40865,7 @@ namespace QtGui
         }
 
         protected QOpenGLFunctions_4_0_CoreBackend(QOpenGLFunctions_4_0_CoreBackend.Internal* native, bool isInternalImpl = false)
-            : base((QOpenGLVersionFunctionsBackend.Internal*) native)
+            : base((QtGui.QOpenGLVersionFunctionsBackend.Internal*) native)
         {
         }
 
@@ -40772,7 +40914,7 @@ namespace QtGui
             public global::System.IntPtr context;
 
             [FieldOffset(4)]
-            internal QAtomicInt.Internal refs;
+            internal QtCore.QAtomicInt.Internal refs;
 
             [FieldOffset(8)]
             public global::System.IntPtr GetDoublei_v;
@@ -41070,7 +41212,7 @@ namespace QtGui
         }
 
         protected QOpenGLFunctions_4_1_CoreBackend(QOpenGLFunctions_4_1_CoreBackend.Internal* native, bool isInternalImpl = false)
-            : base((QOpenGLVersionFunctionsBackend.Internal*) native)
+            : base((QtGui.QOpenGLVersionFunctionsBackend.Internal*) native)
         {
         }
 
@@ -41106,7 +41248,7 @@ namespace QtGui
             public global::System.IntPtr context;
 
             [FieldOffset(4)]
-            internal QAtomicInt.Internal refs;
+            internal QtCore.QAtomicInt.Internal refs;
 
             [FieldOffset(8)]
             public global::System.IntPtr TexStorage3D;
@@ -41176,7 +41318,7 @@ namespace QtGui
         }
 
         protected QOpenGLFunctions_4_2_CoreBackend(QOpenGLFunctions_4_2_CoreBackend.Internal* native, bool isInternalImpl = false)
-            : base((QOpenGLVersionFunctionsBackend.Internal*) native)
+            : base((QtGui.QOpenGLVersionFunctionsBackend.Internal*) native)
         {
         }
 
@@ -41199,7 +41341,7 @@ namespace QtGui
             public global::System.IntPtr context;
 
             [FieldOffset(4)]
-            internal QAtomicInt.Internal refs;
+            internal QtCore.QAtomicInt.Internal refs;
 
             [FieldOffset(8)]
             public global::System.IntPtr TexStorage3DMultisample;
@@ -41332,7 +41474,7 @@ namespace QtGui
         }
 
         protected QOpenGLFunctions_4_3_CoreBackend(QOpenGLFunctions_4_3_CoreBackend.Internal* native, bool isInternalImpl = false)
-            : base((QOpenGLVersionFunctionsBackend.Internal*) native)
+            : base((QtGui.QOpenGLVersionFunctionsBackend.Internal*) native)
         {
         }
 
@@ -41355,7 +41497,7 @@ namespace QtGui
             public global::System.IntPtr context;
 
             [FieldOffset(4)]
-            internal QAtomicInt.Internal refs;
+            internal QtCore.QAtomicInt.Internal refs;
 
             [FieldOffset(8)]
             public global::System.IntPtr Translatef;
@@ -42163,7 +42305,7 @@ namespace QtGui
         }
 
         protected QOpenGLFunctions_1_0_DeprecatedBackend(QOpenGLFunctions_1_0_DeprecatedBackend.Internal* native, bool isInternalImpl = false)
-            : base((QOpenGLVersionFunctionsBackend.Internal*) native)
+            : base((QtGui.QOpenGLVersionFunctionsBackend.Internal*) native)
         {
         }
 
@@ -42290,7 +42432,7 @@ namespace QtGui
             public global::System.IntPtr context;
 
             [FieldOffset(4)]
-            internal QAtomicInt.Internal refs;
+            internal QtCore.QAtomicInt.Internal refs;
 
             [FieldOffset(8)]
             public global::System.IntPtr PushClientAttrib;
@@ -42366,7 +42508,7 @@ namespace QtGui
         }
 
         protected QOpenGLFunctions_1_1_DeprecatedBackend(QOpenGLFunctions_1_1_DeprecatedBackend.Internal* native, bool isInternalImpl = false)
-            : base((QOpenGLVersionFunctionsBackend.Internal*) native)
+            : base((QtGui.QOpenGLVersionFunctionsBackend.Internal*) native)
         {
         }
 
@@ -42402,7 +42544,7 @@ namespace QtGui
             public global::System.IntPtr context;
 
             [FieldOffset(4)]
-            internal QAtomicInt.Internal refs;
+            internal QtCore.QAtomicInt.Internal refs;
 
             [FieldOffset(8)]
             public global::System.IntPtr ResetMinmax;
@@ -42532,7 +42674,7 @@ namespace QtGui
         }
 
         protected QOpenGLFunctions_1_2_DeprecatedBackend(QOpenGLFunctions_1_2_DeprecatedBackend.Internal* native, bool isInternalImpl = false)
-            : base((QOpenGLVersionFunctionsBackend.Internal*) native)
+            : base((QtGui.QOpenGLVersionFunctionsBackend.Internal*) native)
         {
         }
 
@@ -42555,7 +42697,7 @@ namespace QtGui
             public global::System.IntPtr context;
 
             [FieldOffset(4)]
-            internal QAtomicInt.Internal refs;
+            internal QtCore.QAtomicInt.Internal refs;
 
             [FieldOffset(8)]
             public global::System.IntPtr MultTransposeMatrixd;
@@ -42700,7 +42842,7 @@ namespace QtGui
         }
 
         protected QOpenGLFunctions_1_3_DeprecatedBackend(QOpenGLFunctions_1_3_DeprecatedBackend.Internal* native, bool isInternalImpl = false)
-            : base((QOpenGLVersionFunctionsBackend.Internal*) native)
+            : base((QtGui.QOpenGLVersionFunctionsBackend.Internal*) native)
         {
         }
 
@@ -42723,7 +42865,7 @@ namespace QtGui
             public global::System.IntPtr context;
 
             [FieldOffset(4)]
-            internal QAtomicInt.Internal refs;
+            internal QtCore.QAtomicInt.Internal refs;
 
             [FieldOffset(8)]
             public global::System.IntPtr WindowPos3sv;
@@ -42871,7 +43013,7 @@ namespace QtGui
         }
 
         protected QOpenGLFunctions_1_4_DeprecatedBackend(QOpenGLFunctions_1_4_DeprecatedBackend.Internal* native, bool isInternalImpl = false)
-            : base((QOpenGLVersionFunctionsBackend.Internal*) native)
+            : base((QtGui.QOpenGLVersionFunctionsBackend.Internal*) native)
         {
         }
 
@@ -42894,7 +43036,7 @@ namespace QtGui
             public global::System.IntPtr context;
 
             [FieldOffset(4)]
-            internal QAtomicInt.Internal refs;
+            internal QtCore.QAtomicInt.Internal refs;
 
             [FieldOffset(8)]
             public global::System.IntPtr VertexAttrib4usv;
@@ -43036,7 +43178,7 @@ namespace QtGui
         }
 
         protected QOpenGLFunctions_2_0_DeprecatedBackend(QOpenGLFunctions_2_0_DeprecatedBackend.Internal* native, bool isInternalImpl = false)
-            : base((QOpenGLVersionFunctionsBackend.Internal*) native)
+            : base((QtGui.QOpenGLVersionFunctionsBackend.Internal*) native)
         {
         }
 
@@ -43059,7 +43201,7 @@ namespace QtGui
             public global::System.IntPtr context;
 
             [FieldOffset(4)]
-            internal QAtomicInt.Internal refs;
+            internal QtCore.QAtomicInt.Internal refs;
 
             [FieldOffset(8)]
             public global::System.IntPtr VertexAttribI4usv;
@@ -43153,7 +43295,7 @@ namespace QtGui
         }
 
         protected QOpenGLFunctions_3_0_DeprecatedBackend(QOpenGLFunctions_3_0_DeprecatedBackend.Internal* native, bool isInternalImpl = false)
-            : base((QOpenGLVersionFunctionsBackend.Internal*) native)
+            : base((QtGui.QOpenGLVersionFunctionsBackend.Internal*) native)
         {
         }
 
@@ -43894,8 +44036,8 @@ namespace QtGui
         /// <para>Returns true if the native context was successfully created and
         /// is ready to be used with makeCurrent(), swapBuffers(), etc.</para>
         /// <para>Note: If the context is already created, this function will first
-        /// call destroy(), and then create a new OpenGL context.See also
-        /// makeCurrent(), destroy(), and format().</para>
+        /// call destroy(), and then create a new OpenGL context.See also makeCurrent()
+        /// and format().</para>
         /// </summary>
         public bool Create()
         {
@@ -46313,7 +46455,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.FilePath_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -46447,7 +46589,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.Title_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -47070,7 +47212,7 @@ namespace QtGui
             [SuppressUnmanagedCodeSecurity]
             [DllImport("Qt5Gui", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,
                 EntryPoint="_ZN18QPaintDeviceWindow11exposeEventEP12QExposeEvent")]
-            internal static extern void OnExposeEvent_0(global::System.IntPtr instance, global::System.IntPtr _258);
+            internal static extern void OnExposeEvent_0(global::System.IntPtr instance, global::System.IntPtr _254);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport("Qt5Gui", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,
@@ -47198,7 +47340,7 @@ namespace QtGui
         }
 
         protected QPaintDeviceWindow(QPaintDeviceWindow.Internal* native, bool isInternalImpl = false)
-            : base((QWindow.Internal*) native)
+            : base((QtGui.QWindow.Internal*) native)
         {
         }
 
@@ -47257,9 +47399,9 @@ namespace QtGui
             return __ret;
         }
 
-        protected override void OnExposeEvent(QExposeEvent _258)
+        protected override void OnExposeEvent(QExposeEvent _254)
         {
-            var arg0 = ReferenceEquals(_258, null) ? global::System.IntPtr.Zero : _258.__Instance;
+            var arg0 = ReferenceEquals(_254, null) ? global::System.IntPtr.Zero : _254.__Instance;
             Internal.OnExposeEvent_0(__Instance, arg0);
         }
 
@@ -47357,16 +47499,16 @@ namespace QtGui
         // void exposeEvent(QExposeEvent *)
         [SuppressUnmanagedCodeSecurity]
         [UnmanagedFunctionPointerAttribute(global::System.Runtime.InteropServices.CallingConvention.ThisCall)]
-        internal delegate void _OnExposeEvent_0Delegate(global::System.IntPtr instance, global::System.IntPtr _258);
+        internal delegate void _OnExposeEvent_0Delegate(global::System.IntPtr instance, global::System.IntPtr _254);
         private static _OnExposeEvent_0Delegate _OnExposeEvent_0DelegateInstance;
 
-        private static void _OnExposeEvent_0DelegateHook(global::System.IntPtr instance, global::System.IntPtr _258)
+        private static void _OnExposeEvent_0DelegateHook(global::System.IntPtr instance, global::System.IntPtr _254)
         {
             if (!_References.ContainsKey(instance))
                 throw new global::System.Exception("No managed instance was found");
 
             var target = (QPaintDeviceWindow) _References[instance].Target;
-            target.OnExposeEvent((_258 == IntPtr.Zero) ? null : QExposeEvent.__CreateInstance(_258));
+            target.OnExposeEvent((_254 == IntPtr.Zero) ? null : QExposeEvent.__CreateInstance(_254));
         }
 
         // void resizeEvent(QResizeEvent *)
@@ -47857,6 +47999,10 @@ namespace QtGui
     /// This is useful for applications than render incrementally using QPainter,
     /// because this way they do not have to redraw the entire window content on
     /// each paintGL() call.</para>
+    /// <para>Similarly to QOpenGLWidget, QOpenGLWindow supports the
+    /// Qt::AA_ShareOpenGLContexts attribute. When enabled, the OpenGL contexts of
+    /// all QOpenGLWindow instances will share with each other. This allows
+    /// accessing each other's shareable OpenGL resources.</para>
     /// <para>For more information on graphics in Qt, see Graphics.</para>
     /// </remarks>
     public unsafe partial class QOpenGLWindow : QtGui.QPaintDeviceWindow, IDisposable
@@ -48101,7 +48247,7 @@ namespace QtGui
         }
 
         protected QOpenGLWindow(QOpenGLWindow.Internal* native, bool isInternalImpl = false)
-            : base((QPaintDeviceWindow.Internal*) native)
+            : base((QtGui.QPaintDeviceWindow.Internal*) native)
         {
         }
 
@@ -48419,16 +48565,16 @@ namespace QtGui
         // void exposeEvent(QExposeEvent *)
         [SuppressUnmanagedCodeSecurity]
         [UnmanagedFunctionPointerAttribute(global::System.Runtime.InteropServices.CallingConvention.ThisCall)]
-        internal delegate void _OnExposeEvent_0Delegate(global::System.IntPtr instance, global::System.IntPtr _258);
+        internal delegate void _OnExposeEvent_0Delegate(global::System.IntPtr instance, global::System.IntPtr _254);
         private static _OnExposeEvent_0Delegate _OnExposeEvent_0DelegateInstance;
 
-        private static void _OnExposeEvent_0DelegateHook(global::System.IntPtr instance, global::System.IntPtr _258)
+        private static void _OnExposeEvent_0DelegateHook(global::System.IntPtr instance, global::System.IntPtr _254)
         {
             if (!_References.ContainsKey(instance))
                 throw new global::System.Exception("No managed instance was found");
 
             var target = (QOpenGLWindow) _References[instance].Target;
-            target.OnExposeEvent((_258 == IntPtr.Zero) ? null : QExposeEvent.__CreateInstance(_258));
+            target.OnExposeEvent((_254 == IntPtr.Zero) ? null : QExposeEvent.__CreateInstance(_254));
         }
 
         // void resizeEvent(QResizeEvent *event)
@@ -49558,7 +49704,7 @@ namespace QtGui
         }
 
         protected QRasterWindow(QRasterWindow.Internal* native, bool isInternalImpl = false)
-            : base((QPaintDeviceWindow.Internal*) native)
+            : base((QtGui.QPaintDeviceWindow.Internal*) native)
         {
         }
 
@@ -49644,16 +49790,16 @@ namespace QtGui
         // void exposeEvent(QExposeEvent *)
         [SuppressUnmanagedCodeSecurity]
         [UnmanagedFunctionPointerAttribute(global::System.Runtime.InteropServices.CallingConvention.ThisCall)]
-        internal delegate void _OnExposeEvent_0Delegate(global::System.IntPtr instance, global::System.IntPtr _258);
+        internal delegate void _OnExposeEvent_0Delegate(global::System.IntPtr instance, global::System.IntPtr _254);
         private static _OnExposeEvent_0Delegate _OnExposeEvent_0DelegateInstance;
 
-        private static void _OnExposeEvent_0DelegateHook(global::System.IntPtr instance, global::System.IntPtr _258)
+        private static void _OnExposeEvent_0DelegateHook(global::System.IntPtr instance, global::System.IntPtr _254)
         {
             if (!_References.ContainsKey(instance))
                 throw new global::System.Exception("No managed instance was found");
 
             var target = (QRasterWindow) _References[instance].Target;
-            target.OnExposeEvent((_258 == IntPtr.Zero) ? null : QExposeEvent.__CreateInstance(_258));
+            target.OnExposeEvent((_254 == IntPtr.Zero) ? null : QExposeEvent.__CreateInstance(_254));
         }
 
         // void resizeEvent(QResizeEvent *)
@@ -50214,7 +50360,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.Name_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -50612,7 +50758,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.SessionId_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -50630,7 +50776,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.SessionKey_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -50823,7 +50969,7 @@ namespace QtGui
     /// user interface components, in that they allow the components to exhibit the
     /// same behaviour and feel as other components.</para>
     /// <para></para>
-    /// <para>See also QGuiApplication::styleHints() and QPlatformTheme.</para>
+    /// <para>See also QGuiApplication::styleHints().</para>
     /// </remarks>
     public unsafe partial class QStyleHints : IDisposable
     {
@@ -52352,6 +52498,11 @@ namespace QtGui
             internal static extern void Optimize_0(global::System.IntPtr instance);
 
             [SuppressUnmanagedCodeSecurity]
+            [DllImport("Qt5Gui", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.Cdecl,
+                EntryPoint="_ZdvRK10QMatrix4x4f")]
+            internal static extern void OperatorSlash_0(global::System.IntPtr @return, global::System.IntPtr matrix, float divisor);
+
+            [SuppressUnmanagedCodeSecurity]
             [DllImport("Qt5Gui", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,
                 EntryPoint="_ZNK10QMatrix4x411determinantEv")]
             internal static extern double Determinant_0(global::System.IntPtr instance);
@@ -52765,6 +52916,18 @@ namespace QtGui
         public void Optimize()
         {
             Internal.Optimize_0(__Instance);
+        }
+
+        /// <summary>
+        /// <para>Returns the result of dividing all elements of matrix by
+        /// divisor.</para>
+        /// </summary>
+        public static QMatrix4x4 operator /(QMatrix4x4 matrix, float divisor)
+        {
+            var arg0 = ReferenceEquals(matrix, null) ? global::System.IntPtr.Zero : matrix.__Instance;
+            var __ret = new QtGui.QMatrix4x4.Internal();
+            Internal.OperatorSlash_0(new IntPtr(&__ret), arg0, divisor);
+            return QMatrix4x4.__CreateInstance(__ret);
         }
 
         /// <summary>
@@ -53613,7 +53776,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.Message_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -54449,10 +54612,22 @@ namespace QtGui
         /// to raster coordinates. If used together with QOpenGLPaintDevice, flipped
         /// should be the opposite of the value of
         /// QOpenGLPaintDevice::paintFlipped().</para>
-        /// <para>Will try to return a premultiplied ARBG32 or RGB32 image. Since
-        /// 5.2 it will fall back to a premultiplied RGBA8888 or RGBx8888 image when
-        /// reading to ARGB32 is not supported. Since 5.4 an A2BGR30 image is returned
-        /// if the internal format is RGB10_A2.</para>
+        /// <para>The returned image has a format of premultiplied ARGB32 or RGB32.
+        /// The latter is used only when internalTextureFormat() is set to
+        /// GL_RGB.</para>
+        /// <para>If the rendering in the framebuffer was not done with
+        /// premultiplied alpha in mind, create a wrapper QImage with a
+        /// non-premultiplied format. This is necessary before performing operations
+        /// like QImage::save() because otherwise the image data would get
+        /// unpremultiplied, even though it was not premultiplied in the first place.
+        /// To create such a wrapper without performing a copy of the pixel data, do
+        /// the following:</para>
+        /// <para>QImage fboImage(fbo.toImage());</para>
+        /// <para>QImage image(fboImage.constBits(), fboImage.width(),
+        /// fboImage.height(), QImage::Format_ARGB32);</para>
+        /// <para>Since Qt 5.2 the function will fall back to premultiplied
+        /// RGBA8888 or RGBx8888 when reading to (A)RGB32 is not supported. Since 5.4
+        /// an A2BGR30 image is returned if the internal format is RGB10_A2.</para>
         /// <para>For multisampled framebuffer objects the samples are resolved
         /// using the GL_EXT_framebuffer_blit extension. If the extension is not
         /// available, the contents of the returned image is undefined.</para>
@@ -55799,7 +55974,7 @@ namespace QtGui
         }
 
         protected QOpenGLPaintDevice(QOpenGLPaintDevice.Internal* native, bool isInternalImpl = false)
-            : base((QPaintDevice.Internal*) native)
+            : base((QtGui.QPaintDevice.Internal*) native)
         {
         }
 
@@ -56672,7 +56847,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.Log_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -58105,7 +58280,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.Log_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -62063,7 +62238,7 @@ namespace QtGui
         /// </summary>
         public string Key()
         {
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.Key_0(new IntPtr(&__ret), __Instance);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -62078,7 +62253,7 @@ namespace QtGui
         /// </summary>
         public string Name()
         {
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.Name_0(new IntPtr(&__ret), __Instance);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -62138,7 +62313,7 @@ namespace QtGui
         public static string Key(QPageSize.PageSizeId pageSizeId)
         {
             var arg0 = pageSizeId;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.Key_1(new IntPtr(&__ret), arg0);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -62150,7 +62325,7 @@ namespace QtGui
         public static string Name(QPageSize.PageSizeId pageSizeId)
         {
             var arg0 = pageSizeId;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.Name_1(new IntPtr(&__ret), arg0);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -62902,7 +63077,7 @@ namespace QtGui
         private readonly bool __ownsNativeInstance;
 
         protected QPagedPaintDevice(QPagedPaintDevice.Internal* native, bool isInternalImpl = false)
-            : base((QPaintDevice.Internal*) native)
+            : base((QtGui.QPaintDevice.Internal*) native)
         {
         }
 
@@ -63296,7 +63471,7 @@ namespace QtGui
         }
 
         protected QPagedPaintDeviceInternal(QPagedPaintDevice.Internal* native, bool isInternalImpl = false)
-            : base((QPagedPaintDevice.Internal*) native, true)
+            : base((QtGui.QPagedPaintDevice.Internal*) native, true)
         {
         }
 
@@ -63480,7 +63655,7 @@ namespace QtGui
                 public QTextOption.TabType type;
 
                 [FieldOffset(12)]
-                internal QChar.Internal delimiter;
+                internal QtCore.QChar.Internal delimiter;
 
                 [SuppressUnmanagedCodeSecurity]
                 [DllImport("QtGuiSharp", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,
@@ -64339,7 +64514,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.Family_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -64355,7 +64530,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.StyleName_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -66984,7 +67159,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.Text_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -68023,7 +68198,7 @@ namespace QtGui
         }
 
         protected QPaintEngineInternal(QPaintEngine.Internal* native, bool isInternalImpl = false)
-            : base((QPaintEngine.Internal*) native, true)
+            : base((QtGui.QPaintEngine.Internal*) native, true)
         {
         }
 
@@ -68451,7 +68626,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.Title_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -68475,7 +68650,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.Creator_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -69421,7 +69596,7 @@ namespace QtGui
         /// </summary>
         public string StringProperty(int propertyId)
         {
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.StringProperty_0(new IntPtr(&__ret), __Instance, propertyId);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -69804,7 +69979,7 @@ namespace QtGui
         }
 
         protected QTextCharFormat(QTextCharFormat.Internal* native, bool isInternalImpl = false)
-            : base((QTextFormat.Internal*) native)
+            : base((QtGui.QTextFormat.Internal*) native)
         {
         }
 
@@ -69914,7 +70089,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.AnchorName_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -70040,7 +70215,7 @@ namespace QtGui
         }
 
         protected QTextBlockFormat(QTextBlockFormat.Internal* native, bool isInternalImpl = false)
-            : base((QTextFormat.Internal*) native)
+            : base((QtGui.QTextFormat.Internal*) native)
         {
         }
 
@@ -70236,7 +70411,7 @@ namespace QtGui
         }
 
         protected QTextListFormat(QTextListFormat.Internal* native, bool isInternalImpl = false)
-            : base((QTextFormat.Internal*) native)
+            : base((QtGui.QTextFormat.Internal*) native)
         {
         }
 
@@ -70345,7 +70520,7 @@ namespace QtGui
         }
 
         protected QTextImageFormat(QTextImageFormat.Internal* native, bool isInternalImpl = false)
-            : base((QTextCharFormat.Internal*) native)
+            : base((QtGui.QTextCharFormat.Internal*) native)
         {
         }
 
@@ -70494,7 +70669,7 @@ namespace QtGui
         }
 
         protected QTextFrameFormat(QTextFrameFormat.Internal* native, bool isInternalImpl = false)
-            : base((QTextFormat.Internal*) native)
+            : base((QtGui.QTextFormat.Internal*) native)
         {
         }
 
@@ -70621,7 +70796,7 @@ namespace QtGui
         }
 
         protected QTextTableFormat(QTextTableFormat.Internal* native, bool isInternalImpl = false)
-            : base((QTextFrameFormat.Internal*) native)
+            : base((QtGui.QTextFrameFormat.Internal*) native)
         {
         }
 
@@ -70729,7 +70904,7 @@ namespace QtGui
         }
 
         protected QTextTableCellFormat(QTextTableCellFormat.Internal* native, bool isInternalImpl = false)
-            : base((QTextCharFormat.Internal*) native)
+            : base((QtGui.QTextCharFormat.Internal*) native)
         {
         }
 
@@ -71179,7 +71354,7 @@ namespace QtGui
         public string StyleString(QFont font)
         {
             var arg0 = ReferenceEquals(font, null) ? global::System.IntPtr.Zero : font.__Instance;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.StyleString_0(new IntPtr(&__ret), __Instance, arg0);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -71192,7 +71367,7 @@ namespace QtGui
         public string StyleString(QFontInfo fontInfo)
         {
             var arg0 = ReferenceEquals(fontInfo, null) ? global::System.IntPtr.Zero : fontInfo.__Instance;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.StyleString_1(new IntPtr(&__ret), __Instance, arg0);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -71337,7 +71512,7 @@ namespace QtGui
         public static string WritingSystemName(QFontDatabase.WritingSystem writingSystem)
         {
             var arg0 = writingSystem;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.WritingSystemName_0(new IntPtr(&__ret), arg0);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -71349,7 +71524,7 @@ namespace QtGui
         public static string WritingSystemSample(QFontDatabase.WritingSystem writingSystem)
         {
             var arg0 = writingSystem;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.WritingSystemSample_0(new IntPtr(&__ret), arg0);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -71747,7 +71922,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.FamilyName_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -71761,7 +71936,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.StyleName_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -73835,7 +74010,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.SelectedText_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -74643,7 +74818,7 @@ namespace QtGui
         /// </summary>
         public string PreeditAreaText()
         {
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.PreeditAreaText_0(new IntPtr(&__ret), __Instance);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -74853,7 +75028,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.Text_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -75966,7 +76141,7 @@ namespace QtGui
         public string metaInformation(QTextDocument.MetaInformation info)
         {
             var arg0 = info;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.metaInformation_0(new IntPtr(&__ret), __Instance, arg0);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -75997,7 +76172,7 @@ namespace QtGui
         /// </summary>
         public string ToPlainText()
         {
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.ToPlainText_0(new IntPtr(&__ret), __Instance);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -76381,7 +76556,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.DefaultStyleSheet_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -76788,7 +76963,7 @@ namespace QtGui
         }
 
         protected QAbstractUndoItemInternal(QAbstractUndoItem.Internal* native, bool isInternalImpl = false)
-            : base((QAbstractUndoItem.Internal*) native, true)
+            : base((QtGui.QAbstractUndoItem.Internal*) native, true)
         {
         }
 
@@ -77045,7 +77220,7 @@ namespace QtGui
                 public QPalette.Internal palette;
 
                 [FieldOffset(16)]
-                internal QRectF.Internal clip;
+                internal QtCore.QRectF.Internal clip;
 
                 [FieldOffset(48)]
                 internal QVector.Internal selections;
@@ -77646,7 +77821,7 @@ namespace QtGui
         }
 
         protected QAbstractTextDocumentLayoutInternal(QAbstractTextDocumentLayout.Internal* native, bool isInternalImpl = false)
-            : base((QAbstractTextDocumentLayout.Internal*) native, true)
+            : base((QtGui.QAbstractTextDocumentLayout.Internal*) native, true)
         {
         }
 
@@ -77715,7 +77890,7 @@ namespace QtGui
         }
 
         protected QTextObjectInterfaceInternal(QTextObjectInterface.Internal* native, bool isInternalImpl = false)
-            : base((QTextObjectInterface.Internal*) native, true)
+            : base((QtGui.QTextObjectInterface.Internal*) native, true)
         {
         }
 
@@ -78093,7 +78268,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.Text_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -78532,7 +78707,7 @@ namespace QtGui
         }
 
         protected QTextBlockGroup(QTextBlockGroup.Internal* native, bool isInternalImpl = false)
-            : base((QTextObject.Internal*) native)
+            : base((QtGui.QTextObject.Internal*) native)
         {
         }
 
@@ -79189,7 +79364,7 @@ namespace QtGui
         }
 
         protected QTextFrame(QTextFrame.Internal* native, bool isInternalImpl = false)
-            : base((QTextObject.Internal*) native)
+            : base((QtGui.QTextObject.Internal*) native)
         {
         }
 
@@ -80251,7 +80426,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.Text_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -80575,7 +80750,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.Text_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -81209,7 +81384,7 @@ namespace QtGui
         }
 
         protected QSyntaxHighlighterInternal(QSyntaxHighlighter.Internal* native, bool isInternalImpl = false)
-            : base((QSyntaxHighlighter.Internal*) native, true)
+            : base((QtGui.QSyntaxHighlighter.Internal*) native, true)
         {
         }
 
@@ -81409,7 +81584,7 @@ namespace QtGui
         /// </summary>
         public string ToPlainText()
         {
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.ToPlainText_0(new IntPtr(&__ret), __Instance);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -81644,7 +81819,7 @@ namespace QtGui
         {
             get
             {
-                var __ret = new QString.Internal();
+                var __ret = new QtCore.QString.Internal();
                 Internal.FileName_0(new IntPtr(&__ret), __Instance);
                 return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
             }
@@ -81793,7 +81968,7 @@ namespace QtGui
         }
 
         protected QTextList(QTextList.Internal* native, bool isInternalImpl = false)
-            : base((QTextBlockGroup.Internal*) native)
+            : base((QtGui.QTextBlockGroup.Internal*) native)
         {
         }
 
@@ -81845,7 +82020,7 @@ namespace QtGui
         public string ItemText(QTextBlock block)
         {
             var arg0 = ReferenceEquals(block, null) ? global::System.IntPtr.Zero : block.__Instance;
-            var __ret = new QString.Internal();
+            var __ret = new QtCore.QString.Internal();
             Internal.ItemText_0(new IntPtr(&__ret), __Instance, arg0);
             return Marshal.PtrToStringUni(new IntPtr(new QString(__ret).Utf16));
         }
@@ -82548,7 +82723,7 @@ namespace QtGui
         }
 
         protected QTextTable(QTextTable.Internal* native, bool isInternalImpl = false)
-            : base((QTextFrame.Internal*) native)
+            : base((QtGui.QTextFrame.Internal*) native)
         {
         }
 
@@ -83327,9 +83502,13 @@ namespace QtGui
     /// setRange(), or individually with setBottom() and setTop().</para>
     /// <para>QIntValidator uses its locale() to interpret the number. For
     /// example, in Arabic locales, QIntValidator will accept Arabic digits.</para>
-    /// <para></para>
-    /// <para>See also QDoubleValidator, QRegExpValidator, and Line Edits
-    /// Example.</para>
+    /// <para>Note: The QLocale::NumberOptions set on the locale() also affect
+    /// the way the number is interpreted. For example, since
+    /// QLocale::RejectGroupSeparator is not set by default, the validator will
+    /// accept group separators. It is thus recommended to use QLocale::toInt() to
+    /// obtain the numeric value.</para>
+    /// <para>See also QDoubleValidator, QRegExpValidator, QLocale::toInt(),
+    /// and Line Edits Example.</para>
     /// </remarks>
     public unsafe partial class QIntValidator : QtGui.QValidator, IDisposable
     {
@@ -83439,7 +83618,7 @@ namespace QtGui
         }
 
         protected QIntValidator(QIntValidator.Internal* native, bool isInternalImpl = false)
-            : base((QValidator.Internal*) native)
+            : base((QtGui.QValidator.Internal*) native)
         {
         }
 
@@ -83656,9 +83835,13 @@ namespace QtGui
     /// example, in the German locale, &quot;1,234&quot; will be accepted as the
     /// fractional number 1.234. In Arabic locales, QDoubleValidator will accept
     /// Arabic digits.</para>
-    /// <para></para>
-    /// <para>See also QIntValidator, QRegExpValidator, and Line Edits
-    /// Example.</para>
+    /// <para>Note: The QLocale::NumberOptions set on the locale() also affect
+    /// the way the number is interpreted. For example, since
+    /// QLocale::RejectGroupSeparator is not set by default, the validator will
+    /// accept group separators. It is thus recommended to use QLocale::toDouble()
+    /// to obtain the numeric value.</para>
+    /// <para>See also QIntValidator, QRegExpValidator, QLocale::toDouble(),
+    /// and Line Edits Example.</para>
     /// </remarks>
     public unsafe partial class QDoubleValidator : QtGui.QValidator, IDisposable
     {
@@ -83818,7 +84001,7 @@ namespace QtGui
         }
 
         protected QDoubleValidator(QDoubleValidator.Internal* native, bool isInternalImpl = false)
-            : base((QValidator.Internal*) native)
+            : base((QtGui.QValidator.Internal*) native)
         {
         }
 
@@ -84114,7 +84297,7 @@ namespace QtGui
         public new partial struct Internal
         {
             [FieldOffset(8)]
-            internal QRegExp.Internal r;
+            internal QtCore.QRegExp.Internal r;
 
             [FieldOffset(0)]
             public global::System.IntPtr vfptr0;
@@ -84169,7 +84352,7 @@ namespace QtGui
         }
 
         protected QRegExpValidator(QRegExpValidator.Internal* native, bool isInternalImpl = false)
-            : base((QValidator.Internal*) native)
+            : base((QtGui.QValidator.Internal*) native)
         {
         }
 
@@ -84449,7 +84632,7 @@ namespace QtGui
         }
 
         protected QRegularExpressionValidator(QRegularExpressionValidator.Internal* native, bool isInternalImpl = false)
-            : base((QValidator.Internal*) native)
+            : base((QtGui.QValidator.Internal*) native)
         {
         }
 
@@ -84620,7 +84803,7 @@ namespace QtGui
         }
 
         protected QValidatorInternal(QValidator.Internal* native, bool isInternalImpl = false)
-            : base((QValidator.Internal*) native, true)
+            : base((QtGui.QValidator.Internal*) native, true)
         {
         }
 
@@ -84633,13 +84816,13 @@ namespace QtGui
             base.Dispose(disposing);
         }
 
-        public override QValidator.State Validate(string _309, int* _310)
+        public override QValidator.State Validate(string _305, int* _306)
         {
             void* slot = *(void**) (((QValidator.Internal*) __Instance)->vfptr0 + 12 * 4);
             var ___Validate_0Delegate = (_Validate_0Delegate) Marshal.GetDelegateForFunctionPointer(new IntPtr(slot), typeof(_Validate_0Delegate));
-            var __qstring0 = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni(_309).ToPointer(), _309.Length);
+            var __qstring0 = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni(_305).ToPointer(), _305.Length);
             var arg0 = ReferenceEquals(__qstring0, null) ? global::System.IntPtr.Zero : __qstring0.__Instance;
-            var arg1 = _310;
+            var arg1 = _306;
             var __ret = ___Validate_0Delegate(__Instance, arg0, arg1);
             return __ret;
         }
