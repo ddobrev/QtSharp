@@ -44,7 +44,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\QtCore\QtCore.csproj">
+    <ProjectReference Include="..\..\Qt5Core.Gen\Qt5Core.Gen.csproj">
       <Project>{bacbcd61-f377-49cb-bd93-4fb539146b63}</Project>
       <Name>QtCore</Name>
     </ProjectReference>

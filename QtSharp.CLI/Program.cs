@@ -73,12 +73,19 @@ namespace QtSharp.CLI
             var systemIncludeDirs = allIncludes.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Select(Path.GetFullPath);
             foreach (string libFile in libFiles)
             {
-                if (libFile == "Qt5Core.dll"/* || libFile == "Qt5Gui.dll" */)
+                if (libFile == "Qt5Core.dll")
                 {
                     ConsoleDriver.Run(new QtSharp(qmake, make, headers, libs, libFile, target, systemIncludeDirs, docs));
                 }
             }
 
+#if DEBUG
+			System.IO.File.Delete("../../../QtSharp.Tests/bin/Debug/QtCore-inlines.dll");
+			System.IO.File.Copy("release/QtCore-inlines.dll", "../../../QtSharp.Tests/bin/Debug/QtCore-inlines.dll");
+#else
+			System.IO.File.Delete("../../../QtSharp.Tests/bin/Release/QtCore-inlines.dll");
+			System.IO.File.Copy("release/QtCore-inlines.dll", "../../../QtSharp.Tests/bin/Release/QtCore-inlines.dll");
+#endif
             return 0;
         }
 

@@ -1,18 +1,16 @@
 ﻿using System;
-using System.IO;
 using System.Diagnostics;
 
 namespace QtSharp
 {
     public class ProcessHelper
     {
-        public static string Run(string path, string args, out string error, string wdir="")
+        public static string Run(string path, string args, out string error)
         {
             try
             {
                 using (Process process = new Process())
                 {
-                    process.StartInfo.WorkingDirectory = wdir;
                     process.StartInfo.FileName = path;
                     process.StartInfo.Arguments = args;
                     process.StartInfo.UseShellExecute = false;
