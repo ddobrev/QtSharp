@@ -28,5 +28,5 @@ _ReSharper*/
 *.vssscc
 $tf*/
 packages
-Wrappers/*/Makefile*
-Wrappers/*/*-inlines.*
+*.Gen/Makefile*
+*.Gen/*-inlines.*

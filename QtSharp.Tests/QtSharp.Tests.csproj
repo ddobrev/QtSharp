@@ -126,7 +126,7 @@
     <None Include="TestData\TextFile1.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Content Include="..\Wrappers\QtCore\release\QtCore-inlines.dll">
+    <Content Include="..\Qt5Core.Gen\release\QtCore-inlines.dll">
       <Link>QtCore-inlines.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -136,9 +136,9 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Wrappers\QtCore\QtCore.csproj">
+    <ProjectReference Include="..\Qt5Core.Gen\Qt5Core.Gen.csproj">
       <Project>{bacbcd61-f377-49cb-bd93-4fb539146b63}</Project>
-      <Name>QtCore</Name>
+      <Name>Qt5Core.Gen</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
