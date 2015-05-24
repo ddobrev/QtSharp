@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using CppSharp;
 
@@ -80,10 +81,16 @@ namespace QtSharp.CLI
             }
 
 #if DEBUG
-			System.IO.File.Delete("../../../QtSharp.Tests/bin/Debug/QtCore-inlines.dll");
-			System.IO.File.Copy("release/QtCore-inlines.dll", "../../../QtSharp.Tests/bin/Debug/QtCore-inlines.dll");
+            if (File.Exists("../../../QtSharp.Tests/bin/Debug/QtCore-inlines.dll"))
+            {
+                File.Delete("../../../QtSharp.Tests/bin/Debug/QtCore-inlines.dll");
+            }
+			File.Copy("release/QtCore-inlines.dll", "../../../QtSharp.Tests/bin/Debug/QtCore-inlines.dll");
 #else
-			System.IO.File.Delete("../../../QtSharp.Tests/bin/Release/QtCore-inlines.dll");
+            if (File.Exists("../../../QtSharp.Tests/bin/Release/QtCore-inlines.dll"))
+            {
+                File.Delete("../../../QtSharp.Tests/bin/Release/QtCore-inlines.dll");
+            }
 			System.IO.File.Copy("release/QtCore-inlines.dll", "../../../QtSharp.Tests/bin/Release/QtCore-inlines.dll");
 #endif
             return 0;
