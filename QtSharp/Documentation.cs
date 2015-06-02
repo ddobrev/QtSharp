@@ -128,11 +128,7 @@ namespace QtSharp
                         var i = 0;
                         foreach (Match match in paramsMatches)
                         {
-                            // TODO: remove this in the final version; for now it's just for more easily spotting doc regressions
-                            if (@params[i].Name.StartsWith("_", StringComparison.Ordinal) && char.IsDigit(@params[i].Name[1]))
-                            {
-                                @params[i].Name = Helpers.SafeIdentifier(match.Groups[1].Value);
-                            }
+                            @params[i].Name = Helpers.SafeIdentifier(match.Groups[1].Value);
                             i++;
                         }
                         // TODO: create links in the "See Also" section
