@@ -64,6 +64,7 @@ namespace QtSharp
             lib.SetClassAsValueType("QRect");
             lib.SetClassAsValueType("QRectF");
             lib.SetClassAsValueType("QGenericArgument");
+            lib.SetClassAsValueType("QGenericReturnArgument");
             lib.SetClassAsValueType("QVariant");
 
             lib.FindCompleteClass("QString").GenerationKind = GenerationKind.Internal;

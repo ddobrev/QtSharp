@@ -28,6 +28,10 @@ namespace QtSharp
             proBuilder.AppendFormat("TARGET = {0}\n", this.Driver.Options.InlinesLibraryName);
             proBuilder.Append("TEMPLATE = lib\n");
             proBuilder.AppendFormat("SOURCES += {0}\n", Path.ChangeExtension(pro, "cpp"));
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                proBuilder.Append("LIBS += -loleaut32 -lole32");
+            }
             File.WriteAllText(path, proBuilder.ToString());
             string error;
             ProcessHelper.Run(this.qmake, string.Format("\"{0}\"", path), out error);
