@@ -45,7 +45,7 @@ namespace QtSharp
 	        {
 	            if (Path.GetDirectoryName(unit.FilePath) != moduleIncludes)
 	            {
-	                unit.ExplicityIgnored = true;
+                    LinkDeclaration(unit);
 	            }
 	            else
 	            {
@@ -66,53 +66,33 @@ namespace QtSharp
             lib.SetClassAsValueType("QGenericArgument");
             lib.SetClassAsValueType("QGenericReturnArgument");
             lib.SetClassAsValueType("QVariant");
-
-            lib.FindCompleteClass("QString").GenerationKind = GenerationKind.Internal;
+            lib.IgnoreClassMethodWithName("QString", "fromStdWString");
+            lib.IgnoreClassMethodWithName("QString", "toStdWString");
 		}
+
+	    private static void LinkDeclaration(Declaration declaration)
+	    {
+	        declaration.GenerationKind = GenerationKind.Link;
+            DeclarationContext declarationContext = declaration as DeclarationContext;
+            if (declarationContext != null)
+            {
+                foreach (var nestedDeclaration in declarationContext.Declarations)
+                {
+                    LinkDeclaration(nestedDeclaration);
+                }
+            }
+	    }
 
 	    private static void IgnorePrivateDeclarations(DeclarationContext unit)
 	    {
-	        foreach (Namespace ns in unit.Namespaces)
+	        foreach (var declaration in unit.Declarations)
 	        {
-	            IgnorePrivateDeclaration(ns);
-	        }
-	        foreach (Enumeration enumeration in unit.Enums)
-	        {
-	            IgnorePrivateDeclaration(enumeration);
-	        }
-	        foreach (Function function in unit.Functions)
-	        {
-	            IgnorePrivateDeclaration(function);
-	        }
-	        foreach (Class @class in unit.Classes)
-	        {
-	            IgnorePrivateDeclaration(@class);
-	        }
-	        foreach (Template template in unit.Templates)
-	        {
-	            IgnorePrivateDeclaration(template);
-	        }
-	        foreach (TypedefDecl typedefDecl in unit.Typedefs)
-	        {
-	            IgnorePrivateDeclaration(typedefDecl);
-	        }
-	        foreach (Variable variable in unit.Variables)
-	        {
-	            IgnorePrivateDeclaration(variable);
-	        }
-	        foreach (Event @event in unit.Events)
-	        {
-	            IgnorePrivateDeclaration(@event);
+	            IgnorePrivateDeclaration(declaration);
 	        }
 	    }
 
 	    private static void IgnorePrivateDeclaration(Declaration declaration)
 	    {
-	        // this will be ignored anyway
-	        if (declaration.Access == AccessSpecifier.Private)
-	        {
-	            return;
-	        }
 	        if (declaration.Name != null &&
 	            (declaration.Name.StartsWith("Private") || declaration.Name.EndsWith("Private")))
 	        {
@@ -175,7 +155,8 @@ namespace QtSharp
                 driver.Options.CodeFiles.Add(Path.Combine(dir, "QEventArgs.cs"));
                 driver.Options.CodeFiles.Add(Path.Combine(dir, "QEventHandler.cs"));
                 driver.Options.CodeFiles.Add(Path.Combine(dir, "QObject.cs"));
-                driver.Options.CodeFiles.Add(Path.Combine(dir, "MarshalQString.cs"));
+                driver.Options.CodeFiles.Add(Path.Combine(dir, "QChar.cs"));
+                driver.Options.CodeFiles.Add(Path.Combine(dir, "_iobuf.cs"));
 		    }
 		}
 

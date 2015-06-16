@@ -15,16 +15,16 @@ namespace QtSharp
             {
                 if (ctx.Type.IsAddress())
                 {
-                    return "QString.Internal*";
+                    return "QtCore.QString.Internal*";
                 }
-                return "QString.Internal";
+                return "QtCore.QString.Internal";
             }
             return "string";
         }
 
         public override void CSharpMarshalToNative(MarshalContext ctx)
         {
-            ctx.SupportBefore.WriteLine("var __qstring{0} = QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni({1}).ToPointer(), {1}.Length);",
+            ctx.SupportBefore.WriteLine("var __qstring{0} = QtCore.QString.FromUtf16((ushort*) Marshal.StringToHGlobalUni({1}).ToPointer(), {1}.Length);",
                                         ctx.ParameterIndex, ctx.Parameter.Name);
             Type type = ctx.Parameter.Type.Desugar();
             if (type.IsAddress())
@@ -46,7 +46,8 @@ namespace QtSharp
 
         public override void CSharpMarshalToManaged(MarshalContext ctx)
         {
-            ctx.Return.Write("Marshal.PtrToStringUni(new IntPtr(new QString({0}).Utf16))", ctx.ReturnVarName);
+            ctx.Return.Write("Marshal.PtrToStringUni(new IntPtr(QtCore.QString.{0}({1}).Utf16))",
+                Helpers.CreateInstanceIdentifier, ctx.ReturnVarName);
         }
     }
 }

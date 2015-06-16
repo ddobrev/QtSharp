@@ -38,8 +38,8 @@ namespace QtSharp
                     Class @class = (Class) @event.Namespace;
                     if (!this.addedEventHandlers && @class.Name == "QObject")
                     {
-                        block.WriteLine("protected readonly System.Collections.Generic.List<QEventHandler> " +
-                                        "eventFilters = new System.Collections.Generic.List<QEventHandler>();");
+                        block.WriteLine("protected readonly System.Collections.Generic.List<QtCore.QEventHandler> " +
+                                        "eventFilters = new System.Collections.Generic.List<QtCore.QEventHandler>();");
                         block.NewLine();
                         this.addedEventHandlers = true;
                     }
@@ -54,13 +54,13 @@ namespace QtSharp
                         }
                         block.WriteLine("/// </summary>");
                     }
-                    block.WriteLine(@"public {0} event EventHandler<QEventArgs<{1}>> {2}
+                    block.WriteLine(@"public {0} event EventHandler<QtCore.QEventArgs<{1}>> {2}
 {{
 	add
 	{{
-		QEventArgs<{1}> qEventArgs = new QEventArgs<{1}>(new System.Collections.Generic.List<QEvent.Type> {{ {3} }});
-		QEventHandler<{1}> qEventHandler = new QEventHandler<{1}>(this{4}, qEventArgs, value);
-        foreach (QEventHandler eventFilter in eventFilters)
+		QtCore.QEventArgs<{1}> qEventArgs = new QtCore.QEventArgs<{1}>(new System.Collections.Generic.List<QEvent.Type> {{ {3} }});
+		QtCore.QEventHandler<{1}> qEventHandler = new QtCore.QEventHandler<{1}>(this{4}, qEventArgs, value);
+        foreach (QtCore.QEventHandler eventFilter in eventFilters)
         {{
             this{4}.RemoveEventFilter(eventFilter);
         }}
@@ -74,7 +74,7 @@ namespace QtSharp
 	{{
 		for (int i = eventFilters.Count - 1; i >= 0; i--)
 		{{
-			QEventHandler eventFilter = eventFilters[i];
+			QtCore.QEventHandler eventFilter = eventFilters[i];
 			if (eventFilter.Handler == value)
 			{{
 				this{4}.RemoveEventFilter(eventFilter);

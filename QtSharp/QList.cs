@@ -39,18 +39,21 @@ namespace QtSharp
             {
                 if (Type.IsAddress())
                 {
-                    return "QList.Internal*";
+                    return "QtCore.QList.Internal*";
                 }
-                return "QList.Internal";
+                return "QtCore.QList.Internal";
             }
 
             TemplateSpecializationType templateSpecialization = (TemplateSpecializationType) ctx.Type.Desugar();
             TemplateArgument templateArgument = templateSpecialization.Arguments[0];
             if (templateArgument.Type.Type.IsPointerToPrimitiveType())
             {
-                return "System.Collections.Generic.IList<global::System.IntPtr>";
+                return string.Format("System.Collections.Generic.{0}<global::System.IntPtr>",
+                    ctx.CSharpKind == CSharpTypePrinterContextKind.DefaultExpression ? "List" : "IList");
             }
-            return string.Format("System.Collections.Generic.IList<{0}>", ctx.GetTemplateParameterList());
+            return string.Format("System.Collections.Generic.{0}<{1}>",
+                ctx.CSharpKind == CSharpTypePrinterContextKind.DefaultExpression ? "List" : "IList",
+                ctx.GetTemplateParameterList());
         }
 
         public override void CSharpMarshalToNative(MarshalContext ctx)
@@ -60,7 +63,7 @@ namespace QtSharp
             string qList = string.Format("__qList{0}", suffix);
             supportBefore.WriteLine(string.Format("var {0} = new QtCore.QList.Internal();", qList));
             string qListDataData = string.Format("__qlistDataData{0}", suffix);
-            supportBefore.WriteLine("var {0} = (QListData.Data.Internal*) {1}._0.d;", qListDataData, qList);
+            supportBefore.WriteLine("var {0} = (QtCore.QListData.Data.Internal*) {1}._0.d;", qListDataData, qList);
             // TODO: tests with Qt shows that while alloc is not smaller than end, it's not equal, it reserves more space actually
             supportBefore.WriteLine("{0}->alloc = {1}.Count;", qListDataData, ctx.Parameter.Name);
             supportBefore.WriteLine("{0}->begin = 0;", qListDataData, ctx.Parameter.Name);
@@ -138,9 +141,9 @@ namespace QtSharp
             string returnVarName = ctx.ReturnVarName;
             if (ctx.ReturnType.Type.Desugar().IsAddress())
             {
-                returnVarName = string.Format("(*(QList.Internal*) {0})", returnVarName);
+                returnVarName = string.Format("(*(QtCore.QList.Internal*) {0})", returnVarName);
             }
-            supportBefore.WriteLine("var __qlistData = QListData.{0}({1}._0.p);", Helpers.CreateInstanceIdentifier, returnVarName);
+            supportBefore.WriteLine("var __qlistData = QtCore.QListData.{0}({1}._0.p);", Helpers.CreateInstanceIdentifier, returnVarName);
             supportBefore.WriteLine("var __size = __qlistData.Size;");
             supportBefore.WriteLine("var __list = new System.Collections.Generic.List<{0}>(__size);", type);
             supportBefore.WriteLine("for (int i = 0; i < __size; i++)");

@@ -44,7 +44,7 @@ namespace QtSharp
                     Class @class = (Class) @event.Namespace;
 
                     int argNum = 1;
-                    StringBuilder fullNameBuilder = new StringBuilder("Action");
+                    StringBuilder fullNameBuilder = new StringBuilder("global::System.Action");
                     foreach (Parameter parameter in @event.Parameters)
                     {
                         argNum++;

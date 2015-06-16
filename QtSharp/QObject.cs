@@ -66,7 +66,7 @@ namespace QtCore
                         var metaMethod = this.Sender.MetaObject.Method(handler.SignalId);
                         if (metaMethod.ParameterType(i) == (int) QMetaType.Type.QString)
                         {
-                            value = Marshal.PtrToStringUni(new IntPtr(new QString(arg).Utf16));
+                            value = Marshal.PtrToStringUni(new IntPtr(QtCore.QString.__CreateInstance(arg).Utf16));
                         }
                         else
                         {

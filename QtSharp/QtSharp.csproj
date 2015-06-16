@@ -31,18 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CppSharp">
-      <HintPath>..\References\CppSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="CppSharp.AST">
-      <HintPath>..\References\CppSharp.AST.dll</HintPath>
-    </Reference>
-    <Reference Include="CppSharp.Generator">
-      <HintPath>..\References\CppSharp.Generator.dll</HintPath>
-    </Reference>
-    <Reference Include="CppSharp.Parser.CLI">
-      <HintPath>..\References\CppSharp.Parser.CLI.dll</HintPath>
-    </Reference>
     <Reference Include="HtmlAgilityPack">
       <HintPath>..\packages\HtmlAgilityPack.1.4.9\lib\Net40\HtmlAgilityPack.dll</HintPath>
     </Reference>
@@ -66,11 +54,14 @@
     <Compile Include="GenerateSignalEventsPass.cs" />
     <Compile Include="GetCommentsFromQtDocsPass.cs" />
     <Compile Include="HtmlConvert.cs" />
-    <None Include="MarshalQString.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProcessHelper.cs" />
+    <None Include="_iobuf.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="QChar.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Compile Include="QFlags.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -92,7 +83,25 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\References\CppSharp.CppParser.dll">
+    <ProjectReference Include="..\CppSharp\build\vs2013\projects\CppSharp.Parser.CLI.vcxproj">
+      <Project>{c75eb680-33c0-938e-bc2d-da40288eca4d}</Project>
+      <Name>CppSharp.Parser.CLI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CppSharp\src\AST\CppSharp.AST.csproj">
+      <Project>{bc4c5c41-a8af-ebe5-5135-249c3d77b768}</Project>
+      <Name>CppSharp.AST</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CppSharp\src\Core\CppSharp.csproj">
+      <Project>{c600c309-b2cd-1d15-dbe6-0bbdc71253a3}</Project>
+      <Name>CppSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CppSharp\src\Generator\CppSharp.Generator.csproj">
+      <Project>{1bd1fec4-07b5-bf1a-7015-ba6d5c18aa9c}</Project>
+      <Name>CppSharp.Generator</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\CppSharp\build\vs2013\lib\Release_x64\CppSharp.CppParser.dll">
       <Link>CppSharp.CppParser.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

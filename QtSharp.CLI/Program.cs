@@ -5,6 +5,8 @@ using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using CppSharp;
+using CppSharp.Parser;
+using ClangParser = CppSharp.Parser.ClangParser;
 
 namespace QtSharp.CLI
 {
@@ -49,7 +51,7 @@ namespace QtSharp.CLI
                     libsInfo.Name);
                 return -1;
             }
-            IEnumerable<string> libFiles = GetLibFiles(libsInfo);
+            ICollection<string> libFiles = GetLibFiles(libsInfo);
             string headers = ProcessHelper.Run(qmake, "-query QT_INSTALL_HEADERS", out error);
             if (!string.IsNullOrEmpty(error))
             {
@@ -72,9 +74,26 @@ namespace QtSharp.CLI
             const string includeDirsRegex = @"#include <\.\.\.> search starts here:(?<includes>.+)End of search list";
             string allIncludes = Regex.Match(output, includeDirsRegex, RegexOptions.Singleline).Groups["includes"].Value;
             var systemIncludeDirs = allIncludes.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Select(Path.GetFullPath);
+            Dictionary<string, IEnumerable<string>> dependencies = new Dictionary<string, IEnumerable<string>>();
+            var parserOptions = new ParserOptions();
+            parserOptions.addLibraryDirs(libs);
+            foreach (var libFile in libFiles)
+            {
+                parserOptions.FileName = libFile;
+                var parserResult = ClangParser.ParseLibrary(parserOptions);
+                if (parserResult.Kind == ParserResultKind.Success)
+                {
+                    dependencies[libFile] = CppSharp.ClangParser.ConvertLibrary(parserResult.Library).Dependencies;
+                }
+                else
+                {
+                    dependencies[libFile] = Enumerable.Empty<string>();
+                }
+            }
+            libFiles = libFiles.TopologicalSort(l => dependencies.ContainsKey(l) ? dependencies[l] : Enumerable.Empty<string>());
             foreach (string libFile in libFiles)
             {
-                if (libFile == "Qt5Core.dll")
+                if (libFile == "Qt5Core.dll" || libFile == "Qt5Gui.dll")
                 {
                     ConsoleDriver.Run(new QtSharp(qmake, make, headers, libs, libFile, target, systemIncludeDirs, docs));
                 }
@@ -96,7 +115,7 @@ namespace QtSharp.CLI
             return 0;
         }
 
-        private static IEnumerable<string> GetLibFiles(DirectoryInfo libsInfo)
+        private static IList<string> GetLibFiles(DirectoryInfo libsInfo)
         {
             List<string> modules = (from file in libsInfo.EnumerateFiles()
                                     where Regex.IsMatch(file.Name, @"^Qt\d?\w+\.\w+$")
