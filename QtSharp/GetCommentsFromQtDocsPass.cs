@@ -106,6 +106,15 @@ namespace QtSharp
             return base.VisitEvent(@event);
         }
 
+        public override bool VisitVariableDecl(Variable variable)
+        {
+            if (!this.AlreadyVisited(variable))
+            {
+                this.documentation.DocumentVariable(variable);
+            }
+            return base.VisitVariableDecl(variable);
+        }
+
         private void DocumentFunction(Function function)
         {
             if (!this.AlreadyVisited(function) && function.Comment == null)

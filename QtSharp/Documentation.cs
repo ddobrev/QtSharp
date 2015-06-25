@@ -343,6 +343,37 @@ namespace QtSharp
             }
         }
 
+        public void DocumentVariable(Variable variable)
+        {
+            var lineStart = variable.LineNumberStart.ToString();
+            var lineEnd = variable.LineNumberEnd.ToString();
+            var node = this.index.Descendants("variable")
+                .FirstOrDefault(f => f.Attribute("location").Value == variable.TranslationUnit.FileName &&
+                                     (f.Attribute("lineno").Value == lineStart || f.Attribute("lineno").Value == lineEnd));
+            if (node != null)
+            {
+                var link = node.Attribute("href").Value.Split('#');
+                var file = link[0];
+                if (this.documentation.ContainsKey(file))
+                {
+                    var doc = Regex.Match(this.documentation[file],
+                        string.Format(
+                            @"<h3 class=""fn"" id=""{0}"">.+?</h3>\s*(?<docs>.*?)\s*<!-- @@@{1} -->",
+                            link[1], Regex.Escape(variable.OriginalName)),
+                        RegexOptions.Singleline);
+                    if (doc.Success)
+                    {
+                        // TODO: create links in the "See Also" section
+                        variable.Comment = new RawComment { BriefText = StripTags(doc.Groups["docs"].Value) };
+                        if (node.Attribute("status").Value == "obsolete")
+                        {
+                            AddObsoleteAttribute(variable);
+                        }
+                    }
+                }
+            }
+        }
+
         private static IDictionary<string, string> Get(string docsPath, string module)
         {
             if (!Directory.Exists(docsPath))
