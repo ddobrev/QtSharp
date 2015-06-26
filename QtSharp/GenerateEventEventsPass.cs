@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Util;
 using CppSharp.AST;
+using CppSharp.AST.Extensions;
 using CppSharp.Generators;
 using CppSharp.Generators.CSharp;
 using CppSharp.Passes;
@@ -58,7 +59,7 @@ namespace QtSharp
 {{
 	add
 	{{
-		QtCore.QEventArgs<{1}> qEventArgs = new QtCore.QEventArgs<{1}>(new System.Collections.Generic.List<QEvent.Type> {{ {3} }});
+		QtCore.QEventArgs<{1}> qEventArgs = new QtCore.QEventArgs<{1}>(new System.Collections.Generic.List<QtCore.QEvent.Type> {{ {3} }});
 		QtCore.QEventHandler<{1}> qEventHandler = new QtCore.QEventHandler<{1}>(this{4}, qEventArgs, value);
         foreach (QtCore.QEventHandler eventFilter in eventFilters)
         {{
@@ -151,8 +152,9 @@ namespace QtSharp
                 { "SwallowContextMenu", new List<string> { "ContextMenu" } },
                 { "Tablet", new List<string> { "TabletMove", "TabletPress", "TabletRelease",
                                                "TabletEnterProximity", "TabletLeaveProximity" } },
+                { "Touch", new List<string> { "TouchBegin", "TouchCancel", "TouchEnd", "TouchUpdate" } },
                 { "Viewport", new List<string> { "" } },
-                { "Widget", new List<string> { "" } },
+                { "Widget", new List<string> { "" } }
         };
 
         private string GetEventTypes(Event @event)
@@ -161,13 +163,15 @@ namespace QtSharp
             if (this.eventTypes.ContainsKey(eventName))
             {
                 return string.Join(", ", from e in this.eventTypes[eventName]
-                                         select string.IsNullOrEmpty(e) ? e : "QEvent.Type." + e);
+                                         select string.IsNullOrEmpty(e) ? e : "QtCore.QEvent.Type." + e);
             }
-            if (@event.Parameters[0].Type.ToString() == "QEvent")
+            Class @class;
+            if ((@event.Parameters[0].Type.GetFinalPointee() ?? @event.Parameters[0].Type).TryGetClass(out @class) &&
+                @class.Name == "QEvent")
             {
                 return string.Empty;
             }
-            return string.Format("QEvent.Type.{0}", eventName);
+            return string.Format("QtCore.QEvent.Type.{0}", eventName);
         }
     }
 }
