@@ -128,8 +128,6 @@ namespace QtSharp
 		    driver.Options.LibraryName = string.Format("{0}Sharp", qtModule);
 		    driver.Options.OutputNamespace = qtModule;
 			driver.Options.Verbose = true;
-		    driver.Options.GenerateAbstractImpls = true;
-            driver.Options.GenerateVirtualTables = true;
 		    driver.Options.GenerateInterfacesForMultipleInheritance = true;
             driver.Options.GeneratePropertiesAdvanced = true;
 			driver.Options.IgnoreParseWarnings = true;
