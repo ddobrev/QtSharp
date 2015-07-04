@@ -19,40 +19,57 @@ namespace QtSharp
     public class Documentation
     {
         private readonly IDictionary<string, string> documentation;
-        private readonly XDocument index;
         private readonly Regex regexArgName = new Regex(@"((unsigned\s*)?[\w<>]+)\s*(\*|&)?\s*\w*(\s*=\s*[^=,]+?)?(,|$)", RegexOptions.Compiled);
         private readonly Regex regexSpaceBetweenArgs = new Regex(@"\r?\n\s+", RegexOptions.Compiled);
         private readonly Regex regexEnumMembers = new Regex(@"\s*<div class=""table"">\s*<table class=""valuelist"">(?<member>.+?)\s*</table>\s*</div>\s*" +
                                                             @"([^\n]+?<p class=""figCaption"">(?<caption>.+?)</p>)?", RegexOptions.Singleline | RegexOptions.Compiled);
 
+        private readonly Dictionary<string, List<XElement>> functionNodes;
+        private readonly Dictionary<string, List<XElement>> propertyNodes;
+        private readonly List<XElement> classNodes;
+        private readonly List<XElement> enumNodes;
+        private readonly List<XElement> variableNodes;
+
         public Documentation(string docsPath, string module)
         {
             this.documentation = Get(docsPath, module);
             var file = module.ToLowerInvariant();
-            this.index = XDocument.Load(Path.Combine(docsPath, string.Format("qt{0}", file), string.Format("qt{0}.index", file)));
+            var index = XDocument.Load(Path.Combine(docsPath, string.Format("qt{0}", file), string.Format("qt{0}.index", file)));
+            this.functionNodes = index.Descendants("function").GroupBy(f => f.Attribute("name").Value).ToDictionary(g => g.Key, g => g.ToList());
+            this.propertyNodes = index.Descendants("property").GroupBy(f => f.Attribute("name").Value).ToDictionary(g => g.Key, g => g.ToList());
+            this.classNodes = index.Descendants("class").ToList();
+            this.enumNodes = index.Descendants("enum").ToList();
+            this.variableNodes = index.Descendants("variable").ToList();
         }
 
         public void DocumentFunction(Function function)
         {
+            if (!this.functionNodes.ContainsKey(function.OriginalName))
+            {
+                return;
+            }
+
             var lineStart = function.LineNumberStart.ToString();
             var lineEnd = function.LineNumberEnd.ToString();
-            var node = this.index.Descendants("function")
-                .FirstOrDefault(f => f.Attribute("location").Value == function.TranslationUnit.FileName &&
-                                     (f.Attribute("lineno").Value == lineStart || f.Attribute("lineno").Value == lineEnd));
+            var functions = this.functionNodes[function.OriginalName];
+            var node = functions.Find(
+                f => f.Attribute("location").Value == function.TranslationUnit.FileName &&
+                     (f.Attribute("lineno").Value == lineStart || f.Attribute("lineno").Value == lineEnd));
             // HACK: functions in qglobal.h have weird additional definitions just for docs
             if ((node == null || node.Attribute("href") == null) && function.TranslationUnit.FileName == "qglobal.h")
             {
-                node = this.index.Descendants("function")
-                    .FirstOrDefault(c => c.Attribute("location").Value == function.TranslationUnit.FileName &&
-                                         c.Attribute("name").Value == function.OriginalName);
+                node = functions.Find(
+                    c => c.Attribute("location").Value == function.TranslationUnit.FileName &&
+                         c.Attribute("name").Value == function.OriginalName);
             }
             // HACK: some functions are "located" in a cpp, go figure...
             var @params = function.Parameters.Where(p => p.Kind == ParameterKind.Regular).ToList();
             if ((node == null || node.Attribute("href") == null) && function.Signature != null)
             {
-                var nodes = this.index.Descendants("function").Where(f => f.Attribute("fullname") != null &&
-                                                                          f.Attribute("fullname").Value == function.QualifiedOriginalName &&
-                                                                          f.Descendants("parameter").Count() == @params.Count).ToList();
+                var qualifiedOriginalName = function.QualifiedOriginalName;
+                var nodes = functions.Where(f => f.Attribute("fullname") != null &&
+                                                 f.Attribute("fullname").Value == qualifiedOriginalName &&
+                                                 f.Descendants("parameter").Count() == @params.Count).ToList();
                 if (nodes.Count == 0)
                 {
                     var method = function as Method;
@@ -60,8 +77,8 @@ namespace QtSharp
                     {
                         return;
                     }
-                    nodes = this.index.Descendants("function").Where(f => f.Attribute("name").Value == function.OriginalName &&
-                                                                          f.Descendants("parameter").Count() == @params.Count).ToList();
+                    nodes = functions.Where(f => f.Attribute("name").Value == function.OriginalName &&
+                                                 f.Descendants("parameter").Count() == @params.Count).ToList();
                 }
                 if (nodes.Count == 1)
                 {
@@ -79,7 +96,7 @@ namespace QtSharp
                         }
                         signature = signature.Substring(startArgs, signature.LastIndexOf(')') - startArgs);
                         signature = this.regexSpaceBetweenArgs.Replace(this.regexArgName.Replace(signature, "$1$3$5"), " ");
-                        node = nodes.FirstOrDefault(f => string.Join(", ",
+                        node = nodes.Find(f => string.Join(", ",
                             f.Descendants("parameter").Select(d => d.Attribute("left").Value.Replace(" *", "*").Replace(" &", "&"))) == signature);
                     }
                 }
@@ -246,9 +263,13 @@ namespace QtSharp
 
         private void DocumentQtProperty(Declaration property)
         {
-            var node = this.index.Descendants("property")
-                .FirstOrDefault(c => c.Attribute("location").Value == property.TranslationUnit.FileName &&
-                                     c.Attribute("name").Value == property.Name);
+            if (!this.propertyNodes.ContainsKey(property.Name))
+            {
+                return;
+            }
+
+            var node = this.propertyNodes[property.Name].Find(
+                c => c.Attribute("location").Value == property.TranslationUnit.FileName);
 	        if (node != null && node.Attribute("href") != null)
 			{
 				var link = node.Attribute("href").Value.Split('#');
@@ -276,7 +297,7 @@ namespace QtSharp
 
         public void DocumentType(Class type)
         {
-            var node = this.index.Descendants("class").FirstOrDefault(
+            var node = this.classNodes.Find(
                 c => c.Attribute("location").Value == type.TranslationUnit.FileName &&
                      c.Attribute("name").Value == type.OriginalName);
             if (node != null)
@@ -300,9 +321,9 @@ namespace QtSharp
 
         public void DocumentEnum(Enumeration @enum)
         {
-            var node = this.index.Descendants("enum")
-                .FirstOrDefault(c => c.Attribute("location").Value == @enum.TranslationUnit.FileName &&
-                                     c.Attribute("name").Value == @enum.OriginalName);
+            var node = this.enumNodes.Find(
+                c => c.Attribute("location").Value == @enum.TranslationUnit.FileName &&
+                     c.Attribute("name").Value == @enum.OriginalName);
             if (node != null)
             {
                 var link = node.Attribute("href").Value.Split('#');
@@ -347,9 +368,9 @@ namespace QtSharp
         {
             var lineStart = variable.LineNumberStart.ToString();
             var lineEnd = variable.LineNumberEnd.ToString();
-            var node = this.index.Descendants("variable")
-                .FirstOrDefault(f => f.Attribute("location").Value == variable.TranslationUnit.FileName &&
-                                     (f.Attribute("lineno").Value == lineStart || f.Attribute("lineno").Value == lineEnd));
+            var node = this.variableNodes.Find(
+                f => f.Attribute("location").Value == variable.TranslationUnit.FileName &&
+                     (f.Attribute("lineno").Value == lineStart || f.Attribute("lineno").Value == lineEnd));
             if (node != null)
             {
                 var link = node.Attribute("href").Value.Split('#');

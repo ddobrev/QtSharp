@@ -5,7 +5,7 @@ namespace QtSharp
 {
     public class ProcessHelper
     {
-        public static string Run(string path, string args, out string error)
+        public static string Run(string path, string args, out string error, bool readOutputByLines = false)
         {
             try
             {
@@ -17,12 +17,16 @@ namespace QtSharp
                     process.StartInfo.RedirectStandardOutput = true;
                     process.StartInfo.RedirectStandardError = true;
                     process.Start();
+                    while (readOutputByLines && !process.StandardOutput.EndOfStream)
+                    {
+                        Console.WriteLine(process.StandardOutput.ReadLine());
+                    }
                     error = process.StandardError.ReadToEnd();
                     if (process.ExitCode != 0)
                     {
                         return string.Empty;
                     }
-                    return process.StandardOutput.ReadToEnd().Trim().Replace(@"\\", @"\");
+                    return readOutputByLines ? string.Empty : process.StandardOutput.ReadToEnd().Trim().Replace(@"\\", @"\");
                 }
             }
             catch (Exception exception)

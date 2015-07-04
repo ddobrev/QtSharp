@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Linq;
 using CppSharp.AST;
 using CppSharp.Passes;
 
@@ -9,15 +7,6 @@ namespace QtSharp
     public class GetCommentsFromQtDocsPass : TranslationUnitPass
     {
         private readonly Documentation documentation;
-
-        public override bool VisitLibrary(ASTContext context)
-        {
-            var stopwatch = Stopwatch.StartNew();
-            var visitLibrary = base.VisitLibrary(context);
-            stopwatch.Stop();
-            Console.WriteLine("Elapsed time: {0}", stopwatch.ElapsedMilliseconds);
-            return visitLibrary;
-        }
 
         public GetCommentsFromQtDocsPass(string docsPath, string module)
         {

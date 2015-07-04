@@ -8,7 +8,6 @@ using CppSharp.AST;
 using CppSharp.Generators;
 using CppSharp.Passes;
 using CppAbi = CppSharp.Parser.AST.CppAbi;
-using Template = CppSharp.AST.Template;
 
 namespace QtSharp
 {
