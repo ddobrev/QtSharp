@@ -66,7 +66,12 @@ namespace QtSharp
             var @params = function.Parameters.Where(p => p.Kind == ParameterKind.Regular).ToList();
             if ((node == null || node.Attribute("href") == null) && function.Signature != null)
             {
-                var qualifiedOriginalName = function.QualifiedOriginalName;
+                var qualifiedOriginalName = function.GetQualifiedName(decl => decl.OriginalName,
+                    decl =>
+                    {
+                        var @class = decl.OriginalNamespace as Class;
+                        return @class != null ? (@class.OriginalClass ?? @class) : decl.OriginalNamespace;
+                    });
                 var nodes = functions.Where(f => f.Attribute("fullname") != null &&
                                                  f.Attribute("fullname").Value == qualifiedOriginalName &&
                                                  f.Descendants("parameter").Count() == @params.Count).ToList();
