@@ -118,47 +118,30 @@ namespace QtSharp
                 if (this.documentation.ContainsKey(file))
                 {
                     var id = link[1].Split('-');
-                    var docs = Regex.Matches(this.documentation[file],
-                        string.Format(
-                            @"<h3 class=""fn"" id=""{0}"">.+?{1}</h3>\s*(?<docs>.*?)\s*<!-- @@@{2} -->",
-                            EscapeId(function.IsAmbiguous && node.Attribute("access").Value == "private" ? id[0] : link[1]),
-                            id.Length > 1 && id[1] == "prop" ? string.Empty : @"\((?<args>.*?)\).*?",
-                            Regex.Escape(function.OriginalName)),
-                        RegexOptions.Singleline);
-                    // HACK: work around bugs of the type of https://bugreports.qt.io/browse/QTBUG-46148
-                    Match doc = null;
-                    MatchCollection paramsMatches = null;
-                    if (docs.Count == 1 && docs[0].Success)
+                    var docs = this.documentation[file];
+                    string doc;
+                    if (id.Length > 1 && id[1] == "prop")
                     {
-                        doc = docs[0];
-                        paramsMatches = Regex.Matches(doc.Groups["args"].Value, @"<i>\s*(.+?)\s*</i>");
+                        var start = string.Format(@"<h3 class=""fn"" id=""{0}"">", EscapeId(function.IsAmbiguous && node.Attribute("access").Value == "private" ? id[0] : link[1]));
+                        var end = string.Format("<!-- @@@{0} -->", Regex.Escape(function.OriginalName));
+                        var indexOfStart = docs.IndexOf(start, StringComparison.Ordinal);
+                        doc = docs.Substring(indexOfStart + start.Length, docs.IndexOf(end, StringComparison.Ordinal) - indexOfStart - start.Length).Trim();
+                        doc = doc.Substring(doc.IndexOf("</h3>", StringComparison.Ordinal) + 5);
                     }
                     else
                     {
-                        foreach (var d in docs.Cast<Match>().Where(m => m.Success))
-                        {
-                            paramsMatches = Regex.Matches(d.Groups["args"].Value, @"<i>\s*(.+?)\s*</i>");
-                            if (paramsMatches.Count == @params.Count)
-                            {
-                                doc = d;
-                                break;
-                            }
-                        }
+                        var start = string.Format(@"<h3 class=""fn"" id=""{0}"">", EscapeId(function.IsAmbiguous && node.Attribute("access").Value == "private" ? id[0] : link[1]));
+                        var end = string.Format("<!-- @@@{0} -->", Regex.Escape(function.OriginalName));
+                        var indexOfStart = docs.IndexOf(start, StringComparison.Ordinal);
+                        doc = docs.Substring(indexOfStart + start.Length, docs.IndexOf(end, StringComparison.Ordinal) - indexOfStart - start.Length).Trim();
+                        doc = doc.Substring(doc.IndexOf("</h3>", StringComparison.Ordinal) + 5);
                     }
-                    if (doc != null)
+                    var i = 0;
+                    // TODO: create links in the "See Also" section
+                    function.Comment = new RawComment { BriefText = StripTags(doc) };
+                    if (node.Attribute("status").Value == "obsolete")
                     {
-                        var i = 0;
-                        foreach (Match match in paramsMatches)
-                        {
-                            @params[i].Name = Helpers.SafeIdentifier(match.Groups[1].Value);
-                            i++;
-                        }
-                        // TODO: create links in the "See Also" section
-                        function.Comment = new RawComment { BriefText = StripTags(doc.Groups["docs"].Value) };
-                        if (node.Attribute("status").Value == "obsolete")
-                        {
-                            AddObsoleteAttribute(function);
-                        }   
+                        AddObsoleteAttribute(function);
                     }
                 }
             }
