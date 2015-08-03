@@ -94,6 +94,11 @@ namespace QtSharp
                         }
                         block.WriteLine("/// </summary>");
                     }
+                    var finalName = char.ToUpperInvariant(@event.Name[0]) + @event.Name.Substring(1);
+                    if (@event.Namespace.Declarations.Exists(d => d != @event && d.Name == finalName))
+                    {
+                        finalName += "Signal";
+                    }
                     block.WriteLine(string.Format(@"public event {0} {1}
 {{
 	add
@@ -104,7 +109,7 @@ namespace QtSharp
 	{{
         DisconnectDynamicSlot(this, ""{2}"", value);
 	}}
-}}", fullNameBuilder, char.ToUpperInvariant(@event.Name[0]) + @event.Name.Substring(1), signature));
+}}", fullNameBuilder, finalName, signature));
                 }
             }
             foreach (Block block in from template in generatorOutput.Templates
@@ -136,10 +141,9 @@ namespace QtSharp
             {
                 return false;
             }
-            foreach (Method method in from method in @class.Methods
-                                      let access = method.AccessDecl
-                                      where access != null
-                                      select method)
+            foreach (var method in from method in @class.Methods
+                                   where method.Access != AccessSpecifier.Private && method.AccessDecl != null
+                                   select method)
             {
                 this.HandleQSignal(@class, method);
             }
@@ -148,9 +152,7 @@ namespace QtSharp
 
         private void HandleQSignal(DeclarationContext @class, Method method)
         {
-            AccessSpecifierDecl access = method.AccessDecl;
-
-            IEnumerable<MacroExpansion> expansions = access.PreprocessedEntities.OfType<MacroExpansion>();
+            var expansions = method.AccessDecl.PreprocessedEntities.OfType<MacroExpansion>();
             if (expansions.All(e => e.Text != "Q_SIGNALS"))
             {
                 return;
@@ -163,17 +165,17 @@ namespace QtSharp
                     method.Parameters.RemoveAt(method.Parameters.Count - 1);
                 }
             }
-            FunctionType functionType = method.GetFunctionType();
+            var functionType = method.GetFunctionType();
 
-            Event @event = new Event
-                            {
-                                OriginalDeclaration = method,
-                                Name = method.Name,
-                                OriginalName = method.OriginalName,
-                                Namespace = method.Namespace,
-                                QualifiedType = new QualifiedType(functionType),
-                                Parameters = method.Parameters
-                            };
+            var @event = new Event
+                         {
+                             OriginalDeclaration = method,
+                             Name = method.Name,
+                             OriginalName = method.OriginalName,
+                             Namespace = method.Namespace,
+                             QualifiedType = new QualifiedType(functionType),
+                             Parameters = method.Parameters
+                         };
             method.GenerationKind = GenerationKind.None;
             @class.Events.Add(@event);
             this.events.Add(@event);
@@ -181,20 +183,21 @@ namespace QtSharp
 
         private static string GetSignalEventSuffix(Event signalToUse)
         {
-            string suffix = signalToUse.Parameters.Last().Name;
-            int indexOfSpace = suffix.IndexOf(' ');
+            var suffix = signalToUse.Parameters.Last().Name;
+            var indexOfSpace = suffix.IndexOf(' ');
             if (indexOfSpace > 0)
             {
                 suffix = suffix.Substring(0, indexOfSpace);
             }
             if (suffix.StartsWith("_"))
             {
-                string lastType = signalToUse.Parameters.Last().Type.ToString();
+                var lastType = signalToUse.Parameters.Last().Type.ToString();
                 suffix = lastType.Substring(lastType.LastIndexOf('.') + 1);
+                suffix = char.ToUpperInvariant(suffix[0]) + suffix.Substring(1);
             }
             else
             {
-                StringBuilder lastParamBuilder = new StringBuilder(suffix);
+                var lastParamBuilder = new StringBuilder(suffix);
                 while (!char.IsLetter(lastParamBuilder[0]))
                 {
                     lastParamBuilder.Remove(0, 1);
