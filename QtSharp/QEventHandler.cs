@@ -8,7 +8,6 @@ namespace QtCore
 		private readonly object handler;
 
 		public QEventHandler(QObject sender, object handler)
-            /* TODO: CppSharp is buggy and neither uses default values of args nor generates overloads so there is no empty QObject ctor */ : base((QObject) null)
 		{
 			this.sender = sender;
 			this.handler = handler;

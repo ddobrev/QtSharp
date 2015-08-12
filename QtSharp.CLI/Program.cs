@@ -90,13 +90,11 @@ namespace QtSharp.CLI
                     dependencies[libFile] = Enumerable.Empty<string>();
                 }
             }
+            var wrappedModules = new List<string> { "Qt5Core.dll", "Qt5Gui.dll", "Qt5Widgets.dll" };
             libFiles = libFiles.TopologicalSort(l => dependencies.ContainsKey(l) ? dependencies[l] : Enumerable.Empty<string>());
-            foreach (string libFile in libFiles)
+            foreach (var libFile in libFiles.Where(libFile => wrappedModules.Contains(libFile)))
             {
-                if (libFile == "Qt5Core.dll" || libFile == "Qt5Gui.dll")
-                {
-                    ConsoleDriver.Run(new QtSharp(qmake, make, headers, libs, libFile, target, systemIncludeDirs, docs));
-                }
+                ConsoleDriver.Run(new QtSharp(qmake, make, headers, libs, libFile, target, systemIncludeDirs, docs));
             }
 
 #if DEBUG

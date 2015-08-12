@@ -37,14 +37,14 @@ namespace QtSharp
                 {
                     block.Text.StringBuilder.Clear();
                     Class @class = (Class) @event.Namespace;
-                    if (!this.addedEventHandlers && @class.Name == "QObject")
+                    if (!this.addedEventHandlers && (@class.Name == "QObject" || @class.Name == "QGraphicsItem"))
                     {
-                        block.WriteLine("protected readonly System.Collections.Generic.List<QtCore.QEventHandler> " +
-                                        "eventFilters = new System.Collections.Generic.List<QtCore.QEventHandler>();");
+                        block.WriteLine("protected readonly System.Collections.Generic.List<{0}> " +
+                                        "eventFilters = new System.Collections.Generic.List<{0}>();",
+                                        @class.Name == "QObject" ? "QtCore.QEventHandler" : "QtWidgets.QSceneEventHandler");
                         block.NewLine();
                         this.addedEventHandlers = true;
                     }
-                    bool isQAbstractScrollArea = @class.Name != "QAbstractScrollArea";
                     if (@event.OriginalDeclaration.Comment != null)
                     {
                         block.WriteLine("/// <summary>");
@@ -55,38 +55,40 @@ namespace QtSharp
                         }
                         block.WriteLine("/// </summary>");
                     }
-                    block.WriteLine(@"public {0} event EventHandler<QtCore.QEventArgs<{1}>> {2}
+                    var @base = @class.GetNonIgnoredRootBase();
+                    block.WriteLine(@"public virtual event EventHandler<QtCore.QEventArgs<{0}>> {1}
 {{
 	add
 	{{
-		QtCore.QEventArgs<{1}> qEventArgs = new QtCore.QEventArgs<{1}>(new System.Collections.Generic.List<QtCore.QEvent.Type> {{ {3} }});
-		QtCore.QEventHandler<{1}> qEventHandler = new QtCore.QEventHandler<{1}>(this{4}, qEventArgs, value);
-        foreach (QtCore.QEventHandler eventFilter in eventFilters)
+		var qEventArgs = new QtCore.QEventArgs<{0}>(new System.Collections.Generic.List<QtCore.QEvent.Type> {{ {2} }});
+		var qEventHandler = new {4}<{0}>(this, qEventArgs, value);
+        foreach (var eventFilter in eventFilters)
         {{
-            this{4}.RemoveEventFilter(eventFilter);
+            this.Remove{3}EventFilter(eventFilter);
         }}
 		eventFilters.Add(qEventHandler);
         for (int i = eventFilters.Count - 1; i >= 0; i--)
         {{
-		    this{4}.InstallEventFilter(eventFilters[i]);                    
+		    this.Install{3}EventFilter(eventFilters[i]);
         }}
 	}}
 	remove
 	{{
 		for (int i = eventFilters.Count - 1; i >= 0; i--)
 		{{
-			QtCore.QEventHandler eventFilter = eventFilters[i];
+			var eventFilter = eventFilters[i];
 			if (eventFilter.Handler == value)
 			{{
-				this{4}.RemoveEventFilter(eventFilter);
+				this.Remove{3}EventFilter(eventFilter);
 				eventFilters.RemoveAt(i);
                 break;
 			}}
 		}}
 	}}
 }}",
-                        isQAbstractScrollArea ? "virtual" : "override", @event.Parameters[0].Type, @event.Name,
-                        this.GetEventTypes(@event), isQAbstractScrollArea ? string.Empty : ".Viewport");
+                        @event.Parameters[0].Type, @event.Name, this.GetEventTypes(@event),
+                        @base.Name == "QObject" ? string.Empty : "Scene",
+                        @base.Name == "QObject" ? "QtCore.QEventHandler" : "QtWidgets.QSceneEventHandler");
                 }
             }
         }
@@ -109,7 +111,8 @@ namespace QtSharp
         public override bool VisitMethodDecl(Method method)
         {
             if (!method.IsConstructor && (method.Name.EndsWith("Event") || method.Name == "event") &&
-                method.Parameters.Count == 1 && method.Parameters[0].Type.ToString().EndsWith("Event"))
+                method.Parameters.Count == 1 && method.Parameters[0].Type.ToString().EndsWith("Event") &&
+                method.OriginalName != "widgetEvent")
             {
                 Event @event = new Event();
                 if (method.Name.StartsWith("on"))
@@ -145,6 +148,7 @@ namespace QtSharp
                 { "Custom", new List<string> { "User" } },
                 { "Focus", new List<string> { "FocusIn", "FocusOut", "FocusAboutToChange" } },
                 { "Gesture", new List<string> { "Gesture", "GestureOverride" } },
+                { "Help", new List<string> { "ToolTip" } },
                 { "Hover", new List<string> { "HoverEnter", "HoverLeave", "HoverMove" } },
                 { "MouseDoubleClick", new List<string> { "MouseButtonDblClick" } },
                 { "MousePress", new List<string> { "MouseButtonPress" } },

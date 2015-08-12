@@ -78,7 +78,7 @@ namespace QtSharp
 
         public override bool VisitProperty(Property property)
         {
-            if (!property.IsSynthetized && !this.AlreadyVisited(property))
+            if (!property.IsSynthetized && !this.AlreadyVisited(property) && property.IsGenerated)
             {
                 this.documentation.DocumentProperty(property);
             }
@@ -88,7 +88,7 @@ namespace QtSharp
         public override bool VisitEvent(Event @event)
         {
             Function function = @event.OriginalDeclaration as Function;
-            if (function != null && !this.AlreadyVisited(@event))
+            if (function != null && @event.IsGenerated && !this.AlreadyVisited(@event))
             {
                 this.DocumentFunction(function);
             }
@@ -97,7 +97,7 @@ namespace QtSharp
 
         public override bool VisitVariableDecl(Variable variable)
         {
-            if (!this.AlreadyVisited(variable))
+            if (!this.AlreadyVisited(variable) && variable.IsGenerated)
             {
                 this.documentation.DocumentVariable(variable);
             }

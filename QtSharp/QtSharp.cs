@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using CppSharp;
 using CppSharp.AST;
+using CppSharp.AST.Extensions;
 using CppSharp.Generators;
 using CppSharp.Passes;
 using CppAbi = CppSharp.Parser.AST.CppAbi;
@@ -38,9 +40,9 @@ namespace QtSharp
 
 	    public void Preprocess(Driver driver, ASTContext lib)
 	    {
-            string qtModule = "Qt" + this.module;
-	        string moduleIncludes = Path.Combine(this.includePath, qtModule);
-	        foreach (TranslationUnit unit in lib.TranslationUnits.Where(u => u.FilePath != "<invalid>"))
+            var qtModule = "Qt" + this.module;
+	        var moduleIncludes = Path.Combine(this.includePath, qtModule);
+	        foreach (var unit in lib.TranslationUnits.Where(u => u.FilePath != "<invalid>"))
 	        {
 	            if (Path.GetDirectoryName(unit.FilePath) != moduleIncludes)
 	            {
@@ -67,7 +69,21 @@ namespace QtSharp
             lib.SetClassAsValueType("QVariant");
             lib.IgnoreClassMethodWithName("QString", "fromStdWString");
             lib.IgnoreClassMethodWithName("QString", "toStdWString");
-		}
+	        if (this.module == "Widgets")
+	        {
+	            string[] classesWithTypeEnums =
+                    {
+                        "QGraphicsEllipseItem", "QGraphicsItemGroup", "QGraphicsLineItem",
+                        "QGraphicsPathItem", "QGraphicsPixmapItem", "QGraphicsPolygonItem", "QGraphicsProxyWidget",
+                        "QGraphicsRectItem", "QGraphicsSimpleTextItem", "QGraphicsTextItem", "QGraphicsWidget"
+                    };
+	            foreach (var enumeration in classesWithTypeEnums.Select(c => lib.FindCompleteClass(c)).SelectMany(
+                                                @class => @class.Enums.Where(e => string.IsNullOrEmpty(e.Name))))
+	            {
+	                enumeration.Name = "TypeEnum";
+	            }
+	        }
+	    }
 
 	    private static void LinkDeclaration(Declaration declaration)
 	    {
@@ -110,18 +126,36 @@ namespace QtSharp
         public void Postprocess(Driver driver, ASTContext lib)
         {
             new ClearCommentsPass().VisitLibrary(driver.ASTContext);
-            new GetCommentsFromQtDocsPass(this.docs, this.module).VisitLibrary(driver.ASTContext);
+            if (this.module != "Widgets")
+                new GetCommentsFromQtDocsPass(this.docs, this.module).VisitLibrary(driver.ASTContext);
             new CaseRenamePass(
                 RenameTargets.Function | RenameTargets.Method | RenameTargets.Property | RenameTargets.Delegate | RenameTargets.Field | RenameTargets.Variable,
                 RenameCasePattern.UpperCamelCase).VisitLibrary(driver.ASTContext);
+            switch (this.module)
+            {
+                case "Core":
+                    var qChar = lib.FindCompleteClass("QChar");
+                    qChar.FindOperator(CXXOperatorKind.ExplicitConversion)
+                        .First(o => o.Parameters[0].Type.IsPrimitiveType(PrimitiveType.Char))
+                        .ExplicitlyIgnore();
+                    qChar.FindOperator(CXXOperatorKind.Conversion)
+                        .First(o => o.Parameters[0].Type.IsPrimitiveType(PrimitiveType.Int))
+                        .ExplicitlyIgnore();
+                    break;
+            }
         }
 
 		public void Setup(Driver driver)
 		{
 			driver.Options.GeneratorKind = GeneratorKind.CSharp;
-		    string qtModule = "Qt" + this.module;
-            driver.Options.addDefines("_CRTIMP=");
+		    var qtModule = "Qt" + this.module;
+            // HACK: work around https://bugreports.qt.io/browse/QTBUG-47569
+		    if (this.module == "Widgets")
+		    {
+                driver.Options.addDefines("QT_NO_ACCESSIBILITY");
+		    }
 		    driver.Options.MicrosoftMode = false;
+		    driver.Options.NoBuiltinIncludes = true;
             driver.Options.TargetTriple = this.target;
             driver.Options.Abi = CppAbi.Itanium;
 		    driver.Options.LibraryName = string.Format("{0}Sharp", qtModule);
@@ -136,6 +170,7 @@ namespace QtSharp
 		    driver.Options.CompileCode = true;
 		    driver.Options.GenerateCopyConstructors = true;
 		    driver.Options.GenerateDefaultValuesForArguments = true;
+		    driver.Options.GenerateConversionOperators = true;
 		    driver.Options.MarshalCharAsManagedChar = true;
             driver.Options.Headers.Add(qtModule);
 		    foreach (var systemIncludeDir in this.systemIncludeDirs)
@@ -146,14 +181,19 @@ namespace QtSharp
             driver.Options.addIncludeDirs(Path.Combine(this.includePath, qtModule));
             driver.Options.addLibraryDirs(this.libraryPath);
             driver.Options.Libraries.Add(this.library);
-		    if (this.module == "Core")
+            string dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+		    switch (this.module)
 		    {
-                string dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                driver.Options.CodeFiles.Add(Path.Combine(dir, "QEventArgs.cs"));
-                driver.Options.CodeFiles.Add(Path.Combine(dir, "QEventHandler.cs"));
-                driver.Options.CodeFiles.Add(Path.Combine(dir, "QObject.cs"));
-                driver.Options.CodeFiles.Add(Path.Combine(dir, "QChar.cs"));
-                driver.Options.CodeFiles.Add(Path.Combine(dir, "_iobuf.cs"));
+		        case "Core":
+		            driver.Options.CodeFiles.Add(Path.Combine(dir, "QEventArgs.cs"));
+		            driver.Options.CodeFiles.Add(Path.Combine(dir, "QEventHandler.cs"));
+		            driver.Options.CodeFiles.Add(Path.Combine(dir, "QObject.cs"));
+		            driver.Options.CodeFiles.Add(Path.Combine(dir, "QChar.cs"));
+		            driver.Options.CodeFiles.Add(Path.Combine(dir, "_iobuf.cs"));
+		            break;
+		        case "Widgets":
+		            driver.Options.CodeFiles.Add(Path.Combine(dir, "QSceneEventHandler.cs"));
+		            break;
 		    }
 		}
 

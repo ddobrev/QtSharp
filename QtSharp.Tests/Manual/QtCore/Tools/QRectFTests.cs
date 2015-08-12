@@ -212,12 +212,12 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             s.Width = 500;
             s.Height = 600;
 
-            double x1;
-            double y1;
-            double x2;
-            double y2;
+            double x1 = 0;
+            double y1 = 0;
+            double x2 = 0;
+            double y2 = 0;
 
-            s.GetCoords(&x1, &y1, &x2, &y2);
+            s.GetCoords(ref x1, ref y1, ref x2, ref y2);
 
             Assert.AreEqual(50, x1);
             Assert.AreEqual(150, y1);
@@ -251,12 +251,12 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             s.Width = 500;
             s.Height = 600;
 
-            double x1;
-            double y1;
-            double width;
-            double height;
+            double x1 = 0;
+            double y1 = 0;
+            double width = 0;
+            double height = 0;
 
-            s.GetRect(&x1, &y1, &width, &height);
+            s.GetRect(ref x1, ref y1, ref width, ref height);
 
             Assert.AreEqual(50, x1);
             Assert.AreEqual(150, y1);

@@ -187,7 +187,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             int m = 0;
             int y = 0;
 
-            _qDate.GetDate(&y, &m, &d);
+            _qDate.GetDate(ref y, ref m, ref d);
 
             Assert.AreEqual(_qDate.Day, d);
             Assert.AreEqual(_qDate.Month, m);
