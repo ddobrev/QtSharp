@@ -115,32 +115,6 @@ namespace QtSharp
             }
         }
 
-        private static void Trim(IList<HtmlNode> nodes)
-        {
-            for (var i = 0; i < nodes.Count; i++)
-            {
-                if (string.IsNullOrWhiteSpace(nodes[i].OuterHtml))
-                {
-                    nodes.RemoveAt(i--);
-                }
-                else
-                {
-                    break;
-                }
-            }
-            for (var i = nodes.Count - 1; i >= 0; i--)
-            {
-                if (string.IsNullOrWhiteSpace(nodes[i].OuterHtml))
-                {
-                    nodes.RemoveAt(i);
-                }
-                else
-                {
-                    break;
-                }
-            }
-        }
-
         public void DocumentFunction(Function function)
         {
             if (!this.functionNodes.ContainsKey(function.OriginalName))
@@ -366,10 +340,17 @@ namespace QtSharp
 				var file = link[0];
 		        if (this.membersDocumentation.ContainsKey(file))
 		        {
-		            var key = string.Format("{0}-prop", property.Name);
-		            if (this.membersDocumentation[file].ContainsKey(key))
+		            var typeDocs = this.membersDocumentation[file];
+                    var key = string.Format("{0}-prop", property.Name);
+		            var containsKey = typeDocs.ContainsKey(key);
+		            if (!containsKey)
 		            {
-		                var docs = this.membersDocumentation[file][key];
+		                key = property.Name;
+		                containsKey = typeDocs.ContainsKey(key);
+		            }
+                    if (containsKey)
+		            {
+		                var docs = typeDocs[key];
 		                var start = docs.FindIndex(n => n.InnerText == "Access functions:");
                         start = start >= 0 ? start : docs.FindIndex(n => n.InnerText == "Notifier signal:");
 		                var end = docs.FindLastIndex(n => n.Name == "div");
