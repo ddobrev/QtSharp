@@ -72,6 +72,11 @@ namespace QtSharp
             lib.IgnoreClassMethodWithName("QString", "toStdWString");
             if (this.module == "Widgets")
             {
+                // HACK: work around https://llvm.org/bugs/show_bug.cgi?id=24655
+                foreach (var method in lib.FindCompleteClass("QAbstractSlider").Methods.Where(m => m.Access == AccessSpecifier.Protected))
+                {
+                    method.AccessDecl.PreprocessedEntities.Clear();
+                }
                 string[] classesWithTypeEnums =
                 {
                     "QGraphicsEllipseItem", "QGraphicsItemGroup", "QGraphicsLineItem",
