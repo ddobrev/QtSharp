@@ -15,16 +15,6 @@ namespace QtSharp
 {
     public class QtSharp : ILibrary
     {
-        private readonly string qmake;
-        private readonly string make;
-        private readonly string includePath;
-        private readonly string module;
-        private readonly string libraryPath;
-        private readonly string library;
-        private readonly IEnumerable<string> systemIncludeDirs;
-        private readonly string target;
-        private readonly string docs;
-
         public QtSharp(string qmake, string make, string includePath, string libraryPath, string library, string target,
             IEnumerable<string> systemIncludeDirs, string docs)
         {
@@ -38,6 +28,9 @@ namespace QtSharp
             this.make = make;
             this.docs = docs;
         }
+
+        public string LibraryName { get; set; }
+        public string InlinesLibraryName { get; set; }
 
         public void Preprocess(Driver driver, ASTContext lib)
         {
@@ -201,6 +194,9 @@ namespace QtSharp
                     driver.Options.CodeFiles.Add(Path.Combine(dir, "QSceneEventHandler.cs"));
                     break;
             }
+            var extension = Path.GetExtension(this.library);
+            this.LibraryName = driver.Options.LibraryName + extension;
+            this.InlinesLibraryName = driver.Options.InlinesLibraryName + extension;
         }
 
         public void SetupPasses(Driver driver)
@@ -209,5 +205,15 @@ namespace QtSharp
             driver.TranslationUnitPasses.AddPass(new GenerateEventEventsPass());
             driver.TranslationUnitPasses.AddPass(new GenerateSignalEventsPass());
         }
+
+        private readonly string qmake;
+        private readonly string make;
+        private readonly string includePath;
+        private readonly string module;
+        private readonly string libraryPath;
+        private readonly string library;
+        private readonly IEnumerable<string> systemIncludeDirs;
+        private readonly string target;
+        private readonly string docs;
     }
 }

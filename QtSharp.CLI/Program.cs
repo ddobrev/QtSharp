@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
-using System.Net;
 using System.Text.RegularExpressions;
 using CppSharp;
 using CppSharp.Parser;
@@ -90,11 +90,17 @@ namespace QtSharp.CLI
                     dependencies[libFile] = Enumerable.Empty<string>();
                 }
             }
-            var wrappedModules = new List<string> { "Qt5Core.dll", "Qt5Gui.dll", "Qt5Widgets.dll" };
+            var modules = new List<string> { "Qt5Core.dll", "Qt5Gui.dll", "Qt5Widgets.dll" };
             libFiles = libFiles.TopologicalSort(l => dependencies.ContainsKey(l) ? dependencies[l] : Enumerable.Empty<string>());
-            foreach (var libFile in libFiles.Where(libFile => wrappedModules.Contains(libFile)))
+            var wrappedModules = new List<KeyValuePair<string, string>>(modules.Count);
+            foreach (var libFile in libFiles.Where(libFile => modules.Contains(libFile)))
             {
-                ConsoleDriver.Run(new QtSharp(qmake, make, headers, libs, libFile, target, systemIncludeDirs, docs));
+                var qtSharp = new QtSharp(qmake, make, headers, libs, libFile, target, systemIncludeDirs, docs);
+                ConsoleDriver.Run(qtSharp);
+                if (File.Exists(qtSharp.LibraryName) && File.Exists(Path.Combine("release", qtSharp.InlinesLibraryName)))
+                {
+                    wrappedModules.Add(new KeyValuePair<string, string>(qtSharp.LibraryName, qtSharp.InlinesLibraryName));
+                }
             }
 
 #if DEBUG
@@ -110,6 +116,31 @@ namespace QtSharp.CLI
             }
 			System.IO.File.Copy("release/QtCore-inlines.dll", "../../../QtSharp.Tests/bin/Release/QtCore-inlines.dll");
 #endif
+            if (wrappedModules.Count == 0)
+            {
+                Console.WriteLine("Generation failed.");
+                return 0;
+            }
+
+            var qtSharpZip = "QtSharp.zip";
+            if (File.Exists(qtSharpZip))
+            {
+                File.Delete(qtSharpZip);
+            }
+            using (var zip = File.Create(qtSharpZip))
+            {
+                using (var zipArchive = new ZipArchive(zip, ZipArchiveMode.Create))
+                {
+                    foreach (var wrappedModule in wrappedModules)
+                    {
+                        zipArchive.CreateEntryFromFile(wrappedModule.Key, wrappedModule.Key);
+                        var documentation = Path.ChangeExtension(wrappedModule.Key, "xml");
+                        zipArchive.CreateEntryFromFile(documentation, documentation);
+                        zipArchive.CreateEntryFromFile(Path.Combine("release", wrappedModule.Value), wrappedModule.Value);
+                    }
+                }
+            }
+
             return 0;
         }
 
