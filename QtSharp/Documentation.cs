@@ -150,6 +150,13 @@ namespace QtSharp
                                                  f.Descendants("parameter").Count() == @params.Count).ToList();
                 if (nodes.Count == 0)
                 {
+                    @params.RemoveAll(p => string.IsNullOrEmpty(p.OriginalName) && p.DefaultArgument != null);
+                }
+                nodes = functions.Where(f => f.Attribute("fullname") != null &&
+                                             f.Attribute("fullname").Value == qualifiedOriginalName &&
+                                             f.Descendants("parameter").Count() == @params.Count).ToList();
+                if (nodes.Count == 0)
+                {
                     var method = function as Method;
                     if (method != null && !method.IsStatic && function.OriginalFunction == null)
                     {
