@@ -190,16 +190,17 @@ namespace QtSharp
             {
                 var link = node.Attribute("href").Value.Split('#');
                 var file = link[0];
-                // TODO: work around https://bugreports.qt.io/browse/QTBUG-46153
-                if (link[1] == "QDebug")
-                {
-                    link[1] = "QDebugx";
-                }
                 if (this.membersDocumentation.ContainsKey(file))
                 {
                     var id = link[1].Split('-');
                     var key = EscapeId(function.IsAmbiguous && node.Attribute("access").Value == "private" ? id[0] : link[1]);
-                    if (this.membersDocumentation[file].ContainsKey(key))
+                    var containsKey = this.membersDocumentation[file].ContainsKey(key);
+                    if (!containsKey)
+                    {
+                        // HACK: work around https://bugreports.qt.io/browse/QTBUG-46153
+                        containsKey = this.membersDocumentation[file].ContainsKey(key += "x");
+                    }
+                    if (containsKey)
                     {
                         var docs = this.membersDocumentation[file][key];
                         var i = 0;
@@ -482,17 +483,27 @@ namespace QtSharp
             {
                 var link = node.Attribute("href").Value.Split('#');
                 var file = link[0];
-                if (this.membersDocumentation.ContainsKey(file) && this.membersDocumentation[file].ContainsKey(link[1]))
+                if (this.membersDocumentation.ContainsKey(file))
                 {
-                    var docs = this.membersDocumentation[file][link[1]];
-                    // TODO: create links in the "See Also" section
-                    variable.Comment = new RawComment
+                    var key = link[1];
+                    var containsKey = this.membersDocumentation[file].ContainsKey(key);
+                    if (!containsKey)
                     {
-                        BriefText = StripTags(ConstructDocumentText(docs.Skip(1)))
-                    };
-                    if (node.Attribute("status").Value == "obsolete")
+                        // HACK: work around https://bugreports.qt.io/browse/QTBUG-48126
+                        containsKey = this.membersDocumentation[file].ContainsKey(key += "x");
+                    }
+                    if (containsKey)
                     {
-                        AddObsoleteAttribute(variable);
+                        var docs = this.membersDocumentation[file][key];
+                        // TODO: create links in the "See Also" section
+                        variable.Comment = new RawComment
+                        {
+                            BriefText = StripTags(ConstructDocumentText(docs.Skip(1)))
+                        };
+                        if (node.Attribute("status").Value == "obsolete")
+                        {
+                            AddObsoleteAttribute(variable);
+                        }
                     }
                 }
             }
