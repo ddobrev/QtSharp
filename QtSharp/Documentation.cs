@@ -330,6 +330,12 @@ namespace QtSharp
                     property.Comment = comment;
                 }
             }
+            else
+            {
+                property.LineNumberStart = property.Field.LineNumberStart;
+                property.LineNumberEnd = property.Field.LineNumberEnd;
+                this.DocumentVariable(property);
+            }
         }
 
         private void DocumentQtProperty(Declaration property)
@@ -465,7 +471,7 @@ namespace QtSharp
             }
         }
 
-        public void DocumentVariable(Variable variable)
+        public void DocumentVariable(Declaration variable)
         {
             var lineStart = variable.LineNumberStart.ToString();
             var lineEnd = variable.LineNumberEnd.ToString();
