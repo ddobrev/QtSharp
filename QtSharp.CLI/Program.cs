@@ -145,6 +145,7 @@ namespace QtSharp.CLI
                         zipArchive.CreateEntryFromFile(documentation, documentation);
                         zipArchive.CreateEntryFromFile(Path.Combine("release", wrappedModule.Value), wrappedModule.Value);
                     }
+                    zipArchive.CreateEntryFromFile("CppSharp.Runtime.dll", "CppSharp.Runtime.dll");
                 }
             }
 
