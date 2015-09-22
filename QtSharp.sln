@@ -15,6 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{345349CF-F
 		Docs\2. Running - QtSharp.CLI.md = Docs\2. Running - QtSharp.CLI.md
 		Docs\3. Running - NUnit Tests.md = Docs\3. Running - NUnit Tests.md
 		Docs\4. Building - CppSharp.md = Docs\4. Building - CppSharp.md
+		Docs\5. Building - UiTools.md = Docs\5. Building - UiTools.md
 	EndProjectSection
 EndProject
 Global
