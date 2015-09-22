@@ -90,7 +90,7 @@ namespace QtSharp.CLI
                     dependencies[libFile] = Enumerable.Empty<string>();
                 }
             }
-            var modules = new List<string> { "Qt5Core.dll", "Qt5Gui.dll", "Qt5Widgets.dll" };
+            var modules = new List<string> { "Qt5Core.dll", "Qt5Gui.dll", "Qt5Widgets.dll", "Qt5Designer.dll" };
             libFiles = libFiles.TopologicalSort(l => dependencies.ContainsKey(l) ? dependencies[l] : Enumerable.Empty<string>());
             var wrappedModules = new List<KeyValuePair<string, string>>(modules.Count);
             foreach (var libFile in libFiles.Where(libFile => modules.Contains(libFile)))

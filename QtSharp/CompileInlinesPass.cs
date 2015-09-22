@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using CppSharp.AST;
 using CppSharp.Parser;
@@ -24,9 +25,10 @@ namespace QtSharp
             string pro = string.Format("{0}.pro", this.Driver.Options.InlinesLibraryName);
             string path = Path.Combine(this.Driver.Options.OutputDir, pro);
             StringBuilder proBuilder = new StringBuilder();
-            proBuilder.Append("QT += widgets\n");
+            proBuilder.AppendFormat("QT += {0}\n",
+                                    string.Join(" ", this.Driver.Options.Headers.Select(h => h.Substring("Qt".Length).ToLowerInvariant())));
             // HACK: work around https://bugreports.qt.io/browse/QTBUG-47569
-            if (this.Driver.Options.InlinesLibraryName.StartsWith("QtWidgets"))
+            if (this.Driver.Options.InlinesLibraryName.StartsWith("QtWidgets") || this.Driver.Options.InlinesLibraryName.StartsWith("QtDesigner"))
             {
                 proBuilder.Append("DEFINES += QT_NO_ACCESSIBILITY\n");
             }

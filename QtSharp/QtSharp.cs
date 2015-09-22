@@ -149,7 +149,7 @@ namespace QtSharp
             driver.Options.GeneratorKind = GeneratorKind.CSharp;
             var qtModule = "Qt" + this.module;
             // HACK: work around https://bugreports.qt.io/browse/QTBUG-47569
-            if (this.module == "Widgets")
+            if (this.module == "Widgets" || this.module == "Designer")
             {
                 driver.Options.addDefines("QT_NO_ACCESSIBILITY");
             }
