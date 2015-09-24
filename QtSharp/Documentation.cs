@@ -18,17 +18,6 @@ namespace QtSharp
 {
     public class Documentation
     {
-        private readonly Dictionary<string, List<HtmlNode>> typesDocumentation = new Dictionary<string, List<HtmlNode>>();
-        private readonly Dictionary<string, Dictionary<string, List<HtmlNode>>> membersDocumentation = new Dictionary<string, Dictionary<string, List<HtmlNode>>>();
-        private readonly Regex regexArgName = new Regex(@"((unsigned\s*)?[\w<>]+)\s*(\*|&)?\s*\w*(\s*=\s*[^=,]+?)?(,|$)", RegexOptions.Compiled);
-        private readonly Regex regexSpaceBetweenArgs = new Regex(@"\r?\n\s+", RegexOptions.Compiled);
-
-        private readonly Dictionary<string, List<XElement>> functionNodes;
-        private readonly Dictionary<string, List<XElement>> propertyNodes;
-        private readonly List<XElement> classNodes;
-        private readonly List<XElement> enumNodes;
-        private readonly List<XElement> variableNodes;
-
         public Documentation(string docsPath, string module)
         {
             foreach (var entry in Get(docsPath, module))
@@ -38,6 +27,11 @@ namespace QtSharp
                 this.CollectMembersDocumentation(htmlDocument.DocumentNode, entry.Key);
                 this.CollectTypesDocumentation(htmlDocument.DocumentNode, entry.Key);
             }
+            this.Exists = this.membersDocumentation.Any() || this.typesDocumentation.Any();
+            if (!this.Exists)
+            {
+                return;
+            }
             var file = module.ToLowerInvariant();
             var index = XDocument.Load(Path.Combine(docsPath, string.Format("qt{0}", file), string.Format("qt{0}.index", file)));
             this.functionNodes = index.Descendants("function").GroupBy(f => f.Attribute("name").Value).ToDictionary(g => g.Key, g => g.ToList());
@@ -46,6 +40,8 @@ namespace QtSharp
             this.enumNodes = index.Descendants("enum").ToList();
             this.variableNodes = index.Descendants("variable").ToList();
         }
+
+        public bool Exists { get; set; }
 
         private void CollectMembersDocumentation(HtmlNode documentRoot, string docFile)
         {
@@ -60,7 +56,7 @@ namespace QtSharp
             {
                 var nodes = new List<HtmlNode>();
                 var node = fn;
-                while (node.NodeType != HtmlNodeType.Comment)
+                while (node != null && node.NodeType != HtmlNodeType.Comment)
                 {
                     if (!string.IsNullOrWhiteSpace(node.OuterHtml))
                     {
@@ -98,7 +94,7 @@ namespace QtSharp
                 }
                 node = typeNode.ParentNode.NextSibling;
                 var addedNewLine = false;
-                while (node.NodeType != HtmlNodeType.Comment)
+                while (node != null && node.NodeType != HtmlNodeType.Comment)
                 {
                     if (!string.IsNullOrWhiteSpace(node.OuterHtml))
                     {
@@ -659,5 +655,17 @@ namespace QtSharp
                 Value = string.Format("\"{0}\"", obsoleteMessageBuilder)
             });
         }
+
+        private readonly Dictionary<string, List<HtmlNode>> typesDocumentation = new Dictionary<string, List<HtmlNode>>();
+        private readonly Dictionary<string, Dictionary<string, List<HtmlNode>>> membersDocumentation = new Dictionary<string, Dictionary<string, List<HtmlNode>>>();
+        private readonly Regex regexArgName = new Regex(@"((unsigned\s*)?[\w<>]+)\s*(\*|&)?\s*\w*(\s*=\s*[^=,]+?)?(,|$)", RegexOptions.Compiled);
+        private readonly Regex regexSpaceBetweenArgs = new Regex(@"\r?\n\s+", RegexOptions.Compiled);
+
+        private readonly Dictionary<string, List<XElement>> functionNodes;
+        private readonly Dictionary<string, List<XElement>> propertyNodes;
+        private readonly List<XElement> classNodes;
+        private readonly List<XElement> enumNodes;
+        private readonly List<XElement> variableNodes;
+
     }
 }

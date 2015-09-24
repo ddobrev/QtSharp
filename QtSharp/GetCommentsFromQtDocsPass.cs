@@ -6,8 +6,6 @@ namespace QtSharp
 {
     public class GetCommentsFromQtDocsPass : TranslationUnitPass
     {
-        private readonly Documentation documentation;
-
         public GetCommentsFromQtDocsPass(string docsPath, string module)
         {
             this.documentation = new Documentation(docsPath, module);
@@ -17,6 +15,8 @@ namespace QtSharp
             this.Options.VisitTemplateArguments = false;
             this.Options.VisitClassFields = false;
         }
+
+        public bool DocumentationExists { get { return this.documentation.Exists; }}
 
         public override bool VisitClassDecl(Class @class)
         {
@@ -121,5 +121,7 @@ namespace QtSharp
                 }
             }
         }
+
+        private readonly Documentation documentation;
     }
 }
