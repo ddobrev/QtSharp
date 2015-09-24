@@ -93,45 +93,28 @@ namespace QtSharp
             }
         }
 
-        public override bool VisitClassDecl(Class @class)
-        {
-            // HACK: work around the bug about methods in v-tables and methods in classes not being shared objects
-            foreach (VTableComponent entry in VTables.GatherVTableMethodEntries(@class))
-            {
-                if (entry.Method != null && (entry.Method.Name.EndsWith("Event") || entry.Method.Name == "event") &&
-                    entry.Method.Parameters.Count == 1 && entry.Method.Parameters[0].Type.ToString().EndsWith("Event") &&
-                    !entry.Method.Name.StartsWith("on"))
-                {
-                    entry.Method.Name = "on" + char.ToUpperInvariant(entry.Method.Name[0]) + entry.Method.Name.Substring(1);
-                }
-            }
-            return base.VisitClassDecl(@class);
-        }
-
         public override bool VisitMethodDecl(Method method)
         {
+            if (!base.VisitMethodDecl(method))
+            {
+                return false;
+            }
+
             if (!method.IsConstructor && (method.Name.EndsWith("Event") || method.Name == "event") &&
                 method.Parameters.Count == 1 && method.Parameters[0].Type.ToString().EndsWith("Event") &&
                 method.OriginalName != "widgetEvent")
             {
-                Event @event = new Event();
-                if (method.Name.StartsWith("on"))
-                {
-                    @event.Name = method.Name.Substring(2);                   
-                }
-                else
-                {
-                    @event.Name = method.Name;
-                }
+                var @event = new Event();
+                var name = char.ToUpperInvariant(method.Name[0]) + method.Name.Substring(1);
+                @event.Name = name;
                 @event.OriginalDeclaration = method;
                 @event.Namespace = method.Namespace;
                 @event.Parameters.AddRange(method.Parameters);
                 method.Namespace.Events.Add(@event);
                 this.events.Add(@event);
-                if (!method.Name.StartsWith("on"))
-                    method.Name = "on" + char.ToUpperInvariant(method.Name[0]) + method.Name.Substring(1);
+                method.Name = "on" + name;
             }
-            return base.VisitMethodDecl(method);
+            return true;
         }
 
         private readonly Dictionary<string, List<string>> eventTypes = 
