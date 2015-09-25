@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web.Util;
 using CppSharp.AST;
 using CppSharp.AST.Extensions;
 using CppSharp.Generators;
@@ -12,10 +11,6 @@ namespace QtSharp
 {
     public class GenerateEventEventsPass : TranslationUnitPass
     {
-        private bool eventAdded;
-        private readonly HashSet<Event> events = new HashSet<Event>();
-        private bool addedEventHandlers;
-
         public override bool VisitTranslationUnit(TranslationUnit unit)
         {
             if (!this.eventAdded)
@@ -28,67 +23,41 @@ namespace QtSharp
 
         private void OnUnitGenerated(GeneratorOutput generatorOutput)
         {
-            foreach (Block block in from template in generatorOutput.Templates
-                                    from block in template.FindBlocks(CSharpBlockKind.Event)
-                                    select block)
+            foreach (var block in from template in generatorOutput.Templates
+                                  from block in template.FindBlocks(CSharpBlockKind.Method)
+                                  select block)
             {
-                Event @event = (Event) block.Declaration;
-                if (this.events.Contains(@event))
+                var method = (Method) block.Declaration;
+                if (this.events.Contains(method))
                 {
-                    block.Text.StringBuilder.Clear();
-                    Class @class = (Class) @event.Namespace;
-                    if (!this.addedEventHandlers && (@class.Name == "QObject" || @class.Name == "QGraphicsItem"))
+                    var @event = char.ToUpperInvariant(method.OriginalName[0]) + method.OriginalName.Substring(1);
+                    var stringBuilder = block.Parent.Blocks[block.Parent.Blocks.IndexOf(block) - 1].Text.StringBuilder;
+                    var comment = string.Empty;
+                    if (block.Blocks.Count > 0 && block.Blocks[0].Kind == BlockKind.BlockComment)
                     {
-                        block.WriteLine("protected readonly System.Collections.Generic.List<{0}> " +
-                                        "eventFilters = new System.Collections.Generic.List<{0}>();",
-                                        @class.Name == "QObject" ? "QtCore.QEventHandler" : "QtWidgets.QSceneEventHandler");
-                        block.NewLine();
-                        this.addedEventHandlers = true;
+                        comment = block.Blocks[0].Text.StringBuilder.ToString();
                     }
-                    if (@event.OriginalDeclaration.Comment != null)
+                    stringBuilder.AppendLine();
+                    stringBuilder.Append(string.Format("{0}public event Action<object, {1}> {2};{3}",
+                         comment, method.Parameters[0].Type, @event, Environment.NewLine));
+                    const string eventHandler = @"__eventHandler";
+                    var raiseEvent = string.Format(
+@"    var {0} = {1};
+    if (__eventHandler != null)
+    {{
+        __eventHandler(this, {2});
+    }}
+", eventHandler, @event, method.Parameters[0].Name);
+                    stringBuilder = block.Text.StringBuilder;
+                    if (method.OriginalReturnType.Type.IsPrimitiveType(PrimitiveType.Void))
                     {
-                        block.WriteLine("/// <summary>");
-                        foreach (string line in HtmlEncoder.HtmlEncode(@event.OriginalDeclaration.Comment.BriefText).Split(
-                                                    Environment.NewLine.ToCharArray()))
-                        {
-                            block.WriteLine("/// <para>{0}</para>", line);
-                        }
-                        block.WriteLine("/// </summary>");
+                        stringBuilder.Insert(stringBuilder.Length - 1 - Environment.NewLine.Length, raiseEvent);
                     }
-                    var @base = @class.GetNonIgnoredRootBase();
-                    block.WriteLine(@"public virtual event EventHandler<QtCore.QEventArgs<{0}>> {1}
-{{
-	add
-	{{
-		var qEventArgs = new QtCore.QEventArgs<{0}>(new System.Collections.Generic.List<QtCore.QEvent.Type> {{ {2} }});
-		var qEventHandler = new {4}<{0}>(this, qEventArgs, value);
-        foreach (var eventFilter in eventFilters)
-        {{
-            this.Remove{3}EventFilter(eventFilter);
-        }}
-		eventFilters.Add(qEventHandler);
-        for (int i = eventFilters.Count - 1; i >= 0; i--)
-        {{
-		    this.Install{3}EventFilter(eventFilters[i]);
-        }}
-	}}
-	remove
-	{{
-		for (int i = eventFilters.Count - 1; i >= 0; i--)
-		{{
-			var eventFilter = eventFilters[i];
-			if (eventFilter.Handler == value)
-			{{
-				this.Remove{3}EventFilter(eventFilter);
-				eventFilters.RemoveAt(i);
-                break;
-			}}
-		}}
-	}}
-}}",
-                        @event.Parameters[0].Type, @event.Name, this.GetEventTypes(@event),
-                        @base.Name == "QObject" ? string.Empty : "Scene",
-                        @base.Name == "QObject" ? "QtCore.QEventHandler" : "QtWidgets.QSceneEventHandler");
+                    else
+                    {
+                        const string @return = "    return ";
+                        stringBuilder.Replace(@return, raiseEvent + @return);
+                    }
                 }
             }
         }
@@ -101,64 +70,22 @@ namespace QtSharp
             }
 
             if (!method.IsConstructor && (method.Name.EndsWith("Event") || method.Name == "event") &&
-                method.Parameters.Count == 1 && method.Parameters[0].Type.ToString().EndsWith("Event") &&
-                method.OriginalName != "widgetEvent")
+                method.Parameters.Count == 1 && method.Parameters[0].Type.ToString().EndsWith("Event"))
             {
-                var @event = new Event();
                 var name = char.ToUpperInvariant(method.Name[0]) + method.Name.Substring(1);
-                @event.Name = name;
-                @event.OriginalDeclaration = method;
-                @event.Namespace = method.Namespace;
-                @event.Parameters.AddRange(method.Parameters);
-                method.Namespace.Events.Add(@event);
-                this.events.Add(@event);
                 method.Name = "on" + name;
+                Method rootBaseMethod;
+                if (!method.IsOverride ||
+                    (rootBaseMethod = ((Class) method.Namespace).GetRootBaseMethod(method, true, true)) == null ||
+                    rootBaseMethod.IsPure)
+                {
+                    this.events.Add(method);
+                }
             }
             return true;
         }
 
-        private readonly Dictionary<string, List<string>> eventTypes = 
-            new Dictionary<string, List<string>>
-            {
-                { "", new List<string> { "" } },
-                { "Action", new List<string> { "ActionAdded", "ActionRemoved", "ActionChanged" } },
-                { "Change", new List<string> { "ToolBarChange", "ActivationChange", "EnabledChange",
-                                               "FontChange", "StyleChange", "PaletteChange", "WindowTitleChange",
-                                               "IconTextChange", "ModifiedChange", "MouseTrackingChange",
-                                               "ParentChange", "WindowStateChange", "LanguageChange",
-                                               "LocaleChange", "LayoutDirectionChange" } },
-                { "Child", new List<string> { "ChildAdded", "ChildPolished", "ChildRemoved" } },
-                { "Custom", new List<string> { "User" } },
-                { "Focus", new List<string> { "FocusIn", "FocusOut", "FocusAboutToChange" } },
-                { "Gesture", new List<string> { "Gesture", "GestureOverride" } },
-                { "Help", new List<string> { "ToolTip" } },
-                { "Hover", new List<string> { "HoverEnter", "HoverLeave", "HoverMove" } },
-                { "MouseDoubleClick", new List<string> { "MouseButtonDblClick" } },
-                { "MousePress", new List<string> { "MouseButtonPress" } },
-                { "MouseRelease", new List<string> { "MouseButtonRelease" } },
-                { "SwallowContextMenu", new List<string> { "ContextMenu" } },
-                { "Tablet", new List<string> { "TabletMove", "TabletPress", "TabletRelease",
-                                               "TabletEnterProximity", "TabletLeaveProximity" } },
-                { "Touch", new List<string> { "TouchBegin", "TouchCancel", "TouchEnd", "TouchUpdate" } },
-                { "Viewport", new List<string> { "" } },
-                { "Widget", new List<string> { "" } }
-        };
-
-        private string GetEventTypes(Event @event)
-        {
-            string eventName = @event.Name.Substring(0, @event.Name.IndexOf("Event", StringComparison.Ordinal));
-            if (this.eventTypes.ContainsKey(eventName))
-            {
-                return string.Join(", ", from e in this.eventTypes[eventName]
-                                         select string.IsNullOrEmpty(e) ? e : "QtCore.QEvent.Type." + e);
-            }
-            Class @class;
-            if ((@event.Parameters[0].Type.GetFinalPointee() ?? @event.Parameters[0].Type).TryGetClass(out @class) &&
-                @class.Name == "QEvent")
-            {
-                return string.Empty;
-            }
-            return string.Format("QtCore.QEvent.Type.{0}", eventName);
-        }
+        private bool eventAdded;
+        private readonly HashSet<Method> events = new HashSet<Method>();
     }
 }

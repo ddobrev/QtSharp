@@ -83,19 +83,10 @@
     <None Include="QObject.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="QSceneEventHandler.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <Compile Include="QString.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="QtSharp.cs" />
-    <None Include="QEventArgs.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="QEventHandler.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\References\CppSharp.CppParser.dll">
