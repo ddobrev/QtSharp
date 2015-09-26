@@ -38,15 +38,13 @@ namespace QtSharp
                         comment = block.Blocks[0].Text.StringBuilder.ToString();
                     }
                     stringBuilder.AppendLine();
-                    stringBuilder.Append(string.Format("{0}public event Action<object, {1}> {2};{3}",
+                    stringBuilder.Append(string.Format("{0}public event global::System.Action<object, {1}> {2};{3}",
                          comment, method.Parameters[0].Type, @event, Environment.NewLine));
                     const string eventHandler = @"__eventHandler";
                     var raiseEvent = string.Format(
 @"    var {0} = {1};
-    if (__eventHandler != null)
-    {{
-        __eventHandler(this, {2});
-    }}
+    if ({0} != null)
+        {0}(this, {2});
 ", eventHandler, @event, method.Parameters[0].Name);
                     stringBuilder = block.Text.StringBuilder;
                     if (method.OriginalReturnType.Type.IsPrimitiveType(PrimitiveType.Void))
