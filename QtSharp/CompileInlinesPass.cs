@@ -50,7 +50,8 @@ namespace QtSharp
                 Console.WriteLine(error);
                 return false;
             }
-            ProcessHelper.Run(this.make, "-f Makefile.Release", out error, true);
+            ProcessHelper.Run(this.make, string.Format("-j{0} -f Makefile.Release", Environment.ProcessorCount + 1),
+                              out error, true);
             if (!string.IsNullOrEmpty(error))
             {
                 Console.WriteLine(error);
