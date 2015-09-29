@@ -74,7 +74,7 @@ namespace QtSharp
                 method.Name = "on" + name;
                 Method rootBaseMethod;
                 if (!method.IsOverride ||
-                    (rootBaseMethod = ((Class) method.Namespace).GetRootBaseMethod(method, true, true)) == null ||
+                    (rootBaseMethod = ((Class) method.Namespace).GetBaseMethod(method, true, true)) == null ||
                     rootBaseMethod.IsPure)
                 {
                     this.events.Add(method);

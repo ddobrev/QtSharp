@@ -112,18 +112,15 @@ namespace QtSharp
 }}", fullNameBuilder, finalName, signature));
                 }
             }
-            foreach (Block block in from template in generatorOutput.Templates
-                                    from block in template.FindBlocks(CSharpBlockKind.Method)
-                                    where block.Declaration != null && block.Declaration.Name == "Qt_metacall"
-                                    select block)
+            var qtMetacall = (
+                from template in generatorOutput.Templates
+                from block in template.FindBlocks(CSharpBlockKind.Method)
+                where block.Declaration != null && block.Declaration.Name == "Qt_metacall" &&
+                      block.Declaration.Namespace.Name == "QObject"
+                select block).FirstOrDefault();
+            if (qtMetacall != null)
             {
-                block.Text.StringBuilder.Clear();
-                block.WriteLine(@"public {0} unsafe int Qt_metacall(QMetaObject.Call call, int id, void** arguments)
-{{
-    var index = Internal.Qt_metacall_0({1}, call, id, arguments);
-
-    return HandleQtMetacall(index, call, arguments);
-}}", block.Declaration.Namespace.Name == "QObject" ? "virtual" : "override", Helpers.InstanceIdentifier);
+                qtMetacall.Text.StringBuilder.Replace("return __ret;", "return HandleQtMetacall(__ret, _0, _2);");
             }
         }
 

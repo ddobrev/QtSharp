@@ -313,7 +313,7 @@ namespace QtSharp
                     {
                         if (property.IsOverride)
                         {
-                            comment.BriefText = ((Class) property.Namespace).GetRootBaseProperty(property).Comment.BriefText;
+                            comment.BriefText = ((Class) property.Namespace).GetBaseProperty(property).Comment.BriefText;
                         }
                         if (!string.IsNullOrEmpty(comment.BriefText))
                         {
