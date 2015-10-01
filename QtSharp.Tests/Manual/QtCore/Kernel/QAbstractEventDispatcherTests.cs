@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using QtCore;
 
 namespace QtSharp.Tests.Manual.QtCore.Kernel

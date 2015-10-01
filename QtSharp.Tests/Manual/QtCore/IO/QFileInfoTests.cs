@@ -460,11 +460,11 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         [Test]
         public void TestSwap()
         {
-            var file = new QFileInfo("./TestData/DoubleExtension.ext.txt");
+            var file = new QFileInfo("./TestData/TextFile1.txt");
 
             file.Swap(_fileInfo);
 
-            Assert.AreEqual(_fileInfo.FilePath, file.FilePath);
+            Assert.AreEqual(_fileInfo.AbsoluteFilePath, file.AbsoluteFilePath);
         }
 
         [Test]

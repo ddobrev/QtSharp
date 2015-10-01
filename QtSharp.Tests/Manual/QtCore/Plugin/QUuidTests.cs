@@ -33,7 +33,7 @@ namespace QtSharp.Tests.Manual.QtCore.Plugin
         public void TestEmpyConstructor()
         {
             var uid = new QUuid();
-            throw new AssertionException("Empty ctor not implemented!");
+            Assert.AreEqual(Guid.Empty.ToString(), uid.ToString().Trim('{', '}'));
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace QtSharp.Tests.Manual.QtCore.Plugin
             byte b7 = 0x13;
             byte b8 = 0xee;
 
-            //var uid = new QUuid(l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8);
+            var uid = new QUuid(l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8);
 
             throw new AssertionException("Hex ctor not implemented!");
         }
@@ -70,8 +70,7 @@ namespace QtSharp.Tests.Manual.QtCore.Plugin
             Assert.AreEqual(_uuidA.ToString(), (new QUuid("{fc69b59e-cc34-4436-a43c-ee95d128b8c5")).ToString());
             Assert.AreEqual(_uuidA.ToString(), (new QUuid("fc69b59e-cc34-4436-a43c-ee95d128b8c5")).ToString());
 
-            throw new AssertionException("Empty ctor not implemented!");
-            //Assert.AreEqual(new QUuid(), new QUuid("{fc69b59e-cc34-4436-a43c-ee95d128b8c"));
+            Assert.AreEqual(new QUuid(), new QUuid("{fc69b59e-cc34-4436-a43c-ee95d128b8c"));
 
             Assert.AreEqual(_uuidB.ToString(), (new QUuid("{1ab6e93a-b1cb-4a87-ba47-ec7e99039a7b}")).ToString());
         }
@@ -111,12 +110,11 @@ namespace QtSharp.Tests.Manual.QtCore.Plugin
         [Test]
         public void TestCreateUuidV5()
         {
-            var s = _uuidD;
-            var uid = QUuid.CreateUuidV3(_uuidNs, new QByteArray("www.widgets.com"));
+            var uid = QUuid.CreateUuidV5(_uuidNs, new QByteArray("www.widgets.com"));
             Assert.AreEqual(_uuidD, uid);
 
             //throw new AssertionException("string para not implemented!");
-            var uid2 = QUuid.CreateUuidV3(_uuidNs, "www.widgets.com");
+            var uid2 = QUuid.CreateUuidV5(_uuidNs, "www.widgets.com");
             Assert.AreEqual(_uuidD, uid2);
         }
 
@@ -135,9 +133,8 @@ namespace QtSharp.Tests.Manual.QtCore.Plugin
         {
             Assert.IsFalse(_uuidA.IsNull);
 
-            throw new AssertionException("Not implemented!");
-            //var shouldNull = new QUuid();
-            //Assert.IsTrue(shouldNull.IsNull);
+            var shouldNull = new QUuid();
+            Assert.IsTrue(shouldNull.IsNull);
         }
 
         [Test]
