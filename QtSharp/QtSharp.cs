@@ -171,7 +171,6 @@ namespace QtSharp
             driver.Options.GenerateSingleCSharpFile = true;
             driver.Options.GenerateInlines = true;
             driver.Options.CompileCode = true;
-            driver.Options.GenerateCopyConstructors = true;
             driver.Options.GenerateDefaultValuesForArguments = true;
             driver.Options.GenerateConversionOperators = true;
             driver.Options.MarshalCharAsManagedChar = true;
