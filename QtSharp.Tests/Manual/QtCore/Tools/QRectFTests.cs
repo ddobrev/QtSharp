@@ -81,8 +81,8 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
             Assert.AreEqual(100, s.X);
             Assert.AreEqual(250, s.Y);
-            Assert.AreEqual(650, s.Width);
-            Assert.AreEqual(800, s.Height);
+            Assert.AreEqual(600, s.Width);
+            Assert.AreEqual(700, s.Height);
         }
 
         [Test]
@@ -98,8 +98,8 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
             Assert.AreEqual(100, n.X);
             Assert.AreEqual(250, n.Y);
-            Assert.AreEqual(650, n.Width);
-            Assert.AreEqual(800, n.Height);
+            Assert.AreEqual(600, n.Width);
+            Assert.AreEqual(700, n.Height);
         }
 
         [Test]
@@ -127,7 +127,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
             var n = s.BottomLeft;
 
-            Assert.AreEqual(new QPointF(s.Left, s.Height + s.Top - 1), n);
+            Assert.AreEqual(new QPointF(s.Left, s.Height + s.Top), n);
         }
 
         [Test]
@@ -141,7 +141,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
             var n = s.BottomRight;
 
-            Assert.AreEqual(new QPointF(s.Left + s.Width - 1, s.Top + s.Height - 1), n);
+            Assert.AreEqual(new QPointF(s.Left + s.Width, s.Top + s.Height), n);
         }
 
         [Test]
@@ -155,8 +155,8 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
             var n = s.Center;
 
-            Assert.AreEqual(275, n.X);
-            Assert.AreEqual(375, n.Y);
+            Assert.AreEqual(300, n.X);
+            Assert.AreEqual(450, n.Y);
         }
 
         [Test]
@@ -403,8 +403,8 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
             var newR = s.MarginsAdded(mar);
 
-            Assert.AreEqual(100, newR.Left);
-            Assert.AreEqual(250, newR.Top);
+            Assert.AreEqual(0, newR.Left);
+            Assert.AreEqual(50, newR.Top);
             Assert.AreEqual(750, newR.Right);
             Assert.AreEqual(700, newR.Bottom);
         }
@@ -422,8 +422,8 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
             var newR = s.MarginsRemoved(mar);
 
-            Assert.AreEqual(0, newR.Left);
-            Assert.AreEqual(50, newR.Top);
+            Assert.AreEqual(100, newR.Left);
+            Assert.AreEqual(250, newR.Top);
             Assert.AreEqual(450, newR.Right);
             Assert.AreEqual(300, newR.Bottom);
         }
@@ -439,7 +439,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
             s.MoveBottom(50);
 
-            Assert.AreEqual(550, s.Bottom);
+            Assert.AreEqual(50, s.Bottom);
         }
 
         [Test]
@@ -473,7 +473,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             Assert.AreEqual(500, s.Width);
             Assert.AreEqual(600, s.Height);
             Assert.AreEqual(100, s.X);
-            Assert.AreEqual(100, s.Y);
+            Assert.AreEqual(0, s.Y);
         }
 
         [Test]
@@ -506,7 +506,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
             Assert.AreEqual(500, s.Width);
             Assert.AreEqual(600, s.Height);
-            Assert.AreEqual(0, s.X);
+            Assert.AreEqual(50, s.X);
             Assert.AreEqual(100, s.Y);
         }
 
@@ -523,7 +523,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
             Assert.AreEqual(500, s.Width);
             Assert.AreEqual(600, s.Height);
-            Assert.AreEqual(100, s.X);
+            Assert.AreEqual(-450, s.X);
             Assert.AreEqual(100, s.Y);
         }
 
@@ -625,8 +625,8 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
             Assert.IsTrue(n.Width > 0);
             Assert.IsTrue(n.Height > 0);
-            Assert.AreEqual(0, n.X);
-            Assert.AreEqual(0, n.Y);
+            Assert.AreEqual(-1, n.X);
+            Assert.AreEqual(-1, n.Y);
         }
 
         [Test]
@@ -882,10 +882,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
             s1 += s2;
 
-            Assert.AreEqual(100, s1.X);
-            Assert.AreEqual(100, s1.Y);
-            Assert.AreEqual(500, s1.Width);
-            Assert.AreEqual(600, s1.Height);
+            Assert.AreEqual(-100, s1.X);
+            Assert.AreEqual(-100, s1.Y);
+            Assert.AreEqual(700, s1.Width);
+            Assert.AreEqual(800, s1.Height);
         }
 
         [Test]
@@ -899,12 +899,12 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
             var s2 = new QMarginsF(100, 100, 100, 100);
 
-            s1 += s2;
+            s1 -= s2;
 
-            Assert.AreEqual(0, s1.X);
-            Assert.AreEqual(0, s1.Y);
-            Assert.AreEqual(500, s1.Width);
-            Assert.AreEqual(600, s1.Height);
+            Assert.AreEqual(200, s1.X);
+            Assert.AreEqual(200, s1.Y);
+            Assert.AreEqual(300, s1.Width);
+            Assert.AreEqual(400, s1.Height);
         }
 
         [Test]
@@ -984,10 +984,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
             var n = s1 + s2;
 
-            Assert.AreEqual(100, n.X);
-            Assert.AreEqual(100, n.Y);
-            Assert.AreEqual(500, n.Width);
-            Assert.AreEqual(600, n.Height);
+            Assert.AreEqual(-100, n.X);
+            Assert.AreEqual(-100, n.Y);
+            Assert.AreEqual(700, n.Width);
+            Assert.AreEqual(800, n.Height);
         }
 
         [Test]
@@ -1003,10 +1003,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
             var n = s2 + s1;
 
-            Assert.AreEqual(100, n.X);
-            Assert.AreEqual(100, n.Y);
-            Assert.AreEqual(500, n.Width);
-            Assert.AreEqual(600, n.Height);
+            Assert.AreEqual(-100, n.X);
+            Assert.AreEqual(-100, n.Y);
+            Assert.AreEqual(700, n.Width);
+            Assert.AreEqual(800, n.Height);
         }
 
         [Test]
@@ -1022,10 +1022,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
             var n = s1 - s2;
 
-            Assert.AreEqual(0, n.X);
-            Assert.AreEqual(0, n.Y);
-            Assert.AreEqual(500, n.Width);
-            Assert.AreEqual(600, n.Height);
+            Assert.AreEqual(200, n.X);
+            Assert.AreEqual(200, n.Y);
+            Assert.AreEqual(300, n.Width);
+            Assert.AreEqual(400, n.Height);
         }
 
         [Test]
