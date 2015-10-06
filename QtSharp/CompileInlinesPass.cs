@@ -21,14 +21,52 @@ namespace QtSharp
 
         public override bool VisitLibrary(ASTContext library)
         {
-            bool result = base.VisitLibrary(library);
-            string pro = string.Format("{0}.pro", this.Driver.Options.InlinesLibraryName);
-            string path = Path.Combine(this.Driver.Options.OutputDir, pro);
-            StringBuilder proBuilder = new StringBuilder();
+            string error;
+            const string qtVersionVariable = "QT_VERSION";
+            var qtVersion = ProcessHelper.Run(this.qmake, string.Format("-query {0}", qtVersionVariable), out error);
+            var qtVersionFile = Path.Combine(this.Driver.Options.OutputDir, qtVersionVariable);
+            var dir = Path.Combine(this.Driver.Options.OutputDir, "release");
+            var inlines = Path.GetFileName(string.Format("lib{0}.a", this.Driver.Options.InlinesLibraryName));
+            var libFile = Path.Combine(dir, inlines);
+            var qtVersionFileInfo = new FileInfo(qtVersionFile);
+            var inlinesFileInfo = new FileInfo(libFile);
+            string text = string.Empty;
+            if (!qtVersionFileInfo.Exists || (text = File.ReadAllText(qtVersionFile)) != qtVersion ||
+                !inlinesFileInfo.Exists || qtVersionFileInfo.CreationTimeUtc > inlinesFileInfo.CreationTimeUtc ||
+                qtVersionFileInfo.LastWriteTimeUtc > inlinesFileInfo.LastWriteTimeUtc)
+            {
+                if (text != qtVersion)
+                {
+                    File.WriteAllText(qtVersionFile, qtVersion);
+                }
+                if (!this.CompileInlines())
+                {
+                    return false;
+                }
+            }
+            var parserOptions = new ParserOptions();
+            parserOptions.addLibraryDirs(dir);
+            parserOptions.FileName = inlines;
+            var parserResult = ClangParser.ParseLibrary(parserOptions);
+            if (parserResult.Kind == ParserResultKind.Success)
+            {
+                var nativeLibrary = CppSharp.ClangParser.ConvertLibrary(parserResult.Library);
+                this.Driver.Symbols.Libraries.Add(nativeLibrary);
+                this.Driver.Symbols.IndexSymbols();
+            }
+            return true;
+        }
+
+        private bool CompileInlines()
+        {
+            var pro = string.Format("{0}.pro", this.Driver.Options.InlinesLibraryName);
+            var path = Path.Combine(this.Driver.Options.OutputDir, pro);
+            var proBuilder = new StringBuilder();
             proBuilder.AppendFormat("QT += {0}\n",
-                                    string.Join(" ", this.Driver.Options.Headers.Select(h => h.Substring("Qt".Length).ToLowerInvariant())));
+                                    string.Join(" ",
+                                                this.Driver.Options.Headers.Select(h => h.Substring("Qt".Length).ToLowerInvariant())));
             // HACK: work around https://bugreports.qt.io/browse/QTBUG-47569
-            if (this.Driver.Options.InlinesLibraryName.StartsWith("QtWidgets") 
+            if (this.Driver.Options.InlinesLibraryName.StartsWith("QtWidgets")
                 || this.Driver.Options.InlinesLibraryName.StartsWith("QtDesigner")
                 || this.Driver.Options.InlinesLibraryName.StartsWith("QtUiTools"))
             {
@@ -57,17 +95,7 @@ namespace QtSharp
                 Console.WriteLine(error);
                 return false;
             }
-            var parserOptions = new ParserOptions();
-            parserOptions.addLibraryDirs(Path.Combine(this.Driver.Options.OutputDir, "release"));
-            parserOptions.FileName = Path.GetFileName(string.Format("lib{0}.a", Path.GetFileNameWithoutExtension(pro)));
-            var parserResult = ClangParser.ParseLibrary(parserOptions);
-            if (parserResult.Kind == ParserResultKind.Success)
-            {
-                var nativeLibrary = CppSharp.ClangParser.ConvertLibrary(parserResult.Library);
-                this.Driver.Symbols.Libraries.Add(nativeLibrary);
-                this.Driver.Symbols.IndexSymbols();
-            }
-            return result;
+            return true;
         }
     }
 }
