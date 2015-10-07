@@ -393,12 +393,19 @@ namespace QtSharp
                 if (this.typesDocumentation.ContainsKey(file))
                 {
                     var docs = this.typesDocumentation[file];
+                    var briefText = StripTags(docs[0].InnerHtml);
+                    var text = StripTags(ConstructDocumentText(docs.Skip(1)));
                     type.Comment = new RawComment
                     {
-                        BriefText = StripTags(docs[0].InnerHtml),
+                        BriefText = briefText,
                         // TODO: create links in the "See Also" section; in general, convert all links
-                        Text = StripTags(ConstructDocumentText(docs.Skip(1)))
+                        Text = text,
+                        FullComment = new FullComment()
                     };
+                    var paragraphComment = new ParagraphComment();
+                    paragraphComment.Content.Add(new TextComment { Text = briefText });
+                    paragraphComment.Content.AddRange(text.Split('\n').Select(t => new TextComment { Text = t }));
+                    type.Comment.FullComment.Blocks.Add(paragraphComment);
                 }
             }
         }
