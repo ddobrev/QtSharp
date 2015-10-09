@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text.RegularExpressions;
 using CppSharp;
+using CppSharp.AST;
 using CppSharp.Parser;
 using ClangParser = CppSharp.Parser.ClangParser;
 
@@ -93,16 +94,19 @@ namespace QtSharp.CLI
                     dependencies[libFile] = Enumerable.Empty<string>();
                 }
             }
-            var modules = new List<string> { "Qt5Core.dll", "Qt5Gui.dll", "Qt5Widgets.dll", "Qt5Designer.dll" };
+            var modules = new List<string> { "Qt5Core", "Qt5Gui", "Qt5Widgets", "Qt5Designer" };
             libFiles = libFiles.TopologicalSort(l => dependencies.ContainsKey(l) ? dependencies[l] : Enumerable.Empty<string>());
             var wrappedModules = new List<KeyValuePair<string, string>>(modules.Count);
-            foreach (var libFile in libFiles.Where(libFile => modules.Contains(libFile)))
+            List<ASTContext> astContexts = new List<ASTContext>(libFiles.Count);
+            foreach (var libFile in libFiles.Where(l => modules.Any(m => m == Path.GetFileNameWithoutExtension(l))))
             {
                 logredirect.SetLogFile(libFile.Replace(".dll", "") + "Log.txt");
                 logredirect.Start();
 
-                var qtSharp = new QtSharp(qmake, make, headers, libs, libFile, target, systemIncludeDirs, docs);
+                var qtSharp = new QtSharp(new QtModuleInfo(qmake, make, headers, libs, libFile, target, systemIncludeDirs, docs),
+                                          astContexts);
                 ConsoleDriver.Run(qtSharp);
+                astContexts.Add(qtSharp.AST);
                 if (File.Exists(qtSharp.LibraryName) && File.Exists(Path.Combine("release", qtSharp.InlinesLibraryName)))
                 {
                     wrappedModules.Add(new KeyValuePair<string, string>(qtSharp.LibraryName, qtSharp.InlinesLibraryName));

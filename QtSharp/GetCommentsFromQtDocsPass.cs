@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using CppSharp.AST;
 using CppSharp.Passes;
 
@@ -6,8 +7,9 @@ namespace QtSharp
 {
     public class GetCommentsFromQtDocsPass : TranslationUnitPass
     {
-        public GetCommentsFromQtDocsPass(string docsPath, string module)
+        public GetCommentsFromQtDocsPass(string docsPath, string module, List<ASTContext> dependencies)
         {
+            this.dependencies = dependencies;
             this.documentation = new Documentation(docsPath, module);
             this.Options.VisitFunctionReturnType = false;
             this.Options.VisitFunctionParameters = false;
@@ -81,7 +83,19 @@ namespace QtSharp
             }
             if (function.IsGenerated)
             {
-                this.DocumentFunction(function);
+                var @class = function.OriginalNamespace as Class;
+                if (@class != null && @class.IsInterface && @class.GenerationKind == GenerationKind.Link)
+                {
+                    function.Comment = (from dependency in this.dependencies
+                                        from found in dependency.FindClass(@class.Name)
+                                        from method in found.Methods
+                                        where method.USR == function.USR
+                                        select method.Comment).FirstOrDefault();
+                }
+                else
+                {
+                    this.DocumentFunction(function);
+                }
                 return true;
             }
             return false;
@@ -95,6 +109,22 @@ namespace QtSharp
             }
             if (!property.IsSynthetized && property.IsGenerated)
             {
+                foreach (var @class in from m in new[] { property.GetMethod, property.SetMethod }
+                                       where m != null
+                                       let @class = m.OriginalNamespace as Class
+                                       where @class != null && @class.IsInterface && @class.GenerationKind == GenerationKind.Link
+                                       select @class)
+                {
+                    property.Comment = (from dependency in this.dependencies
+                                        from found in dependency.FindClass(@class.Name)
+                                        from prop in found.Properties
+                                        where prop.OriginalName == property.OriginalName
+                                        select prop.Comment).FirstOrDefault();
+                    if (property.Comment != null)
+                    {
+                        return true;
+                    }
+                }
                 this.documentation.DocumentProperty(property);
                 return true;
             }
@@ -151,5 +181,6 @@ namespace QtSharp
         }
 
         private readonly Documentation documentation;
+        private readonly List<ASTContext> dependencies;
     }
 }

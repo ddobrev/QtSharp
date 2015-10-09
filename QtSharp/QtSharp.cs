@@ -15,22 +15,23 @@ namespace QtSharp
 {
     public class QtSharp : ILibrary
     {
-        public QtSharp(string qmake, string make, string includePath, string libraryPath, string library, string target,
-            IEnumerable<string> systemIncludeDirs, string docs)
+        public QtSharp(QtModuleInfo qtModuleInfo, List<ASTContext> dependencies)
         {
-            this.qmake = qmake;
-            this.includePath = includePath.Replace('/', Path.DirectorySeparatorChar);
-            this.module = Regex.Match(library, @"Qt\d?(?<module>\w+)\.\w+$").Groups["module"].Value;
-            this.libraryPath = libraryPath.Replace('/', Path.DirectorySeparatorChar);
-            this.library = library;
-            this.target = target;
-            this.systemIncludeDirs = systemIncludeDirs;
-            this.make = make;
-            this.docs = docs;
+            this.dependencies = dependencies;
+            this.qmake = qtModuleInfo.Qmake;
+            this.includePath = qtModuleInfo.IncludePath.Replace('/', Path.DirectorySeparatorChar);
+            this.module = Regex.Match(qtModuleInfo.Library, @"Qt\d?(?<module>\w+)\.\w+$").Groups["module"].Value;
+            this.libraryPath = qtModuleInfo.LibraryPath.Replace('/', Path.DirectorySeparatorChar);
+            this.library = qtModuleInfo.Library;
+            this.target = qtModuleInfo.Target;
+            this.systemIncludeDirs = qtModuleInfo.SystemIncludeDirs;
+            this.make = qtModuleInfo.Make;
+            this.docs = qtModuleInfo.Docs;
         }
 
         public string LibraryName { get; set; }
         public string InlinesLibraryName { get; set; }
+        public ASTContext AST { get; set; }
 
         public void Preprocess(Driver driver, ASTContext lib)
         {
@@ -125,7 +126,7 @@ namespace QtSharp
         public void Postprocess(Driver driver, ASTContext lib)
         {
             new ClearCommentsPass().VisitLibrary(driver.ASTContext);
-            new GetCommentsFromQtDocsPass(this.docs, this.module).VisitLibrary(driver.ASTContext);
+            new GetCommentsFromQtDocsPass(this.docs, this.module, this.dependencies).VisitLibrary(driver.ASTContext);
             new CaseRenamePass(
                 RenameTargets.Function | RenameTargets.Method | RenameTargets.Property | RenameTargets.Delegate |
                 RenameTargets.Field | RenameTargets.Variable,
@@ -142,6 +143,7 @@ namespace QtSharp
                         .ExplicitlyIgnore();
                     break;
             }
+            this.AST = lib;
         }
 
         public void Setup(Driver driver)
@@ -207,5 +209,6 @@ namespace QtSharp
         private readonly IEnumerable<string> systemIncludeDirs;
         private readonly string target;
         private readonly string docs;
+        private readonly List<ASTContext> dependencies;
     }
 }
