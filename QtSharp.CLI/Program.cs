@@ -94,10 +94,10 @@ namespace QtSharp.CLI
                     dependencies[libFile] = Enumerable.Empty<string>();
                 }
             }
-            var modules = new List<string> { "Qt5Core", "Qt5Gui", "Qt5Widgets", "Qt5Designer" };
+            var modules = new List<string> { "Qt5Core", "Qt5Gui", "Qt5Widgets", "Qt5Xml", "Qt5Designer" };
             libFiles = libFiles.TopologicalSort(l => dependencies.ContainsKey(l) ? dependencies[l] : Enumerable.Empty<string>());
             var wrappedModules = new List<KeyValuePair<string, string>>(modules.Count);
-            List<ASTContext> astContexts = new List<ASTContext>(libFiles.Count);
+            var astContexts = new List<ASTContext>(libFiles.Count);
             foreach (var libFile in libFiles.Where(l => modules.Any(m => m == Path.GetFileNameWithoutExtension(l))))
             {
                 logredirect.SetLogFile(libFile.Replace(".dll", "") + "Log.txt");
