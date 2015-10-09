@@ -16,7 +16,10 @@ namespace QtSharp
             this.Options.VisitClassFields = false;
         }
 
-        public bool DocumentationExists { get { return this.documentation.Exists; }}
+        public override bool VisitLibrary(ASTContext context)
+        {
+            return this.documentation.Exists && base.VisitLibrary(context);
+        }
 
         public override bool VisitClassDecl(Class @class)
         {
@@ -44,7 +47,7 @@ namespace QtSharp
                 }
                 else
                 {
-                    this.documentation.DocumentType(@class);                    
+                    this.documentation.DocumentType(@class);
                 }
                 return true;
             }
@@ -53,60 +56,85 @@ namespace QtSharp
 
         public override bool VisitDeclarationContext(DeclarationContext context)
         {
-            if (!context.IsGenerated)
-                return false;
-            return base.VisitDeclarationContext(context);
+            return context.IsGenerated && base.VisitDeclarationContext(context);
         }
 
         public override bool VisitEnumDecl(Enumeration @enum)
         {
-            if (!this.AlreadyVisited(@enum) && @enum.IsGenerated)
+            if (!base.VisitEnumDecl(@enum))
+            {
+                return false;
+            }
+            if (@enum.IsGenerated)
             {
                 this.documentation.DocumentEnum(@enum);
+                return true;
             }
-            return base.VisitEnumDecl(@enum);
+            return false;
         }
 
         public override bool VisitFunctionDecl(Function function)
         {
+            if (!base.VisitFunctionDecl(function))
+            {
+                return false;
+            }
             if (function.IsGenerated)
             {
                 this.DocumentFunction(function);
+                return true;
             }
-            return base.VisitFunctionDecl(function);
+            return false;
         }
 
         public override bool VisitProperty(Property property)
         {
-            if (!property.IsSynthetized && !this.AlreadyVisited(property) && property.IsGenerated)
+            if (!base.VisitProperty(property))
+            {
+                return false;
+            }
+            if (!property.IsSynthetized && property.IsGenerated)
             {
                 this.documentation.DocumentProperty(property);
+                return true;
             }
-            return base.VisitProperty(property);
+            return false;
         }
 
         public override bool VisitEvent(Event @event)
         {
-            Function function = @event.OriginalDeclaration as Function;
-            if (function != null && @event.IsGenerated && !this.AlreadyVisited(@event))
+            if (!base.VisitEvent(@event))
+            {
+                return false;
+            }
+            var function = @event.OriginalDeclaration as Function;
+            if (function != null && @event.IsGenerated)
             {
                 this.DocumentFunction(function);
+                return true;
             }
-            return base.VisitEvent(@event);
+            return false;
         }
 
         public override bool VisitVariableDecl(Variable variable)
         {
-            if (!this.AlreadyVisited(variable) && variable.IsGenerated)
+            // HACK: it doesn't work to call the base as everywhere else because the type of the variable is visited too
+            if (this.AlreadyVisited(variable))
+            {
+                return false;
+            }
+            base.VisitVariableDecl(variable);
+            if (variable.IsGenerated)
             {
                 this.documentation.DocumentVariable(variable);
+                return true;
             }
-            return base.VisitVariableDecl(variable);
+            return false;
         }
 
         private void DocumentFunction(Function function)
         {
-            if (!this.AlreadyVisited(function) && function.Comment == null)
+            if (function.Comment == null)
             {
                 if (function.IsSynthetized)
                 {

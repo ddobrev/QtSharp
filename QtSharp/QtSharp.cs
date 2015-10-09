@@ -125,11 +125,7 @@ namespace QtSharp
         public void Postprocess(Driver driver, ASTContext lib)
         {
             new ClearCommentsPass().VisitLibrary(driver.ASTContext);
-            var getCommentsFromQtDocsPass = new GetCommentsFromQtDocsPass(this.docs, this.module);
-            if (getCommentsFromQtDocsPass.DocumentationExists)
-            {
-                getCommentsFromQtDocsPass.VisitLibrary(driver.ASTContext);
-            }
+            new GetCommentsFromQtDocsPass(this.docs, this.module).VisitLibrary(driver.ASTContext);
             new CaseRenamePass(
                 RenameTargets.Function | RenameTargets.Method | RenameTargets.Property | RenameTargets.Delegate |
                 RenameTargets.Field | RenameTargets.Variable,
