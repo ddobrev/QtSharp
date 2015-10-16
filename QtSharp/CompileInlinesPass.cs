@@ -65,13 +65,6 @@ namespace QtSharp
             proBuilder.AppendFormat("QT += {0}\n",
                                     string.Join(" ",
                                                 this.Driver.Options.Headers.Select(h => h.Substring("Qt".Length).ToLowerInvariant())));
-            // HACK: work around https://bugreports.qt.io/browse/QTBUG-47569
-            if (this.Driver.Options.InlinesLibraryName.StartsWith("QtWidgets")
-                || this.Driver.Options.InlinesLibraryName.StartsWith("QtDesigner")
-                || this.Driver.Options.InlinesLibraryName.StartsWith("QtUiTools"))
-            {
-                proBuilder.Append("DEFINES += QT_NO_ACCESSIBILITY\n");
-            }
             proBuilder.Append("QMAKE_CXXFLAGS += -fkeep-inline-functions -std=c++0x\n");
             proBuilder.AppendFormat("TARGET = {0}\n", this.Driver.Options.InlinesLibraryName);
             proBuilder.Append("TEMPLATE = lib\n");

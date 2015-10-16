@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -150,11 +149,6 @@ namespace QtSharp
         {
             driver.Options.GeneratorKind = GeneratorKind.CSharp;
             var qtModule = "Qt" + this.module;
-            // HACK: work around https://bugreports.qt.io/browse/QTBUG-47569
-            if (this.module == "Widgets" || this.module == "Designer")
-            {
-                driver.Options.addDefines("QT_NO_ACCESSIBILITY");
-            }
             driver.Options.MicrosoftMode = false;
             driver.Options.NoBuiltinIncludes = true;
             driver.Options.TargetTriple = this.target;
@@ -182,11 +176,17 @@ namespace QtSharp
             driver.Options.addLibraryDirs(this.libraryPath);
             driver.Options.Libraries.Add(this.library);
             string dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            if (this.module == "Core")
+            switch (this.module)
             {
-                driver.Options.CodeFiles.Add(Path.Combine(dir, "QObject.cs"));
-                driver.Options.CodeFiles.Add(Path.Combine(dir, "QChar.cs"));
-                driver.Options.CodeFiles.Add(Path.Combine(dir, "_iobuf.cs"));
+                case "Core":
+                    driver.Options.CodeFiles.Add(Path.Combine(dir, "QObject.cs"));
+                    driver.Options.CodeFiles.Add(Path.Combine(dir, "QChar.cs"));
+                    driver.Options.CodeFiles.Add(Path.Combine(dir, "_iobuf.cs"));
+                    break;
+                case "Gui":
+                    // HACK: work around https://github.com/mono/CppSharp/issues/582
+                    driver.Options.CodeFiles.Add(Path.Combine(dir, "IQAccessibleActionInterface.cs"));
+                    break;
             }
             var extension = Path.GetExtension(this.library);
             this.LibraryName = driver.Options.LibraryName + extension;

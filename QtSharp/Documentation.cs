@@ -190,13 +190,7 @@ namespace QtSharp
                 {
                     var id = link[1].Split('-');
                     var key = EscapeId(function.IsAmbiguous && node.Attribute("access").Value == "private" ? id[0] : link[1]);
-                    var containsKey = this.membersDocumentation[file].ContainsKey(key);
-                    if (!containsKey)
-                    {
-                        // HACK: work around https://bugreports.qt.io/browse/QTBUG-46153
-                        containsKey = this.membersDocumentation[file].ContainsKey(key += "x");
-                    }
-                    if (containsKey)
+                    if (this.membersDocumentation[file].ContainsKey(key))
                     {
                         var docs = this.membersDocumentation[file][key];
                         var i = 0;
@@ -489,13 +483,7 @@ namespace QtSharp
                 if (this.membersDocumentation.ContainsKey(file))
                 {
                     var key = link[1];
-                    var containsKey = this.membersDocumentation[file].ContainsKey(key);
-                    if (!containsKey)
-                    {
-                        // HACK: work around https://bugreports.qt.io/browse/QTBUG-48126
-                        containsKey = this.membersDocumentation[file].ContainsKey(key += "x");
-                    }
-                    if (containsKey)
+                    if (this.membersDocumentation[file].ContainsKey(key))
                     {
                         var docs = this.membersDocumentation[file][key];
                         // TODO: create links in the "See Also" section

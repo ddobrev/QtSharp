@@ -68,6 +68,9 @@
     <Compile Include="GenerateEventEventsPass.cs" />
     <Compile Include="GenerateSignalEventsPass.cs" />
     <Compile Include="GetCommentsFromQtDocsPass.cs" />
+    <None Include="IQAccessibleActionInterface.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProcessHelper.cs" />
     <None Include="packages.config" />
@@ -86,6 +89,7 @@
     <Compile Include="QString.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="QtModuleInfo.cs" />
     <Compile Include="QtSharp.cs" />
   </ItemGroup>
   <ItemGroup>
