@@ -41,7 +41,8 @@ namespace QtSharp
             {
                 Type.TryGetClass(out @class);
             }
-            var qualifiedIdentifier = CSharpMarshalNativeToManagedPrinter.QualifiedIdentifier(@class.OriginalClass ?? @class);
+            typePrinter = typePrinter ?? (typePrinter = new CSharpTypePrinter(ctx.Driver));
+            var qualifiedIdentifier = (@class.OriginalClass ?? @class).Visit(typePrinter);
             ctx.Return.Write("ReferenceEquals(__qstring{0}, null) ? new {1}.Internal() : *({1}.Internal*) (__qstring{0}.{2})",
                              ctx.ParameterIndex, qualifiedIdentifier, Helpers.InstanceIdentifier);
         }
@@ -51,5 +52,7 @@ namespace QtSharp
             ctx.Return.Write("Marshal.PtrToStringUni(new IntPtr(QtCore.QString.{0}({1}).Utf16))",
                 Helpers.CreateInstanceIdentifier, ctx.ReturnVarName);
         }
+
+        CSharpTypePrinter typePrinter;
     }
 }

@@ -337,7 +337,7 @@ namespace QtSharp
             }
 
             var node = this.propertyNodes[property.Name].Find(
-                c => c.Attribute("fullname").Value == property.QualifiedName);
+                c => c.Attribute("fullname").Value == property.QualifiedOriginalName);
 	        if (node != null && node.Attribute("href") != null)
 			{
 				var link = node.Attribute("href").Value.Split('#');
