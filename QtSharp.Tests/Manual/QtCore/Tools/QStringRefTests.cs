@@ -82,9 +82,9 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
             var appended = old.AppendTo(app);
 
-            var q = appended.ToString();
+            var q = appended.String;
 
-            var exp = this._testString + app;
+            var exp = app + this._testString;
 
             Assert.AreEqual(exp, q);
         }
@@ -94,12 +94,12 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestAtToGetQChar()
         {
-            for (var j = 0; j < _testString.Count(); j++)
+            for (var j = 0; j < this._testString.Length; j++)
             {
                 char net = _testString.ElementAt(0);
                 QChar q = _qString.At(0);
 
-                Assert.AreEqual(net.ToString(), q.ToString());
+                Assert.AreEqual(net, q.ToLatin1());
             }
         }
         #endregion
@@ -442,9 +442,9 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         {
             var r = new Random();
             var rx = r.Next(0, _testString.Count());
-            var charac = _testString.ElementAt(rx);
+            var charac = char.ToLowerInvariant(_testString.ElementAt(rx));
 
-            var net = Regex.Matches(_testString, @charac.ToString(), RegexOptions.IgnoreCase).Count;
+            var net = _testString.Count(c => char.ToLowerInvariant(c) == charac);
 
             var qchar = new QChar(charac);
             var q = _qString.Count(qchar, CaseSensitivity.CaseInsensitive);
@@ -499,10 +499,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         public void TestCountWithQStringRefArgsCaseInsensitive()
         {
             var r = new Random();
-            var rx = r.Next(0, _testString.Count());
-            var charac = _testString.ElementAt(rx);
+            var rx = r.Next(0, this._testString.Length);
+            var charac = char.ToLowerInvariant(_testString.ElementAt(rx));
 
-            var net = Regex.Matches(_testString, @charac.ToString(), RegexOptions.IgnoreCase).Count;
+            var net = _testString.Count(c => char.ToLowerInvariant(c) == charac);
 
             var qs = new QStringRef(charac.ToString());
 
@@ -877,7 +877,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var qString1 = new QStringRef(netString1);
 
             var subNet = netString1.Substring(netString1.Length - 5);
-            var subQ = qString1.Right(netString1.Length - 5);
+            var subQ = qString1.Right(5);
 
             Assert.AreEqual(subNet, subQ.ToString());
         }
@@ -1108,7 +1108,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         {
             var s = _qString;
 
-            Assert.AreEqual(s, _testString);
+            Assert.IsTrue(s == _testString);
         }
 
         [Test]
@@ -1117,14 +1117,14 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var s = _qString;
             var s2 = new QLatin1String(_testString);
 
-            Assert.AreNotEqual(s, s2);
+            Assert.IsTrue(s != s2);
         }
 
         [Test]
         public void TestNotEqual_QStringRef_QStringRefOperator()
         {
             var s = _qString;
-            var s2 = new QStringRef(_testString);
+            var s2 = new QStringRef(_testString + "a");
 
             Assert.AreNotEqual(s, s2);
         }
@@ -1143,15 +1143,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var s = new QStringRef(_testString);
             var s2 = new QStringRef(_testString.ToUpper());
 
-            var netComp = _testString.CompareTo(_testString.ToUpper());
-
-            var net = false || netComp > 0;
-
-            var q = s > s2;
-
-            //Assert.Greater(s, s2);
-
-            Assert.AreEqual(net, q);
+            Assert.IsTrue(s > s2);
         }
 
         [Test]
@@ -1160,15 +1152,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var s = new QStringRef(_testString);
             var s2 = new QStringRef(_testString.ToUpper());
 
-            var netComp = _testString.CompareTo(_testString.ToUpper());
-
-            bool net = netComp >= 0;
-
-            var q = s >= s2;
-
-            //Assert.GreaterOrEqual(s, s2);
-
-            Assert.AreEqual(net, q);
+            Assert.IsTrue(s >= s2);
         }
 
         [Test]
@@ -1177,15 +1161,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var s = new QStringRef(_testString);
             var s2 = new QStringRef(_testString.ToUpper());
 
-            var netComp = _testString.CompareTo(_testString.ToUpper());
-
-            var net = false || netComp < 0;
-
-            var q = s < s2;
-
-            //Assert.Less(s, s2);
-
-            Assert.AreEqual(net, q);
+            Assert.IsTrue(s2 < s);
         }
 
         [Test]
@@ -1194,15 +1170,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var s = new QStringRef(_testString);
             var s2 = new QStringRef(_testString.ToUpper());
 
-            var netComp = _testString.CompareTo(_testString.ToUpper());
-
-            bool net = netComp <= 0;
-
-            var q = s <= s2;
-
-            //Assert.LessOrEqual(s, s2);
-
-            Assert.AreEqual(net, q);
+            Assert.IsTrue(s2 <= s);
         }
 
         #endregion

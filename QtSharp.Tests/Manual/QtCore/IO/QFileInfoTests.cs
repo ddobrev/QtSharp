@@ -247,9 +247,9 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         [Test]
         public void TestGroupId()
         {
-            var q = (uint)_fileInfo.GroupId;
+            var q = this._fileInfo.GroupId;
 
-            Assert.AreEqual(-2, q);
+            Assert.AreEqual(unchecked((uint) -2), q);
         }
 
         [Test]
@@ -342,7 +342,7 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         [Test]
         public void TestIsSymLink()
         {
-            var file = new QFileInfo("./TestData/DoubleExtensionVerknüpfung.Ink");
+            var file = new QFileInfo("./TestData/DoubleExtensionVerknüpfung.lnk");
 
             Assert.IsTrue(file.IsSymLink);
         }
@@ -470,7 +470,7 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         [Test]
         public void TestSymLinkTarget()
         {
-            var file = new QFileInfo("./TestData/DoubleExtensionVerknüpfung.Ink");
+            var file = new QFileInfo("./TestData/DoubleExtensionVerknüpfung.lnk");
             var target = file.SymLinkTarget;
 
             Assert.AreNotEqual("", target);
