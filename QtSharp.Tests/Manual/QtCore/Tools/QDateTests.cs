@@ -8,46 +8,48 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
     [TestFixture]
     public class QDateTests
     {
-        private QDate _qDate;
+        private QDate qDate;
 
         [SetUp]
         public void Init()
         {
-            // TODO: Add Init code.
-            _qDate = new QDate(2014, 9, 20);
+            this.qDate = new QDate(2014, 9, 20);
         }
 
         [TearDown]
         public void Dispose()
         {
-            // TODO: Add tear down code.
-            _qDate.Dispose();
+            this.qDate.Dispose();
         }
 
         #region Ctor
         [Test]
         public void TestEmptyConstructor()
         {
-            var s = new QDate();
-            Assert.NotNull(s.__Instance);
+            using (var s = new QDate())
+            {
+                Assert.NotNull(s.__Instance);
+            }
         }
 
         [Test]
         public void TestDateConstructor()
         {
-            var s = new QDate(2014, 9, 20);
-
-            Assert.AreEqual(2014, s.Year);
-            Assert.AreEqual(9, s.Month);
-            Assert.AreEqual(20, s.Day);
+            using (var s = new QDate(2014, 9, 20))
+            {
+                Assert.AreEqual(2014, s.Year);
+                Assert.AreEqual(9, s.Month);
+                Assert.AreEqual(20, s.Day);
+            }
         }
+
         #endregion
 
         [Test]
         public void TestAddDays()
         {
             var i = 5;
-            using (var newDate = _qDate.AddDays(i))
+            using (var newDate = this.qDate.AddDays(i))
             {
                 Assert.AreEqual(20 + i, newDate.Day);
             }
@@ -58,7 +60,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         {
             var i = 2;
 
-            using (var newDate = _qDate.AddMonths(i))
+            using (var newDate = this.qDate.AddMonths(i))
             {
                 Assert.AreEqual(9 + i, newDate.Month);                
             }
@@ -69,7 +71,7 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         {
             var i = 2;
 
-            using (var newDate = _qDate.AddYears(i))
+            using (var newDate = this.qDate.AddYears(i))
             {
                 Assert.AreEqual(2014 + i, newDate.Year);                
             }
@@ -92,48 +94,50 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         public void Test_Day_DayOfWeek_DayOfYear_Month_Year()
         {
             var net = new DateTime(2014, 09, 20);
-            var q = new QDate(2014, 09, 20);
-
-            Assert.AreEqual(net.Day, q.Day);
-            Assert.AreEqual(net.Month, q.Month);
-            Assert.AreEqual(net.Year, q.Year);
-            Assert.AreEqual((int)net.DayOfWeek, q.DayOfWeek);
-            Assert.AreEqual(net.DayOfYear, q.DayOfYear);
-            Assert.AreEqual(DateTime.DaysInMonth(2014, 09), q.DaysInMonth);
-            Assert.AreEqual(
-                (new DateTime(2014, 12, 31).Subtract(new DateTime(2014, 01, 01)).TotalDays) + 1,
-                q.DaysInYear);
+            using (var q = new QDate(2014, 09, 20))
+            {
+                Assert.AreEqual(net.Day, q.Day);
+                Assert.AreEqual(net.Month, q.Month);
+                Assert.AreEqual(net.Year, q.Year);
+                Assert.AreEqual((int)net.DayOfWeek, q.DayOfWeek);
+                Assert.AreEqual(net.DayOfYear, q.DayOfYear);
+                Assert.AreEqual(DateTime.DaysInMonth(2014, 09), q.DaysInMonth);
+                Assert.AreEqual((new DateTime(2014, 12, 31).Subtract(new DateTime(2014, 01, 01)).TotalDays) + 1, q.DaysInYear);
+            }
         }
 
-        //[Ignore("Bug")]
         [Test]
         public void TestDaysTo()
         {
-            var q = new QDate(1995, 5, 17);
-            var q2 = new QDate(1995, 5, 20);
+            long res2;
+            using (var q = new QDate(1995, 5, 17))
+            {
+                using (var q2 = new QDate(1995, 5, 20))
+                {
+                    var res1 = q.DaysTo(q2);
+                    Assert.AreEqual(3, res1);
 
-            var res1 = q.DaysTo(q2);
-            Assert.AreEqual(3, res1);
-
-            var res2 = q2.DaysTo(q);
+                    res2 = q2.DaysTo(q);
+                }
+            }
             Assert.AreEqual(-3, res2);
         }
 
         [Test]
         public void TestFromJulianDay()
         {
-            var q = QDate.FromJulianDay(2456921);
-            var s = _qDate;
-
-            Assert.AreEqual(_qDate.Day, q.Day);
-            Assert.AreEqual(_qDate.Year, q.Year);
-            Assert.AreEqual(_qDate.Month, q.Month);
+            using (var q = QDate.FromJulianDay(2456921))
+            {
+                Assert.AreEqual(this.qDate.Day, q.Day);
+                Assert.AreEqual(this.qDate.Year, q.Year);
+                Assert.AreEqual(this.qDate.Month, q.Month);
+            }
         }
 
         [Test]
         public void TestToJulianDay()
         {
-            var q = _qDate.ToJulianDay();
+            var q = this.qDate.ToJulianDay();
 
             Assert.AreEqual(2456921, q);
         }
@@ -143,55 +147,64 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         public void TestFromStringWithDateFormat()
         {
             var f = DateFormat.ISODate;
-            var d = QDate.FromString("2014-09-20", f);
-
-            Assert.AreEqual(20, d.Day);
-            Assert.AreEqual(09, d.Month);
-            Assert.AreEqual(2014, d.Year);
+            using (var d = QDate.FromString("2014-09-20", f))
+            {
+                Assert.AreEqual(20, d.Day);
+                Assert.AreEqual(09, d.Month);
+                Assert.AreEqual(2014, d.Year);
+            }
         }
 
         [Test]
         public void TestFromStringWithStringFormat()
         {
-            var d = QDate.FromString("1MM12car2003", "d'MM'MMcaryyyy");
-
-            Assert.AreEqual(1, d.Day);
-            Assert.AreEqual(12, d.Month);
-            Assert.AreEqual(2003, d.Year);
+            using (var d = QDate.FromString("1MM12car2003", "d'MM'MMcaryyyy"))
+            {
+                Assert.AreEqual(1, d.Day);
+                Assert.AreEqual(12, d.Month);
+                Assert.AreEqual(2003, d.Year);
+            }
         }
 
         [Test]
         public void TestFromStringWithInvalidStringFormatReturningDefaultValues()
         {
-            var d1 = QDate.FromString("1.30", "M.d");
-            Assert.AreEqual(30, d1.Day);
-            Assert.AreEqual(1, d1.Month);
-            Assert.AreEqual(1900, d1.Year);
+            using (var d1 = QDate.FromString("1.30", "M.d"))
+            {
+                Assert.AreEqual(30, d1.Day);
+                Assert.AreEqual(1, d1.Month);
+                Assert.AreEqual(1900, d1.Year);
+            }
 
-            var d2 = QDate.FromString("20000110", "yyyyMMdd");
-            Assert.AreEqual(10, d2.Day);
-            Assert.AreEqual(1, d2.Month);
-            Assert.AreEqual(2000, d2.Year);
+            using (var d2 = QDate.FromString("20000110", "yyyyMMdd"))
+            {
+                Assert.AreEqual(10, d2.Day);
+                Assert.AreEqual(1, d2.Month);
+                Assert.AreEqual(2000, d2.Year);
+            }
 
-            var d3 = QDate.FromString("20000110", "yyyyMd");
-            Assert.AreEqual(10, d3.Day);
-            Assert.AreEqual(1, d3.Month);
-            Assert.AreEqual(2000, d3.Year);
+            using (var d3 = QDate.FromString("20000110", "yyyyMd"))
+            {
+                Assert.AreEqual(10, d3.Day);
+                Assert.AreEqual(1, d3.Month);
+                Assert.AreEqual(2000, d3.Year);
+            }
         }
+
         #endregion
 
         [Test]
-        public unsafe void TestGetDate()
+        public void TestGetDate()
         {
             int d = 0;
             int m = 0;
             int y = 0;
 
-            _qDate.GetDate(ref y, ref m, ref d);
+            this.qDate.GetDate(ref y, ref m, ref d);
 
-            Assert.AreEqual(_qDate.Day, d);
-            Assert.AreEqual(_qDate.Month, m);
-            Assert.AreEqual(_qDate.Year, y);
+            Assert.AreEqual(this.qDate.Day, d);
+            Assert.AreEqual(this.qDate.Month, m);
+            Assert.AreEqual(this.qDate.Year, y);
         }
 
         [Test]
@@ -234,33 +247,46 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestIsNull()
         {
-            var q = new QDate(2002, 5, 17);
-            Assert.IsFalse(q.IsNull);
+            using (var q = new QDate(2002, 5, 17))
+            {
+                Assert.IsFalse(q.IsNull);
+            }
 
-            var q2 = new QDate(2002, 2, 30);
-            Assert.IsTrue(q2.IsNull);
+            using (var q2 = new QDate(2002, 2, 30))
+            {
+                Assert.IsTrue(q2.IsNull);
+            }
 
-            var q3 = new QDate(2004, 2, 29);
-            Assert.IsFalse(q3.IsNull);
+            using (var q3 = new QDate(2004, 2, 29))
+            {
+                Assert.IsFalse(q3.IsNull);
+            }
 
-            var q4 = new QDate(2000, 2, 29);
-            Assert.IsFalse(q4.IsNull);
+            using (var q4 = new QDate(2000, 2, 29))
+            {
+                Assert.IsFalse(q4.IsNull);
+            }
 
-            var q5 = new QDate(2006, 2, 29);
-            Assert.IsTrue(q5.IsNull);
+            using (var q5 = new QDate(2006, 2, 29))
+            {
+                Assert.IsTrue(q5.IsNull);
+            }
 
-            var q6 = new QDate(2100, 2, 29);
-            Assert.IsTrue(q6.IsNull);
+            using (var q6 = new QDate(2100, 2, 29))
+            {
+                Assert.IsTrue(q6.IsNull);
+            }
 
-            var q7 = new QDate(1202, 6, 6);
-            Assert.IsFalse(q7.IsNull);
+            using (var q7 = new QDate(1202, 6, 6))
+            {
+                Assert.IsFalse(q7.IsNull);
+            }
         }
 
         [Test]
         [Culture("de")]
         public void TestLongDayNameDe()
         {
-
             var q1 = QDate.LongDayName(1);
             Assert.AreEqual("Montag", q1);
 
@@ -287,7 +313,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Culture("en")]
         public void TestLongDayNameEn()
         {
-
             var q1 = QDate.LongDayName(1);
             Assert.AreEqual("Monday", q1);
 
@@ -314,7 +339,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Culture("de")]
         public void TestLongMonthNameDe()
         {
-
             var q1 = QDate.LongMonthName(1);
             Assert.AreEqual("Januar", q1);
 
@@ -329,7 +353,6 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Culture("en")]
         public void TestLongMonthNameEn()
         {
-
             var q1 = QDate.LongMonthName(1);
             Assert.AreEqual("January", q1);
 
@@ -343,20 +366,20 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestMonth()
         {
-            var m = _qDate.Month;
+            var m = this.qDate.Month;
             Assert.AreEqual(9, m);
         }
 
         [Test]
         public void TestSetDate()
         {
-            var m = _qDate.SetDate(2000, 01, 01);
+            var m = this.qDate.SetDate(2000, 01, 01);
 
             Assert.IsTrue(m);
 
-            Assert.AreEqual(01, _qDate.Day);
-            Assert.AreEqual(01, _qDate.Month);
-            Assert.AreEqual(2000, _qDate.Year);
+            Assert.AreEqual(01, this.qDate.Day);
+            Assert.AreEqual(01, this.qDate.Month);
+            Assert.AreEqual(2000, this.qDate.Year);
         }
 
         [Test]
@@ -443,9 +466,11 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestToString()
         {
-            var q = new QDate(1969, 07, 20);
-
-            var s1 = q.ToString("dd.MM.yyyy");
+            string s1;
+            using (var q = new QDate(1969, 07, 20))
+            {
+                s1 = q.ToString("dd.MM.yyyy");
+            }
 
             Assert.AreEqual("20.07.1969", s1);
         }
@@ -453,21 +478,25 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestToStringWithDateFormat()
         {
-            var f = DateFormat.ISODate;
+            const DateFormat f = DateFormat.ISODate;
 
-            var q = new QDate(1969, 07, 20);
-
-            var s1 = q.ToString(f);
+            string s1;
+            using (var q = new QDate(1969, 07, 20))
+            {
+                s1 = q.ToString(f);
+            }
 
             Assert.AreEqual("1969-07-20", s1);
         }
 
         [Test]
-        public unsafe void TestWeekNumber()
+        public void TestWeekNumber()
         {
-            var q = new QDate(2014, 11, 20);
-
-            var week = q.WeekNumber();
+            int week;
+            using (var q = new QDate(2014, 11, 20))
+            {
+                week = q.WeekNumber();
+            }
 
             Assert.AreEqual(47, week);
         }
@@ -475,27 +504,35 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestYear()
         {
-            var q = new QDate(2014, 11, 20);
-
-            Assert.AreEqual(2014, q.Year);
+            using (var q = new QDate(2014, 11, 20))
+            {
+                Assert.AreEqual(2014, q.Year);
+            }
         }
 
         [Test]
         public void TestNotEqualOperator()
         {
-            var q = new QDate(2014, 11, 20);
-            var q2 = new QDate(2014, 11, 22);
-
-            Assert.AreNotEqual(q, q2);
+            using (var q = new QDate(2014, 11, 20))
+            {
+                using (var q2 = new QDate(2014, 11, 22))
+                {
+                    Assert.AreNotEqual(q, q2);
+                }
+            }
         }
 
         [Test]
         public void TestLessOperator()
         {
-            var q = new QDate(2014, 11, 20);
-            var q2 = new QDate(2014, 11, 22);
-
-            var res = (q < q2); // true
+            bool res; // true
+            using (var q = new QDate(2014, 11, 20))
+            {
+                using (var q2 = new QDate(2014, 11, 22))
+                {
+                    res = (q < q2);
+                }
+            }
 
             //Assert.Less(q, q2);
 
@@ -505,10 +542,14 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestLessEqualOperator()
         {
-            var q = new QDate(2014, 11, 21);
-            var q2 = new QDate(2014, 11, 22);
-
-            var res = (q <= q2); // true
+            bool res; // true
+            using (var q = new QDate(2014, 11, 21))
+            {
+                using (var q2 = new QDate(2014, 11, 22))
+                {
+                    res = (q <= q2);
+                }
+            }
 
             //Assert.LessOrEqual(q, q2);
 
@@ -518,19 +559,26 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestEqualOperator()
         {
-            var q = new QDate(2014, 11, 22);
-            var q2 = new QDate(2014, 11, 22);
-
-            Assert.AreEqual(q, q2);
+            using (var q = new QDate(2014, 11, 22))
+            {
+                using (var q2 = new QDate(2014, 11, 22))
+                {
+                    Assert.AreEqual(q, q2);
+                }
+            }
         }
 
         [Test]
         public void TestGreaterOperator()
         {
-            var q = new QDate(2014, 11, 20);
-            var q2 = new QDate(2014, 11, 22);
-
-            var res = (q > q2); // false
+            bool res; // false
+            using (var q = new QDate(2014, 11, 20))
+            {
+                using (var q2 = new QDate(2014, 11, 22))
+                {
+                    res = (q > q2);
+                }
+            }
 
             //Assert.Greater(q, q2);
 
@@ -538,12 +586,16 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         }
 
         [Test]
-        public unsafe void TestGreaterEqualOperator()
+        public void TestGreaterEqualOperator()
         {
-            var q = new QDate(2014, 11, 23);
-            var q2 = new QDate(2014, 11, 22);
-
-            var res = (q >= q2); // true
+            bool res; // true
+            using (var q = new QDate(2014, 11, 23))
+            {
+                using (var q2 = new QDate(2014, 11, 22))
+                {
+                    res = (q >= q2);
+                }
+            }
 
             //Assert.GreaterOrEqual(q, q2);
 

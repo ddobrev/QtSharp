@@ -17,6 +17,8 @@ namespace QtSharp.Tests.Manual.QtCore.Animation
         {
             // TODO: Add tear down code.
         }
+
+        // BUG: disposing of any of the animations crashes - the function pointer is null; there's something wrong when constructing custom classes
         
         [Test]
         public void TestEmptyConstructor()
@@ -65,7 +67,7 @@ namespace QtSharp.Tests.Manual.QtCore.Animation
         }
         
         [Test]
-        public unsafe void TestGroup()
+        public void TestGroup()
         {            	
         	var anim = new TestableQAbstractAnimation();
         	var group = new DummyQAnimationGroup();
@@ -76,7 +78,7 @@ namespace QtSharp.Tests.Manual.QtCore.Animation
         }
         
         [Test]
-        public unsafe void TestLoopCount()
+        public void TestLoopCount()
         {            	
         	var anim = new TestableQAbstractAnimation();
         	Assert.AreEqual(1, anim.LoopCount);
@@ -86,7 +88,7 @@ namespace QtSharp.Tests.Manual.QtCore.Animation
         }
         
         [Test]
-        public unsafe void TestState()
+        public void TestState()
         {          
         	var anim = new TestableQAbstractAnimation();
         	Assert.AreEqual(QAbstractAnimation.State.Stopped, anim.state);
@@ -169,11 +171,11 @@ namespace QtSharp.Tests.Manual.QtCore.Animation
 
         private class TestableQAbstractAnimation : QAbstractAnimation
         {
-        	private int _duration = 10;
+        	private int duration = 10;
         	
         	public override int Duration
         	{
-        		get { return _duration; }
+        		get { return this.duration; }
         	}
         	
         	protected override void UpdateCurrentTime(int value)
@@ -183,27 +185,22 @@ namespace QtSharp.Tests.Manual.QtCore.Animation
         	
         	public void SetDuration(int val)
         	{
-        		_duration = val;
+        		this.duration = val;
         	}
         }
 
         private class DummyQAnimationGroup : QAnimationGroup
         {
-            private int _duration = 10;
+            private int duration = 10;
 
             public override int Duration
             {
-                get { return _duration; }
+                get { return this.duration; }
             }
 
             protected override void UpdateCurrentTime(int value)
             {
 
-            }
-
-            public void SetDuration(int val)
-            {
-                _duration = val;
             }
         }
     }

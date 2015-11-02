@@ -2,7 +2,6 @@
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading;
 using NUnit.Framework;
 using QtCore;
 using QtCore.Qt;
@@ -12,64 +11,67 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
     [TestFixture]
     public class QStringRefTests
     {
-        private readonly string _testString = System.Reflection.Assembly.GetCallingAssembly().Location;
+        private readonly string testString = System.Reflection.Assembly.GetCallingAssembly().Location;
 
-        private QStringRef _qString;
+        private QStringRef qString;
 
         [SetUp]
         public void Init()
         {
-            // TODO: Add Init code.
-            _qString = new QStringRef(_testString);
+            this.qString = new QStringRef(this.testString);
         }
 
         [TearDown]
         public void Dispose()
         {
-            // TODO: Add tear down code.
+            this.qString.Dispose();
         }
 
         #region Ctor
         [Test]
         public void TestQStringRefConstructor()
         {
-            var s = new QStringRef(_qString);
-
-            Assert.AreEqual(_testString, s.ToString());
+            using (var s = new QStringRef(this.qString))
+            {
+                Assert.AreEqual(this.testString, s.ToString());
+            }
         }
 
         [Test]
         public void TestQStringRefPointerConstructor()
         {
-            var s = new QStringRef(_qString);
-
-            Assert.AreEqual(_testString, s.ToString());
+            using (var s = new QStringRef(this.qString))
+            {
+                Assert.AreEqual(this.testString, s.ToString());
+            }
         }
 
         [Test]
         public void TestStringConstructor()
         {
-            var s = new QStringRef(_testString);
-
-            Assert.AreEqual(_testString, s.ToString());
+            using (var s = new QStringRef(this.testString))
+            {
+                Assert.AreEqual(this.testString, s.ToString());
+            }
         }
 
         [Test]
         public void TestIntPtrConstructor()
         {
-            var s = QStringRef.__CreateInstance(_qString.__Instance);
+            var s = QStringRef.__CreateInstance(this.qString.__Instance);
 
-            Assert.AreEqual(_testString, s.ToString());
+            Assert.AreEqual(this.testString, s.ToString());
         }
 
         [Test]
         public void TestRangeConstructor()
         {
-            var n = _testString.Substring(5, 10);
+            var n = this.testString.Substring(5, 10);
 
-            var s = new QStringRef(_testString, 5, 10);
-
-            Assert.AreEqual(n, s.ToString());
+            using (var s = new QStringRef(this.testString, 5, 10))
+            {
+                Assert.AreEqual(n, s.ToString());
+            }
         }
         #endregion
 
@@ -77,14 +79,18 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestAppendToStringToQString()
         {
-            var old = new QStringRef(_testString);
-            var app = "added";
+            string app;
+            QStringRef appended;
+            using (var old = new QStringRef(this.testString))
+            {
+                app = "added";
 
-            var appended = old.AppendTo(app);
+                appended = old.AppendTo(app);
+            }
 
             var q = appended.String;
 
-            var exp = app + this._testString;
+            var exp = app + this.testString;
 
             Assert.AreEqual(exp, q);
         }
@@ -94,10 +100,10 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestAtToGetQChar()
         {
-            for (var j = 0; j < this._testString.Length; j++)
+            for (var j = 0; j < this.testString.Length; j++)
             {
-                char net = _testString.ElementAt(0);
-                QChar q = _qString.At(0);
+                char net = this.testString[j];
+                QChar q = this.qString.At(j);
 
                 Assert.AreEqual(net, q.ToLatin1());
             }
@@ -108,10 +114,12 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestClear()
         {
-            var s = new QStringRef(_testString);
-            s.Clear();
+            using (var s = new QStringRef(this.testString))
+            {
+                s.Clear();
 
-            Assert.True(s.IsEmpty);
+                Assert.True(s.IsEmpty);
+            }
         }
         #endregion
 
@@ -123,17 +131,21 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var i1 = r1.Next(0, 50);
 
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
+            int netRes;
+            int qRes;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                var r2 = new Random();
+                var i2 = r2.Next(0, 50);
 
-            var r2 = new Random();
-            var i2 = r2.Next(0, 50);
+                var netString2 = Helper.RandomString(i2);
+                using (var qLString2 = new QLatin1String(netString2))
+                {
+                    netRes = string.Compare(netString1, netString2, CultureInfo.CurrentCulture, CompareOptions.IgnoreCase);
 
-            var netString2 = Helper.RandomString(i2);
-            var qLString2 = new QLatin1String(netString2);
-
-            var netRes = string.Compare(netString1, netString2, CultureInfo.CurrentCulture, CompareOptions.IgnoreCase);
-
-            var qRes = QStringRef.Compare(qString1, qLString2, CaseSensitivity.CaseInsensitive);
+                    qRes = QStringRef.Compare(qString1, qLString2, CaseSensitivity.CaseInsensitive);
+                }
+            }
 
             if (netRes == qRes)
             {
@@ -148,17 +160,21 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var i1 = r1.Next(0, 50);
 
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
+            int netRes;
+            int qRes;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                var r2 = new Random();
+                var i2 = r2.Next(0, 50);
 
-            var r2 = new Random();
-            var i2 = r2.Next(0, 50);
+                var netString2 = Helper.RandomString(i2);
+                using (var qLString2 = new QLatin1String(netString2))
+                {
+                    netRes = string.CompareOrdinal(netString1, netString2);
 
-            var netString2 = Helper.RandomString(i2);
-            var qLString2 = new QLatin1String(netString2);
-
-            var netRes = string.Compare(netString1, netString2);
-
-            var qRes = QStringRef.Compare(qString1, qLString2, CaseSensitivity.CaseSensitive);
+                    qRes = QStringRef.Compare(qString1, qLString2);
+                }
+            }
 
             if (netRes == qRes)
             {
@@ -172,18 +188,22 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(0, 60);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
+            int netRes;
+            int qRes;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                System.Threading.Thread.Sleep(50);
 
-            System.Threading.Thread.Sleep(50);
+                var r2 = new Random();
+                var i2 = r2.Next(0, 60);
+                var netString2 = Helper.RandomString(i2);
+                using (var qString2 = new QStringRef(netString2))
+                {
+                    netRes = string.Compare(netString1, netString2, StringComparison.OrdinalIgnoreCase);
 
-            var r2 = new Random();
-            var i2 = r2.Next(0, 60);
-            var netString2 = Helper.RandomString(i2);
-            var qString2 = new QStringRef(netString2);
-
-            var netRes = string.Compare(netString1, netString2, true);
-
-            var qRes = QStringRef.Compare(qString1, qString2, CaseSensitivity.CaseInsensitive);
+                    qRes = QStringRef.Compare(qString1, qString2, CaseSensitivity.CaseInsensitive);
+                }
+            }
 
             if (netRes == qRes)
             {
@@ -197,18 +217,22 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(0, 60);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
+            int netRes;
+            int qRes;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                System.Threading.Thread.Sleep(50);
 
-            System.Threading.Thread.Sleep(50);
+                var r2 = new Random();
+                var i2 = r2.Next(0, 60);
+                var netString2 = Helper.RandomString(i2);
+                using (var qString2 = new QStringRef(netString2))
+                {
+                    netRes = string.CompareOrdinal(netString1, netString2);
 
-            var r2 = new Random();
-            var i2 = r2.Next(0, 60);
-            var netString2 = Helper.RandomString(i2);
-            var qString2 = new QStringRef(netString2);
-
-            var netRes = string.Compare(netString1, netString2, false);
-
-            var qRes = QStringRef.Compare(qString1, qString2, CaseSensitivity.CaseSensitive);
+                    qRes = QStringRef.Compare(qString1, qString2);
+                }
+            }
 
             if (netRes == qRes)
             {
@@ -222,18 +246,20 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(0, 60);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
+            int netRes;
+            int qRes;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                System.Threading.Thread.Sleep(50);
 
-            System.Threading.Thread.Sleep(50);
+                var r2 = new Random();
+                var i2 = r2.Next(0, 60);
+                var netString2 = Helper.RandomString(i2);
 
-            var r2 = new Random();
-            var i2 = r2.Next(0, 60);
-            var netString2 = Helper.RandomString(i2);
-            var qString2 = new QStringRef(netString2);
+                netRes = string.Compare(netString1, netString2, StringComparison.OrdinalIgnoreCase);
 
-            var netRes = string.Compare(netString1, netString2, true);
-
-            var qRes = QStringRef.Compare(qString1, netString2, CaseSensitivity.CaseInsensitive);
+                qRes = QStringRef.Compare(qString1, netString2, CaseSensitivity.CaseInsensitive);
+            }
 
             if (netRes == qRes)
             {
@@ -247,18 +273,20 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(0, 60);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
+            int netRes;
+            int qRes;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                System.Threading.Thread.Sleep(50);
 
-            System.Threading.Thread.Sleep(50);
+                var r2 = new Random();
+                var i2 = r2.Next(0, 60);
+                var netString2 = Helper.RandomString(i2);
 
-            var r2 = new Random();
-            var i2 = r2.Next(0, 60);
-            var netString2 = Helper.RandomString(i2);
-            var qString2 = new QStringRef(netString2);
+                netRes = string.CompareOrdinal(netString1, netString2);
 
-            var netRes = string.Compare(netString1, netString2, false);
-
-            var qRes = QStringRef.Compare(qString1, netString2, CaseSensitivity.CaseSensitive);
+                qRes = QStringRef.Compare(qString1, netString2);
+            }
 
             if (netRes == qRes)
             {
@@ -274,16 +302,21 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(100, 150);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
+            bool net;
+            bool q;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                var r = new Random();
+                var i = r.Next(0, 30);
 
-            var r = new Random();
-            var i = r.Next(0, 30);
+                var look = netString1.Substring(i, 4).ToUpper();
 
-            var look = netString1.Substring(i, 4).ToUpper();
-
-            var net = netString1.Contains(look);
-            var qs = new QStringRef(look);
-            var q = qString1.Contains(qs);
+                net = netString1.Contains(look);
+                using (var qs = new QStringRef(look))
+                {
+                    q = qString1.Contains(qs);
+                }
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -294,16 +327,21 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(100, 150);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
+            bool net;
+            bool q;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                var r = new Random();
+                var i = r.Next(0, 30);
 
-            var r = new Random();
-            var i = r.Next(0, 30);
+                var look = netString1.Substring(i, 4).ToUpper();
 
-            var look = netString1.Substring(i, 4).ToUpper();
-
-            var net = netString1.Contains(look, StringComparison.OrdinalIgnoreCase);
-            var qs = new QStringRef(look);
-            var q = qString1.Contains(qs, CaseSensitivity.CaseInsensitive);
+                net = netString1.Contains(look, StringComparison.OrdinalIgnoreCase);
+                using (var qs = new QStringRef(look))
+                {
+                    q = qString1.Contains(qs, CaseSensitivity.CaseInsensitive);
+                }
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -314,16 +352,19 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(100, 150);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
+            bool net;
+            bool q;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                var r = new Random();
+                var i = r.Next(0, 30);
 
-            var r = new Random();
-            var i = r.Next(0, 30);
+                var look = netString1.ElementAt(i);
 
-            var look = netString1.ElementAt(i);
-
-            var net = netString1.Contains(look);
-            var qs = new QChar(look);
-            var q = qString1.Contains(qs);
+                net = netString1.Contains(look);
+                var qs = new QChar(look);
+                q = qString1.Contains(qs);
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -334,16 +375,19 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(100, 150);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
+            bool net;
+            bool q;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                var r = new Random();
+                var i = r.Next(0, 30);
 
-            var r = new Random();
-            var i = r.Next(0, 30);
+                var look = netString1.Substring(i, 1).ToUpper();
 
-            var look = netString1.Substring(i, 1).ToUpper();
-
-            var net = netString1.Contains(look, StringComparison.OrdinalIgnoreCase);
-            var qs = new QChar(look[0]);
-            var q = qString1.Contains(qs, CaseSensitivity.CaseInsensitive);
+                net = netString1.Contains(look, StringComparison.OrdinalIgnoreCase);
+                var qs = new QChar(look[0]);
+                q = qString1.Contains(qs, CaseSensitivity.CaseInsensitive);
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -354,16 +398,21 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(100, 150);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
+            bool net;
+            bool q;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                var r = new Random();
+                var i = r.Next(0, 30);
 
-            var r = new Random();
-            var i = r.Next(0, 30);
+                var look = netString1.Substring(i, 4);
 
-            var look = netString1.Substring(i, 4);
-
-            var net = netString1.Contains(look);
-            var ql = new QLatin1String(look);
-            var q = qString1.Contains(ql);
+                net = netString1.Contains(look);
+                using (var ql = new QLatin1String(look))
+                {
+                    q = qString1.Contains(ql);
+                }
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -374,16 +423,21 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(100, 150);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
+            bool net;
+            bool q;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                var r = new Random();
+                var i = r.Next(0, 30);
 
-            var r = new Random();
-            var i = r.Next(0, 30);
+                var look = netString1.Substring(i, 4).ToUpper();
 
-            var look = netString1.Substring(i, 4).ToUpper();
-
-            var net = netString1.Contains(look, StringComparison.OrdinalIgnoreCase);
-            var ql = new QLatin1String(look);
-            var q = qString1.Contains(ql, CaseSensitivity.CaseInsensitive);
+                net = netString1.Contains(look, StringComparison.OrdinalIgnoreCase);
+                using (var ql = new QLatin1String(look))
+                {
+                    q = qString1.Contains(ql, CaseSensitivity.CaseInsensitive);
+                }
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -394,15 +448,18 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(100, 150);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
+            bool net;
+            bool q;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                var r = new Random();
+                var i = r.Next(0, 30);
 
-            var r = new Random();
-            var i = r.Next(0, 30);
+                var look = netString1.Substring(i, 4).ToUpper();
 
-            var look = netString1.Substring(i, 4).ToUpper();
-
-            var net = netString1.Contains(look);
-            var q = qString1.Contains(look);
+                net = netString1.Contains(look);
+                q = qString1.Contains(look);
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -413,15 +470,18 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(100, 150);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
+            bool net;
+            bool q;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                var r = new Random();
+                var i = r.Next(0, 30);
 
-            var r = new Random();
-            var i = r.Next(0, 30);
+                var look = netString1.Substring(i, 4).ToUpper();
 
-            var look = netString1.Substring(i, 4).ToUpper();
-
-            var net = netString1.Contains(look, StringComparison.OrdinalIgnoreCase);
-            var q = qString1.Contains(look, CaseSensitivity.CaseInsensitive);
+                net = netString1.Contains(look, StringComparison.OrdinalIgnoreCase);
+                q = qString1.Contains(look, CaseSensitivity.CaseInsensitive);
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -431,8 +491,8 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestCountWithoutArgs()
         {
-            var net = _testString.Count();
-            var q = _qString.Count();
+            var net = this.testString.Length;
+            var q = this.qString.Count();
 
             Assert.AreEqual(net, q);
         }
@@ -441,13 +501,16 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         public void TestCountWithQCharArgsCaseInsensitive()
         {
             var r = new Random();
-            var rx = r.Next(0, _testString.Count());
-            var charac = char.ToLowerInvariant(_testString.ElementAt(rx));
+            var rx = r.Next(0, this.testString.Length);
+            var charac = char.ToLowerInvariant(this.testString.ElementAt(rx));
 
-            var net = _testString.Count(c => char.ToLowerInvariant(c) == charac);
+            var net = this.testString.Count(c => char.ToLowerInvariant(c) == charac);
 
-            var qchar = new QChar(charac);
-            var q = _qString.Count(qchar, CaseSensitivity.CaseInsensitive);
+            int q;
+            using (var qchar = new QChar(charac))
+            {
+                q = this.qString.Count(qchar, CaseSensitivity.CaseInsensitive);
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -456,13 +519,16 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         public void TestCountWithQCharArgsCaseSensitive()
         {
             var r = new Random();
-            var rx = r.Next(0, _testString.Count());
-            var charac = _testString.ElementAt(rx);
+            var rx = r.Next(0, this.testString.Length);
+            var charac = this.testString.ElementAt(rx);
 
-            var net = _testString.Count(x => x == charac);
+            var net = this.testString.Count(x => x == charac);
 
-            var qchar = new QChar(charac);
-            var q = _qString.Count(qchar);
+            int q;
+            using (var qchar = new QChar(charac))
+            {
+                q = this.qString.Count(qchar);
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -471,12 +537,12 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         public void TestCountWithStringArgsCaseInsensitive()
         {
             var r = new Random();
-            var rx = r.Next(0, _testString.Count());
-            var charac = _testString.ElementAt(rx);
+            var rx = r.Next(0, this.testString.Length);
+            var charac = this.testString.ElementAt(rx);
 
-            var net = Regex.Matches(_testString, @charac.ToString(), RegexOptions.IgnoreCase).Count;
+            var net = Regex.Matches(this.testString, @charac.ToString(), RegexOptions.IgnoreCase).Count;
 
-            var q = _qString.Count(charac.ToString(), CaseSensitivity.CaseInsensitive);
+            var q = this.qString.Count(charac.ToString(), CaseSensitivity.CaseInsensitive);
 
             Assert.AreEqual(net, q);
         }
@@ -485,12 +551,12 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         public void TestCountWithStringArgsCaseSensitive()
         {
             var r = new Random();
-            var rx = r.Next(0, _testString.Count());
-            var charac = _testString.ElementAt(rx);
+            var rx = r.Next(0, this.testString.Length);
+            var charac = this.testString.ElementAt(rx);
 
-            var net = _testString.Count(x => x == charac);
+            var net = this.testString.Count(x => x == charac);
 
-            var q = _qString.Count(charac.ToString());
+            var q = this.qString.Count(charac.ToString());
 
             Assert.AreEqual(net, q);
         }
@@ -499,14 +565,16 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         public void TestCountWithQStringRefArgsCaseInsensitive()
         {
             var r = new Random();
-            var rx = r.Next(0, this._testString.Length);
-            var charac = char.ToLowerInvariant(_testString.ElementAt(rx));
+            var rx = r.Next(0, this.testString.Length);
+            var charac = char.ToLowerInvariant(this.testString.ElementAt(rx));
 
-            var net = _testString.Count(c => char.ToLowerInvariant(c) == charac);
+            var net = this.testString.Count(c => char.ToLowerInvariant(c) == charac);
 
-            var qs = new QStringRef(charac.ToString());
-
-            var q = _qString.Count(qs, CaseSensitivity.CaseInsensitive);
+            int q;
+            using (var qs = new QStringRef(charac.ToString()))
+            {
+                q = this.qString.Count(qs, CaseSensitivity.CaseInsensitive);
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -515,14 +583,16 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         public void TestCountWithQStringRefArgsCaseSensitive()
         {
             var r = new Random();
-            var rx = r.Next(0, _testString.Count());
-            var charac = _testString.ElementAt(rx);
+            var rx = r.Next(0, this.testString.Length);
+            var charac = this.testString.ElementAt(rx);
 
-            var net = _testString.Count(x => x == charac);
+            var net = this.testString.Count(x => x == charac);
 
-            var qs = new QStringRef(charac.ToString());
-
-            var q = _qString.Count(qs);
+            int q;
+            using (var qs = new QStringRef(charac.ToString()))
+            {
+                q = this.qString.Count(qs);
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -532,13 +602,15 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestEndsWith_WithQStringRefArgsCaseInsensitive()
         {
-            var i = _testString.ToUpper().Last();
+            var i = this.testString.ToUpper().Last();
 
-            var net = _testString.EndsWith(i.ToString(), StringComparison.OrdinalIgnoreCase);
+            var net = this.testString.EndsWith(i.ToString(), StringComparison.OrdinalIgnoreCase);
 
-            var j = new QStringRef(i.ToString());
-
-            var q = _qString.EndsWith(j, CaseSensitivity.CaseInsensitive);
+            bool q;
+            using (var j = new QStringRef(i.ToString()))
+            {
+                q = this.qString.EndsWith(j, CaseSensitivity.CaseInsensitive);
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -546,13 +618,15 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestEndsWith_WithQStringRefArgsCaseSensitive()
         {
-            var i = _testString.ToUpper().Last();
+            var i = this.testString.ToUpper().Last();
 
-            var net = _testString.EndsWith(i.ToString());
+            var net = this.testString.EndsWith(i.ToString());
 
-            var j = new QStringRef(i.ToString());
-
-            var q = _qString.EndsWith(j);
+            bool q;
+            using (var j = new QStringRef(i.ToString()))
+            {
+                q = this.qString.EndsWith(j);
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -560,13 +634,15 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestEndsWith_WithQCharArgsCaseSensitive()
         {
-            var i = _testString.Last();
+            var i = this.testString.Last();
 
-            var net = _testString.EndsWith(i.ToString());
+            var net = this.testString.EndsWith(i.ToString());
 
-            var j = new QChar(i);
-
-            var q = _qString.EndsWith(j);
+            bool q;
+            using (var j = new QChar(i))
+            {
+                q = this.qString.EndsWith(j);
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -574,13 +650,15 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestEndsWith_WithQCharArgsCaseInsensitive()
         {
-            var i = _testString.ToUpper().Last();
+            var i = this.testString.ToUpper().Last();
 
-            var net = _testString.EndsWith(i.ToString(), StringComparison.OrdinalIgnoreCase);
+            var net = this.testString.EndsWith(i.ToString(), StringComparison.OrdinalIgnoreCase);
 
-            var j = new QChar(i);
-
-            var q = _qString.EndsWith(j, CaseSensitivity.CaseInsensitive);
+            bool q;
+            using (var j = new QChar(i))
+            {
+                q = this.qString.EndsWith(j, CaseSensitivity.CaseInsensitive);
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -588,13 +666,15 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestEndsWith_WithQLatinStringArgsCaseSensitive()
         {
-            var i = _testString.Last();
+            var i = this.testString.Last();
 
-            var net = _testString.EndsWith(i.ToString());
+            var net = this.testString.EndsWith(i.ToString());
 
-            var j = new QLatin1String(i.ToString());
-
-            var q = _qString.EndsWith(j);
+            bool q;
+            using (var j = new QLatin1String(i.ToString()))
+            {
+                q = this.qString.EndsWith(j);
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -602,13 +682,15 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestEndsWith_WithQLatinStringArgsCaseInsensitive()
         {
-            var i = _testString.Last();
+            var i = this.testString.Last();
 
-            var net = _testString.EndsWith(i.ToString(), StringComparison.OrdinalIgnoreCase);
+            var net = this.testString.EndsWith(i.ToString(), StringComparison.OrdinalIgnoreCase);
 
-            var j = new QLatin1String(i.ToString());
-
-            var q = _qString.EndsWith(j, CaseSensitivity.CaseInsensitive);
+            bool q;
+            using (var j = new QLatin1String(i.ToString()))
+            {
+                q = this.qString.EndsWith(j, CaseSensitivity.CaseInsensitive);
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -616,11 +698,11 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestEndsWith_WithStringArgsCaseInsensitive()
         {
-            var i = _testString.ToUpper().Last();
+            var i = this.testString.ToUpper().Last();
 
-            var net = _testString.EndsWith(i.ToString(), StringComparison.OrdinalIgnoreCase);
+            var net = this.testString.EndsWith(i.ToString(), StringComparison.OrdinalIgnoreCase);
 
-            var q = _qString.EndsWith(i.ToString(), CaseSensitivity.CaseInsensitive);
+            var q = this.qString.EndsWith(i.ToString(), CaseSensitivity.CaseInsensitive);
 
             Assert.AreEqual(net, q);
         }
@@ -628,11 +710,11 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestEndsWith_WithStringArgsCaseSensitive()
         {
-            var i = _testString.Last();
+            var i = this.testString.Last();
 
-            var net = _testString.EndsWith(i.ToString());
+            var net = this.testString.EndsWith(i.ToString());
 
-            var q = _qString.EndsWith(i.ToString());
+            var q = this.qString.EndsWith(i.ToString());
 
             Assert.AreEqual(net, q);
         }
@@ -645,15 +727,20 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(0, 60);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
+            int net;
+            int q;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                var r = new Random();
+                var rx = r.Next(0, netString1.Length);
+                var charac = netString1.ElementAt(rx);
+                net = netString1.IndexOf(new string(charac, 1), StringComparison.OrdinalIgnoreCase);
 
-            var r = new Random();
-            var rx = r.Next(0, netString1.Count());
-            var charac = netString1.ElementAt(rx);
-            var net = netString1.IndexOf(new string(charac, 1), StringComparison.OrdinalIgnoreCase);
-
-            var qChar = new QChar(charac);
-            var q = qString1.IndexOf(qChar, 0, CaseSensitivity.CaseInsensitive);
+                using (var qChar = new QChar(charac))
+                {
+                    q = qString1.IndexOf(qChar, 0, CaseSensitivity.CaseInsensitive);
+                }
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -664,15 +751,20 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(10, 60);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
+            int net;
+            int q;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                var r = new Random();
+                var rx = r.Next(0, netString1.Length);
+                var charac = netString1.ElementAt(rx);
+                net = netString1.IndexOf(new string(charac, 1), 3, StringComparison.OrdinalIgnoreCase);
 
-            var r = new Random();
-            var rx = r.Next(0, netString1.Count());
-            var charac = netString1.ElementAt(rx);
-            var net = netString1.IndexOf(new string(charac, 1), 3, StringComparison.OrdinalIgnoreCase);
-
-            var qChar = new QChar(charac);
-            var q = qString1.IndexOf(qChar, 3, CaseSensitivity.CaseInsensitive);
+                using (var qChar = new QChar(charac))
+                {
+                    q = qString1.IndexOf(qChar, 3, CaseSensitivity.CaseInsensitive);
+                }
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -683,15 +775,20 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(10, 60);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
+            int net;
+            int q;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                var r = new Random();
+                var rx = r.Next(0, netString1.Length);
+                var charac = netString1.ElementAt(rx);
+                net = netString1.IndexOf(charac, 5);
 
-            var r = new Random();
-            var rx = r.Next(0, netString1.Count());
-            var charac = netString1.ElementAt(rx);
-            var net = netString1.IndexOf(charac, 5);
-
-            var qChar = new QChar(charac);
-            var q = qString1.IndexOf(qChar, 5);
+                using (var qChar = new QChar(charac))
+                {
+                    q = qString1.IndexOf(qChar, 5);
+                }
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -702,15 +799,20 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(10, 60);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
+            int net;
+            int q;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                var r = new Random();
+                var rx = r.Next(0, netString1.Length);
+                var charac = netString1.ElementAt(rx);
+                net = netString1.IndexOf(new string(charac, 1), 5, StringComparison.Ordinal);
 
-            var r = new Random();
-            var rx = r.Next(0, netString1.Count());
-            var charac = netString1.ElementAt(rx);
-            var net = netString1.IndexOf(new string(charac, 1), 5, StringComparison.Ordinal);
-
-            var qChar = new QStringRef(new string(charac, 1));
-            var q = qString1.IndexOf(qChar, 5, CaseSensitivity.CaseInsensitive);
+                using (var qChar = new QStringRef(new string(charac, 1)))
+                {
+                    q = qString1.IndexOf(qChar, 5, CaseSensitivity.CaseInsensitive);
+                }
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -721,15 +823,20 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(0, 60);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
+            int net;
+            int q;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                var r = new Random();
+                var rx = r.Next(0, netString1.Length);
+                var charac = netString1.ElementAt(rx);
+                net = netString1.IndexOf(charac);
 
-            var r = new Random();
-            var rx = r.Next(0, netString1.Count());
-            var charac = netString1.ElementAt(rx);
-            var net = netString1.IndexOf(charac);
-
-            var qChar = new QStringRef(new string(charac, 1));
-            var q = qString1.IndexOf(qChar);
+                using (var qChar = new QStringRef(new string(charac, 1)))
+                {
+                    q = qString1.IndexOf(qChar);
+                }
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -740,14 +847,17 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(0, 60);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
+            int net;
+            int q;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                var r = new Random();
+                var rx = r.Next(0, netString1.Length);
+                var charac = netString1.ElementAt(rx);
+                net = netString1.IndexOf(charac);
 
-            var r = new Random();
-            var rx = r.Next(0, netString1.Count());
-            var charac = netString1.ElementAt(rx);
-            var net = netString1.IndexOf(charac);
-
-            var q = qString1.IndexOf(new string(charac, 1));
+                q = qString1.IndexOf(new string(charac, 1));
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -760,15 +870,20 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(0, 60);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
+            int net;
+            int q;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                var r = new Random();
+                var rx = r.Next(0, netString1.Length);
+                var charac = netString1.ElementAt(rx);
+                net = netString1.LastIndexOf(charac);
 
-            var r = new Random();
-            var rx = r.Next(0, netString1.Count());
-            var charac = netString1.ElementAt(rx);
-            var net = netString1.LastIndexOf(charac);
-
-            var qChar = new QChar(charac);
-            var q = qString1.LastIndexOf(qChar);
+                using (var qChar = new QChar(charac))
+                {
+                    q = qString1.LastIndexOf(qChar);
+                }
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -779,15 +894,20 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(0, 60);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
+            int net;
+            int q;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                var r = new Random();
+                var rx = r.Next(0, netString1.Length);
+                var charac = netString1.ElementAt(rx);
+                net = netString1.LastIndexOf(charac);
 
-            var r = new Random();
-            var rx = r.Next(0, netString1.Count());
-            var charac = netString1.ElementAt(rx);
-            var net = netString1.LastIndexOf(charac);
-
-            var qChar = new QStringRef(new string(charac, 1));
-            var q = qString1.LastIndexOf(qChar);
+                using (var qChar = new QStringRef(new string(charac, 1)))
+                {
+                    q = qString1.LastIndexOf(qChar);
+                }
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -798,14 +918,17 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(0, 60);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
+            int net;
+            int q;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                var r = new Random();
+                var rx = r.Next(0, netString1.Length);
+                var charac = netString1.ElementAt(rx);
+                net = netString1.LastIndexOf(charac);
 
-            var r = new Random();
-            var rx = r.Next(0, netString1.Count());
-            var charac = netString1.ElementAt(rx);
-            var net = netString1.LastIndexOf(charac);
-
-            var q = qString1.LastIndexOf(new string(charac, 1));
+                q = qString1.LastIndexOf(new string(charac, 1));
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -818,10 +941,13 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(0, 50);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
-
-            var subNet = netString1.Substring(0, i1 / 5);
-            var subQ = qString1.Left(i1 / 5);
+            string subNet;
+            QStringRef subQ;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                subNet = netString1.Substring(0, i1 / 5);
+                subQ = qString1.Left(i1 / 5);
+            }
 
             Assert.AreEqual(subNet, subQ.ToString());
         }
@@ -834,18 +960,20 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(0, 60);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
+            int netRes;
+            int qRes;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                System.Threading.Thread.Sleep(50);
 
-            System.Threading.Thread.Sleep(50);
+                var r2 = new Random();
+                var i2 = r2.Next(0, 60);
+                var netString2 = Helper.RandomString(i2);
 
-            var r2 = new Random();
-            var i2 = r2.Next(0, 60);
-            var netString2 = Helper.RandomString(i2);
-            var qString2 = new QStringRef(netString2);
+                netRes = string.Compare(netString1, netString2, StringComparison.CurrentCulture);
 
-            var netRes = string.Compare(netString1, netString2);
-
-            var qRes = QStringRef.LocaleAwareCompare(qString1, netString2);
+                qRes = QStringRef.LocaleAwareCompare(qString1, netString2);
+            }
 
             Assert.AreEqual(netRes, qRes);
         }
@@ -858,10 +986,13 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(0, 50);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
-
-            var subNet = netString1.Substring(i1 / 5);
-            var subQ = qString1.Mid(i1 / 5);
+            string subNet;
+            QStringRef subQ;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                subNet = netString1.Substring(i1 / 5);
+                subQ = qString1.Mid(i1 / 5);
+            }
 
             Assert.AreEqual(subNet, subQ.ToString());
         }
@@ -874,10 +1005,13 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
             var r1 = new Random();
             var i1 = r1.Next(10, 50);
             var netString1 = Helper.RandomString(i1);
-            var qString1 = new QStringRef(netString1);
-
-            var subNet = netString1.Substring(netString1.Length - 5);
-            var subQ = qString1.Right(5);
+            string subNet;
+            QStringRef subQ;
+            using (var qString1 = new QStringRef(netString1))
+            {
+                subNet = netString1.Substring(netString1.Length - 5);
+                subQ = qString1.Right(5);
+            }
 
             Assert.AreEqual(subNet, subQ.ToString());
         }
@@ -887,11 +1021,11 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestStartsWith_WithStringArgs()
         {
-            var i = _testString.Last();
+            var i = this.testString.Last();
 
-            var net = _testString.StartsWith(i.ToString());
+            var net = this.testString.StartsWith(i.ToString());
 
-            var q = _qString.StartsWith(i.ToString());
+            var q = this.qString.StartsWith(i.ToString());
 
             Assert.AreEqual(net, q);
         }
@@ -899,13 +1033,15 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestStartsWith_WithQStringRefArgs()
         {
-            var i = _testString.Last();
+            var i = this.testString.Last();
 
-            var net = _testString.StartsWith(i.ToString());
+            var net = this.testString.StartsWith(i.ToString());
 
-            var qs = new QStringRef(new string(i, 1));
-
-            var q = _qString.StartsWith(qs);
+            bool q;
+            using (var qs = new QStringRef(new string(i, 1)))
+            {
+                q = this.qString.StartsWith(qs);
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -913,13 +1049,15 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestStartsWith_WithQCharArgs()
         {
-            var i = _testString.Last();
+            var i = this.testString.Last();
 
-            var net = _testString.StartsWith(i.ToString());
+            var net = this.testString.StartsWith(i.ToString());
 
-            var qs = new QChar(i);
-
-            var q = _qString.StartsWith(qs);
+            bool q;
+            using (var qs = new QChar(i))
+            {
+                q = this.qString.StartsWith(qs);
+            }
 
             Assert.AreEqual(net, q);
         }
@@ -927,11 +1065,14 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
         #region ToDouble
         [Test]
-        public unsafe void TestToDouble()
+        public void TestToDouble()
         {
             var d = 566.15;
-            var q = new QStringRef("566.15");
-            var w = q.ToDouble();
+            double w;
+            using (var q = new QStringRef("566.15"))
+            {
+                w = q.ToDouble();
+            }
 
             Assert.AreEqual(d, w);
         }
@@ -939,11 +1080,14 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
         #region ToFloat
         [Test]
-        public unsafe void TestToFloat()
+        public void TestToFloat()
         {
             var d = 566.15f;
-            var q = new QStringRef("566.15");
-            var w = q.ToFloat();
+            float w;
+            using (var q = new QStringRef("566.15"))
+            {
+                w = q.ToFloat();
+            }
 
             Assert.AreEqual(d, w);
         }
@@ -951,11 +1095,14 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
         #region ToInt
         [Test]
-        public unsafe void TestToInt()
+        public void TestToInt()
         {
             var d = -566;
-            var q = new QStringRef("-566");
-            var w = q.ToInt();
+            int w;
+            using (var q = new QStringRef("-566"))
+            {
+                w = q.ToInt();
+            }
 
             Assert.AreEqual(d, w);
         }
@@ -963,11 +1110,14 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
         #region ToLong
         [Test]
-        public unsafe void TestToLong()
+        public void TestToLong()
         {
             var d = 566;
-            var q = new QStringRef("566");
-            var w = q.ToLong();
+            int w;
+            using (var q = new QStringRef("566"))
+            {
+                w = q.ToLong();
+            }
 
             Assert.AreEqual(d, w);
         }
@@ -975,11 +1125,14 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
         #region ToLongLong
         [Test]
-        public unsafe void TestToLongLong()
+        public void TestToLongLong()
         {
             var d = 566;
-            var q = new QStringRef("566");
-            var w = q.ToLongLong();
+            long w;
+            using (var q = new QStringRef("566"))
+            {
+                w = q.ToLongLong();
+            }
 
             Assert.AreEqual(d, w);
         }
@@ -987,12 +1140,14 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
         #region ToLatin1
         [Test]
-        public unsafe void TestToLatin1()
+        public void TestToLatin1()
         {
-            var q = new QStringRef("something");
-            var w = q.ToLatin1();
+            using (var q = new QStringRef("something"))
+            {
+                var w = q.ToLatin1();
 
-            Assert.AreEqual(q.ToString(), w.ConstData);
+                Assert.AreEqual(q.ToString(), w.ConstData);
+            }
         }
         #endregion
 
@@ -1000,19 +1155,24 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestToLocal8Bit()
         {
-            var q = new QStringRef("so");
-            var w = q.ToLocal8Bit();
+            using (var q = new QStringRef("so"))
+            {
+                var w = q.ToLocal8Bit();
 
-            Assert.AreEqual(q.ToString(), w.ConstData);
+                Assert.AreEqual(q.ToString(), w.ConstData);
+            }
         }
         #endregion
 
         #region ToShort
         [Test]
-        public unsafe void TestToShort()
+        public void TestToShort()
         {
-            var q = new QStringRef("-50");
-            var w = q.ToShort();
+            short w;
+            using (var q = new QStringRef("-50"))
+            {
+                w = q.ToShort();
+            }
 
             Assert.AreEqual(-50, w);
         }
@@ -1022,8 +1182,8 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestQStringToStringAndDotNetStringIfEqual()
         {
-            var q = _qString.ToString();
-            var exp = this._testString;
+            var q = this.qString.ToString();
+            var exp = this.testString;
 
             Assert.AreEqual(exp, q);
         }
@@ -1031,10 +1191,13 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
         #region ToUInt
         [Test]
-        public unsafe void TestToUInt()
+        public void TestToUInt()
         {
-            var q = new QStringRef("50");
-            var w = q.ToUInt();
+            uint w;
+            using (var q = new QStringRef("50"))
+            {
+                w = q.ToUInt();
+            }
 
             Assert.AreEqual(50, w);
         }
@@ -1042,10 +1205,13 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
         #region ToULong
         [Test]
-        public unsafe void TestToULong()
+        public void TestToULong()
         {
-            var q = new QStringRef("50");
-            var w = q.ToULong();
+            uint w;
+            using (var q = new QStringRef("50"))
+            {
+                w = q.ToULong();
+            }
 
             Assert.AreEqual(50, w);
         }
@@ -1053,10 +1219,13 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
         #region ToULongLong
         [Test]
-        public unsafe void TestToULongLong()
+        public void TestToULongLong()
         {
-            var q = new QStringRef("50");
-            var w = q.ToULongLong();
+            ulong w;
+            using (var q = new QStringRef("50"))
+            {
+                w = q.ToULongLong();
+            }
 
             Assert.AreEqual(50, w);
         }
@@ -1064,10 +1233,13 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
 
         #region ToUShort
         [Test]
-        public unsafe void TestToUShort()
+        public void TestToUShort()
         {
-            var q = new QStringRef("50");
-            var w = q.ToUShort();
+            ushort w;
+            using (var q = new QStringRef("50"))
+            {
+                w = q.ToUShort();
+            }
 
             Assert.AreEqual(50, w);
         }
@@ -1077,8 +1249,11 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestToUtf8()
         {
-            var q = new QStringRef("kklkl");
-            var w = q.ToUtf8();
+            QByteArray w;
+            using (var q = new QStringRef("kklkl"))
+            {
+                w = q.ToUtf8();
+            }
 
             Assert.AreEqual("kklkl", w.ConstData);
         }
@@ -1088,89 +1263,105 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestEqual_QStringRef_QLatin1StringOperator()
         {
-            var s = _qString;
-            var s2 = new QLatin1String(_testString);
-
-            Assert.AreEqual(s, s2);
+            var s = this.qString;
+            using (var s2 = new QLatin1String(this.testString))
+            {
+                Assert.AreEqual(s, s2);
+            }
         }
 
         [Test]
         public void TestEqual_QStringRef_QStringRefOperator()
         {
-            var s = _qString;
-            var s2 = new QStringRef(_testString);
-
-            Assert.AreEqual(s, s2);
+            var s = this.qString;
+            using (var s2 = new QStringRef(this.testString))
+            {
+                Assert.AreEqual(s, s2);
+            }
         }
 
         [Test]
         public void TestEqual_QStringRef_StringOperator()
         {
-            var s = _qString;
+            var s = this.qString;
 
-            Assert.IsTrue(s == _testString);
+            Assert.IsTrue(s == this.testString);
         }
 
         [Test]
         public void TestNotEqual_QString_QLatin1StringOperator()
         {
-            var s = _qString;
-            var s2 = new QLatin1String(_testString);
-
-            Assert.IsTrue(s != s2);
+            var s = this.qString;
+            using (var s2 = new QLatin1String(this.testString))
+            {
+                Assert.IsTrue(s != s2);
+            }
         }
 
         [Test]
         public void TestNotEqual_QStringRef_QStringRefOperator()
         {
-            var s = _qString;
-            var s2 = new QStringRef(_testString + "a");
-
-            Assert.AreNotEqual(s, s2);
+            var s = this.qString;
+            using (var s2 = new QStringRef(this.testString + "a"))
+            {
+                Assert.AreNotEqual(s, s2);
+            }
         }
 
         [Test]
         public void TestNotEqual_QStringRef_StringOperator()
         {
-            var s = _qString;
+            var s = this.qString;
 
-            Assert.AreNotEqual(s, _testString);
+            Assert.AreNotEqual(s, this.testString);
         }
 
         [Test]
         public void TestGreaterOperator()
         {
-            var s = new QStringRef(_testString);
-            var s2 = new QStringRef(_testString.ToUpper());
-
-            Assert.IsTrue(s > s2);
+            using (var s = new QStringRef(this.testString))
+            {
+                using (var s2 = new QStringRef(this.testString.ToUpper()))
+                {
+                    Assert.IsTrue(s > s2);
+                }
+            }
         }
 
         [Test]
         public void TestGreaterEqualOperator()
         {
-            var s = new QStringRef(_testString);
-            var s2 = new QStringRef(_testString.ToUpper());
-
-            Assert.IsTrue(s >= s2);
+            using (var s = new QStringRef(this.testString))
+            {
+                using (var s2 = new QStringRef(this.testString.ToUpper()))
+                {
+                    Assert.IsTrue(s >= s2);
+                }
+            }
         }
 
         [Test]
         public void TestLessOperator()
         {
-            var s = new QStringRef(_testString);
-            var s2 = new QStringRef(_testString.ToUpper());
-
-            Assert.IsTrue(s2 < s);
+            using (var s = new QStringRef(this.testString))
+            {
+                using (var s2 = new QStringRef(this.testString.ToUpper()))
+                {
+                    Assert.IsTrue(s2 < s);
+                }
+            }
         }
 
         [Test]
         public void TestLessEqualOperator()
         {
-            var s = new QStringRef(_testString);
-            var s2 = new QStringRef(_testString.ToUpper());
-
-            Assert.IsTrue(s2 <= s);
+            using (var s = new QStringRef(this.testString))
+            {
+                using (var s2 = new QStringRef(this.testString.ToUpper()))
+                {
+                    Assert.IsTrue(s2 <= s);
+                }
+            }
         }
 
         #endregion
@@ -1179,9 +1370,9 @@ namespace QtSharp.Tests.Manual.QtCore.Tools
         [Test]
         public void TestUnicode_Data_ConstData()
         {
-            var u = _qString.Unicode;
-            var d = _qString.Data;
-            var cd = _qString.ConstData;
+            var u = this.qString.Unicode;
+            var d = this.qString.Data;
+            var cd = this.qString.ConstData;
 
             Assert.AreNotEqual(u.__Instance, IntPtr.Zero);
             Assert.AreNotEqual(d.__Instance, IntPtr.Zero);

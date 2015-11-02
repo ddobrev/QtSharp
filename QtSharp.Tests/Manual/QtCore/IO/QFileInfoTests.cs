@@ -19,50 +19,63 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         [SetUp]
         public void Init()
         {
-            // TODO: Add Init code.
             _fileInfo = new QFileInfo(_testFilePath1.FullName);
         }
 
         [TearDown]
         public void Dispose()
         {
-            // TODO: Add tear down code.
+            _fileInfo.Dispose();
         }
 
         #region Ctor
         [Test]
         public void TestEmptyConstructorNotThrowingAnException()
         {
-            var q = new QFileInfo();
+            using (new QFileInfo())
+            {
+            }
         }
 
         [Test]
         public void TestStringConstructorNotThrowingAnException()
         {
-            var q = new QFileInfo(_testFilePath2.FullName);
+            using (new QFileInfo(this._testFilePath2.FullName))
+            {
+            }
         }
 
         [Test]
         public void TestFileConstructorNotThrowingAnException()
         {
-            var f = new QFile(_testFilePath2.FullName);
-            var q = new QFileInfo(f);
+            using (var f = new QFile(_testFilePath2.FullName))
+            {
+                using (new QFileInfo(f))
+                {
+                }
+            }
         }
 
         [Test]
         public void TestDirConstructorNotThrowingAnException()
         {
             var f = new FileInfo(_testFilePath2.FullName);
-            var dir = new QDir(f.Directory.FullName);
-
-            var q = new QFileInfo(dir, f.Name);
+            using (var dir = new QDir(f.Directory.FullName))
+            {
+                using (new QFileInfo(dir, f.Name))
+                {
+                }
+            }
         }
 
         [Test]
         public void TestQFileInfoConstructorNotThrowingAnException()
         {
-            var q = new QFileInfo(_fileInfo);
+            using (new QFileInfo(this._fileInfo))
+            {
+            }
         }
+
         #endregion
 
         [Test]

@@ -9,51 +9,61 @@ namespace QtSharp.Tests.Manual.QtCore.IO
     {
         private const string Url = "ftp://tray:5uQQo_f@ftp.example.com:2021?58#question13";
         private const string Url2 = "http://www.example.com/List of holidays.xml";
-        private QUrl _qUrl;
+        private QUrl qUrl;
 
         [SetUp]
         public void Init()
         {
-            // TODO: Add Init code.
-            _qUrl = new QUrl(Url);
+            this.qUrl = new QUrl(Url);
         }
 
         [TearDown]
         public void Dispose()
         {
-            // TODO: Add tear down code.
+            this.qUrl.Dispose();
         }
 
         [Test]
         public void TestEmpyConstructor()
         {
-            var s = new QUrl();
+            using (new QUrl())
+            {
+            }
         }
 
         [Test]
         public void TestStringTolerantConstructor()
         {
-            var s = new QUrl("http://www.example.com/List of holidays.xml");
+            using (new QUrl(Url2))
+            {
+            }
         }
 
         [Test]
         public void TestStringStrictConstructor()
         {
-            var s = new QUrl("http://www.example.com/List of holidays.xml", QUrl.ParsingMode.StrictMode);
+            using (new QUrl(Url2, QUrl.ParsingMode.StrictMode))
+            {
+            }
         }
 
         [Test]
         public void TestStringDecodedConstructor()
         {
-            var s = new QUrl("http://www.example.com/List of holidays.xml", QUrl.ParsingMode.DecodedMode);
+            using (new QUrl(Url2, QUrl.ParsingMode.DecodedMode))
+            {
+            }
         }
 
         [Test]
         public void TestCopyConstructor()
         {
-            var s = new QUrl("http://www.example.com/List of holidays.xml");
-
-            var n = new QUrl(s);
+            using (var s = new QUrl(Url2))
+            {
+                using (new QUrl(s))
+                {
+                }
+            }
         }
 
         [Test]
@@ -68,7 +78,7 @@ namespace QtSharp.Tests.Manual.QtCore.IO
             foreach (
                 QUrl.ComponentFormattingOption formatting in Enum.GetValues(typeof(QUrl.ComponentFormattingOption)))
             {
-                var s = _qUrl.Authority(formatting);
+                var s = this.qUrl.Authority(formatting);
                 Assert.IsNotNullOrEmpty(s, "Problem in enum: " + formatting.ToString());
             }
         }
@@ -76,14 +86,14 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         [Test]
         public void TestClear()
         {
-            _qUrl.Clear();
-            Assert.IsTrue(_qUrl.IsEmpty);
+            this.qUrl.Clear();
+            Assert.IsTrue(this.qUrl.IsEmpty);
         }
 
         [Test]
         public void TestFragment()
         {
-            var s = _qUrl.Fragment();
+            var s = this.qUrl.Fragment();
 
             Assert.IsNotNullOrEmpty(s);
         }
@@ -129,7 +139,9 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         [Test]
         public void TestFromStringList()
         {
-            var url = QUrl.FromUserInput("qt-project.org");
+            using (var url = QUrl.FromUserInput("qt-project.org"))
+            {
+            }
 
             // TODO
         }
@@ -137,32 +149,34 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         [Test]
         public void TestHasFragment()
         {
-            Assert.IsTrue(_qUrl.HasFragment);
+            Assert.IsTrue(this.qUrl.HasFragment);
         }
 
         [Test]
         public void TestHasQuery()
         {
-            Assert.IsTrue(_qUrl.HasQuery);
+            Assert.IsTrue(this.qUrl.HasQuery);
         }
 
         [Test]
         public void TestHost()
         {
-            Assert.AreEqual("ftp.example.com", _qUrl.Host());
+            Assert.AreEqual("ftp.example.com", this.qUrl.Host());
         }
 
         [Test]
         public void TestIdnWhitelist()
         {
-            var w = QUrl.IdnWhitelist;
+            using (var w = QUrl.IdnWhitelist)
+            {
+            }
             // TODO
         }
 
         [Test]
         public void TestIsEmpty()
         {
-            Assert.IsFalse(_qUrl.IsEmpty);
+            Assert.IsFalse(this.qUrl.IsEmpty);
         }
 
         [Test]
@@ -176,26 +190,28 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         [Test]
         public void TestIsParentOf()
         {
-            var u = _qUrl.IsParentOf(new QUrl());
+            var u = this.qUrl.IsParentOf(new QUrl());
             // TODO
         }
 
         [Test]
         public void TestIsRelative()
         {
-            Assert.IsFalse(_qUrl.IsRelative);
+            Assert.IsFalse(this.qUrl.IsRelative);
         }
 
         [Test]
         public void TestIsValid()
         {
-            Assert.IsTrue(_qUrl.IsValid);
+            Assert.IsTrue(this.qUrl.IsValid);
         }
 
         [Test]
         public void TestMatches()
         {
-            var n = new QUrl("ftp://tray:5uQQo_f@ftp.example.com:2021?58#question13");
+            using (var n = new QUrl("ftp://tray:5uQQo_f@ftp.example.com:2021?58#question13"))
+            {
+            }
 
             throw new AssertionException("Not implemented!");
         }
@@ -203,7 +219,7 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         [Test]
         public void TestPassword()
         {
-            var p = _qUrl.Password();
+            var p = this.qUrl.Password();
 
             Assert.AreEqual("5uQQo_f", p);
         }
@@ -211,7 +227,7 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         [Test]
         public void TestPath()
         {
-            var p = _qUrl.Path();
+            var p = this.qUrl.Path();
             // TODO
             //Assert.AreEqual("5uQQo_f", p);
         }
@@ -219,7 +235,7 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         [Test]
         public void TestPort()
         {
-            var p = _qUrl.Port();
+            var p = this.qUrl.Port();
 
             Assert.AreEqual(2021, p);
         }
@@ -227,7 +243,7 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         [Test]
         public void TestQuery()
         {
-            var p = _qUrl.Query();
+            var p = this.qUrl.Query();
 
             Assert.AreEqual(58.ToString(), p);
         }
@@ -532,13 +548,13 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         {
             var n = new QUrl(Url);
 
-            Assert.IsFalse(n != _qUrl);
+            Assert.IsFalse(n != this.qUrl);
         }
 
         [Test]
         public void TestEqualWithQUrlOperator()
         {
-            QUrl n = _qUrl;
+            QUrl n = this.qUrl;
 
             //Assert.IsFalse(n != _qUrl);
         }
@@ -557,7 +573,7 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         {
             var n = new QUrl(Url);
 
-            Assert.AreEqual(n, _qUrl);
+            Assert.AreEqual(n, this.qUrl);
         }
     }
 }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using QtCore;
 
 namespace QtSharp.Tests.Manual.QtCore.Animation
@@ -55,13 +51,13 @@ namespace QtSharp.Tests.Manual.QtCore.Animation
 
             // Current time = 1
             group.CurrentTime = 1;
-            Assert.AreEqual(QAnimationGroup.State.Stopped, group.state);
-            Assert.AreEqual(QAnimationGroup.State.Stopped, parallel.state);
-            Assert.AreEqual(QAnimationGroup.State.Stopped, a1_p_o1.state);
-            Assert.AreEqual(QAnimationGroup.State.Stopped, a1_p_o2.state);
-            Assert.AreEqual(QAnimationGroup.State.Stopped, a1_p_o3.state);
-            Assert.AreEqual(QAnimationGroup.State.Stopped, notTimeDriven.state);
-            Assert.AreEqual(QAnimationGroup.State.Stopped, loopsForever.state);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, group.state);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, parallel.state);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, a1_p_o1.state);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, a1_p_o2.state);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, a1_p_o3.state);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, notTimeDriven.state);
+            Assert.AreEqual(QAbstractAnimation.State.Stopped, loopsForever.state);
 
             Assert.AreEqual(1, group.CurrentLoopTime);
             Assert.AreEqual(1, a1_p_o1.CurrentLoopTime);
@@ -232,7 +228,7 @@ namespace QtSharp.Tests.Manual.QtCore.Animation
         }
 
         [Test]
-        public unsafe void TestPropagateGroupUpdateToChildren()
+        public void TestPropagateGroupUpdateToChildren()
         {
             // this test verifies if group state changes are updating its children correctly
             var group = new QParallelAnimationGroup();
@@ -324,7 +320,7 @@ namespace QtSharp.Tests.Manual.QtCore.Animation
         }
 
         [Test]
-        public unsafe void TestDeleteChildrenWithRunningGroup()
+        public void TestDeleteChildrenWithRunningGroup()
         {
             // test if children can be activated when their group is stopped
             var group = new QParallelAnimationGroup();
@@ -345,7 +341,6 @@ namespace QtSharp.Tests.Manual.QtCore.Animation
             Assert.Greater(group.CurrentLoopTime, 0);
 
             group.RemoveAnimation(anim1);
-            anim1 = null;
             Assert.AreEqual(0, group.AnimationCount);
             Assert.AreEqual(0, group.Duration);
             Assert.AreEqual(QAbstractAnimation.State.Stopped, group.state);
@@ -671,12 +666,6 @@ namespace QtSharp.Tests.Manual.QtCore.Animation
 
         private class AnimationObject : QObject
         {
-            public int Value { get; set; }
-
-            public AnimationObject(int startValue = 0)
-            {
-                Value = startValue;
-            }
         }
 
         private class TestAnimation : QVariantAnimation
@@ -684,68 +673,39 @@ namespace QtSharp.Tests.Manual.QtCore.Animation
             public virtual void UpdateCurrentValue(ref QVariant value)
             { }
 
-            public virtual void UpdateState(QAbstractAnimation.State oldState,
-                                            QAbstractAnimation.State newState)
+            protected override void UpdateState(State oldState, State newState)
             { }
-
         }
 
         private class TestAnimation2 : QVariantAnimation
         {
-            int _duration;
+            private readonly int duration;
             public override int Duration
             {
-                get { return _duration; }
+                get { return this.duration; }
             }
 
             public virtual void UpdateCurrentValue(ref QVariant value)
             { }
 
-            public virtual void UpdateState(QAbstractAnimation.State oldState,
-                                            QAbstractAnimation.State newState)
-            { }
-
-            public TestAnimation2(QAbstractAnimation animation)
-                : base(animation)
+            protected override void UpdateState(State oldState, State newState)
             { }
 
             public TestAnimation2(int duration, QAbstractAnimation animation)
                 : base(animation)
             {
-                _duration = duration;
+                this.duration = duration;
             }
 
         }
 
         private class UncontrolledAnimation : QPropertyAnimation
         {
-            private int _id;
-
             public override int Duration { get { return -1; } }
-
-            public new void TimerEvent(QTimerEvent e)
-            {
-                if (e.TimerId == _id)
-                    Stop();
-            }
-
-            protected void UpdateRunning(bool running)
-            {
-                if (running)
-                {
-                    _id = StartTimer(500);
-                }
-                else
-                {
-                    KillTimer(_id);
-                    _id = 0;
-                }
-            }
 
             public UncontrolledAnimation(QObject target, QByteArray propertyName, QObject parent = null)
                 : base(target, propertyName, parent)
             {
-                _id = 0;
                 SetDuration(250);
                 EndValue = new QVariant(0);
             }

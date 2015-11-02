@@ -14,14 +14,13 @@ namespace QtSharp.Tests.Manual.QtCore.Kernel
         [SetUp]
         public void Init()
         {
-            // TODO: Add Init code.
             _qObject = new QObject();
         }
 
         [TearDown]
         public void Dispose()
         {
-            // TODO: Add tear down code.
+            _qObject.Dispose();
         }
 
         #region Ctor

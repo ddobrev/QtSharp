@@ -9,13 +9,11 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         [SetUp]
         public void Init()
         {
-            // TODO: Add Init code.
         }
 
         [TearDown]
         public void Dispose()
         {
-            // TODO: Add tear down code.
         }
 
         [Test]
@@ -27,8 +25,9 @@ namespace QtSharp.Tests.Manual.QtCore.IO
 
             obj.SetOpenMode(QIODevice.OpenModeFlag.ReadWrite);
             Assert.AreEqual(QIODevice.OpenModeFlag.ReadWrite, obj.OpenMode);
+            // BUG: calling Dispose here causes a crash - the original function pointer is null
         }
-        
+
         public class MyIODevice : QIODevice 
         {
             public void SetOpenMode(OpenModeFlag openMode)
