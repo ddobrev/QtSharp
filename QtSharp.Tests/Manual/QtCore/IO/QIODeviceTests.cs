@@ -19,13 +19,14 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         [Test]
         public void TestOpenMode()
         {
-            var obj = new MyIODevice();
-            obj.SetOpenMode(QIODevice.OpenModeFlag.NotOpen);
-            Assert.AreEqual(QIODevice.OpenModeFlag.NotOpen, obj.OpenMode);
+            using (var obj = new MyIODevice())
+            {
+                obj.SetOpenMode(QIODevice.OpenModeFlag.NotOpen);
+                Assert.AreEqual(QIODevice.OpenModeFlag.NotOpen, obj.OpenMode);
 
-            obj.SetOpenMode(QIODevice.OpenModeFlag.ReadWrite);
-            Assert.AreEqual(QIODevice.OpenModeFlag.ReadWrite, obj.OpenMode);
-            // BUG: calling Dispose here causes a crash - the original function pointer is null
+                obj.SetOpenMode(QIODevice.OpenModeFlag.ReadWrite);
+                Assert.AreEqual(QIODevice.OpenModeFlag.ReadWrite, obj.OpenMode);
+            }
         }
 
         public class MyIODevice : QIODevice 

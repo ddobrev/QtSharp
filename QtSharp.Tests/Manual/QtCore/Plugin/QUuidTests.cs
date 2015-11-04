@@ -221,7 +221,6 @@ namespace QtSharp.Tests.Manual.QtCore.Plugin
             throw new AssertionException("GUID not implemented!");
         }
 
-        [Ignore("Bug!")]
         [Test]
         public void TestNotEqualOperator()
         {

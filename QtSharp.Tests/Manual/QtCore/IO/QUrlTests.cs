@@ -437,7 +437,6 @@ namespace QtSharp.Tests.Manual.QtCore.IO
             Assert.AreEqual("tray2", baseUrl.UserName());
         }
 
-        //[Ignore("Bug!")]
         [Test]
         public void TestSwap()
         {
