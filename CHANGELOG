@@ -1,1 +1,6 @@
-4.10.2015 - First binary release of QtSharp - https://github.com/ddobrev/QtSharp/releases/tag/0.0.1.
+0.0.2 - 5.11.2015
+Fixed:
+- A crash when using QFormLayout.
+
+0.0.1 - 4.10.2015
+- First binary release of QtSharp.
