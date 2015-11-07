@@ -24,14 +24,15 @@ namespace QtSharp.CLI
             if (!File.Exists(qmake))
             {
                 Console.WriteLine("The specified qmake does not exist.");
-                return -1;
+                return 1;
             }
             string make = args[1];
             if (!File.Exists(make))
             {
                 Console.WriteLine("The specified make does not exist.");
-                return -1;
+                return 1;
             }
+            var debug = args.Length > 2 && (args[2] == "d" || args[2] == "debug");
 
             ConsoleLogger logredirect = new ConsoleLogger();
             logredirect.CreateLogDirectory();
@@ -45,7 +46,7 @@ namespace QtSharp.CLI
             if (!string.IsNullOrEmpty(error))
             {
                 Console.WriteLine(error);
-                return -1;
+                return 1;
             }
             DirectoryInfo libsInfo = new DirectoryInfo(libs);
             if (!libsInfo.Exists)
@@ -53,14 +54,14 @@ namespace QtSharp.CLI
                 Console.WriteLine(
                     "The directory \"{0}\" that qmake returned as the lib direcory of the Qt installation, does not exist.",
                     libsInfo.Name);
-                return -1;
+                return 1;
             }
-            ICollection<string> libFiles = GetLibFiles(libsInfo);
+            ICollection<string> libFiles = GetLibFiles(libsInfo, debug);
             string headers = ProcessHelper.Run(qmake, "-query QT_INSTALL_HEADERS", out error);
             if (!string.IsNullOrEmpty(error))
             {
                 Console.WriteLine(error);
-                return -1;
+                return 1;
             }
             DirectoryInfo headersInfo = new DirectoryInfo(headers);
             if (!headersInfo.Exists)
@@ -68,7 +69,7 @@ namespace QtSharp.CLI
                 Console.WriteLine(
                     "The directory \"{0}\" that qmake returned as the header direcory of the Qt installation, does not exist.",
                     headersInfo.Name);
-                return -1;
+                return 1;
             }
             string docs = ProcessHelper.Run(qmake, "-query QT_INSTALL_DOCS", out error);
             string emptyFile = Environment.OSVersion.Platform == PlatformID.Win32NT ? "NUL" : "/dev/null";
@@ -95,6 +96,13 @@ namespace QtSharp.CLI
                 }
             }
             var modules = new List<string> { "Qt5Core", "Qt5Gui", "Qt5Widgets", "Qt5Xml", "Qt5Designer" };
+            if (debug)
+            {
+                for (var i = 0; i < modules.Count; i++)
+                {
+                    modules[i] += "d";
+                }
+            }
             libFiles = libFiles.TopologicalSort(l => dependencies.ContainsKey(l) ? dependencies[l] : Enumerable.Empty<string>());
             var wrappedModules = new List<KeyValuePair<string, string>>(modules.Count);
             var astContexts = new List<ASTContext>(libFiles.Count);
@@ -130,7 +138,7 @@ namespace QtSharp.CLI
             if (wrappedModules.Count == 0)
             {
                 Console.WriteLine("Generation failed.");
-                return 0;
+                return 1;
             }
 
             var qtSharpZip = "QtSharp.zip";
@@ -156,14 +164,22 @@ namespace QtSharp.CLI
             return 0;
         }
 
-        private static IList<string> GetLibFiles(DirectoryInfo libsInfo)
+        private static IList<string> GetLibFiles(DirectoryInfo libsInfo, bool debug)
         {
             List<string> modules = (from file in libsInfo.EnumerateFiles()
                                     where Regex.IsMatch(file.Name, @"^Qt\d?\w+\.\w+$")
                                     select file.Name).ToList();
-            for (int i = modules.Count - 1; i >= 0; i--)
+            for (var i = modules.Count - 1; i >= 0; i--)
             {
-                modules.Remove(Path.GetFileNameWithoutExtension(modules[i]) + "d" + Path.GetExtension(modules[i]));
+                var module = Path.GetFileNameWithoutExtension(modules[i]);
+                if (debug && module != null && !module.EndsWith("d"))
+                {
+                    modules.Remove(module + Path.GetExtension(modules[i]));                    
+                }
+                else
+                {
+                    modules.Remove(module + "d" + Path.GetExtension(modules[i]));                    
+                }
             }
             return modules;
         }

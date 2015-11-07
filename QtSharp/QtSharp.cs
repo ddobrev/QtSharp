@@ -19,7 +19,7 @@ namespace QtSharp
             this.dependencies = dependencies;
             this.qmake = qtModuleInfo.Qmake;
             this.includePath = qtModuleInfo.IncludePath.Replace('/', Path.DirectorySeparatorChar);
-            this.module = Regex.Match(qtModuleInfo.Library, @"Qt\d?(?<module>\w+)\.\w+$").Groups["module"].Value;
+            this.module = Regex.Match(qtModuleInfo.Library, @"Qt\d?(?<module>\w+?)d?\.\w+$").Groups["module"].Value;
             this.libraryPath = qtModuleInfo.LibraryPath.Replace('/', Path.DirectorySeparatorChar);
             this.library = qtModuleInfo.Library;
             this.target = qtModuleInfo.Target;
