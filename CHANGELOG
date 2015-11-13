@@ -1,3 +1,7 @@
+0.0.3 - 13.11.2015
+Fixed:
+- Crashes when loading GUI from a *.ui file using QFormBuilder.
+
 0.0.2 - 5.11.2015
 Fixed:
 - A crash when using QFormLayout.
