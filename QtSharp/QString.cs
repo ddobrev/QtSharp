@@ -13,11 +13,7 @@ namespace QtSharp
         {
             if (ctx.CSharpKind == CSharpTypePrinterContextKind.Native)
             {
-                if (ctx.Type.IsAddress())
-                {
-                    return "QtCore.QString.Internal*";
-                }
-                return "QtCore.QString.Internal";
+                return ctx.Type.IsAddress() ? "QtCore.QString.Internal*" : "QtCore.QString.Internal";
             }
             return "string";
         }
@@ -28,7 +24,7 @@ namespace QtSharp
                                         ctx.ParameterIndex, ctx.Parameter.Name);
             ctx.SupportBefore.WriteLine("var __qstring{0} = QtCore.QString.FromUtf16(ref *__stringPtr{0}, {1}.Length);",
                                         ctx.ParameterIndex, ctx.Parameter.Name);
-            Type type = ctx.Parameter.Type.Desugar();
+            var type = ctx.Parameter.Type.Desugar();
             if (type.IsAddress())
             {
                 ctx.Return.Write("ReferenceEquals(__qstring{0}, null) ? global::System.IntPtr.Zero : __qstring{0}.{1}",
@@ -39,10 +35,10 @@ namespace QtSharp
             type.TryGetClass(out @class);
             if (@class == null)
             {
-                Type.TryGetClass(out @class);
+                this.Type.TryGetClass(out @class);
             }
-            typePrinter = typePrinter ?? (typePrinter = new CSharpTypePrinter(ctx.Driver));
-            var qualifiedIdentifier = (@class.OriginalClass ?? @class).Visit(typePrinter);
+            this.typePrinter = this.typePrinter ?? (this.typePrinter = new CSharpTypePrinter(ctx.Driver));
+            var qualifiedIdentifier = (@class.OriginalClass ?? @class).Visit(this.typePrinter);
             ctx.Return.Write("ReferenceEquals(__qstring{0}, null) ? new {1}.Internal() : *({1}.Internal*) (__qstring{0}.{2})",
                              ctx.ParameterIndex, qualifiedIdentifier, Helpers.InstanceIdentifier);
         }
@@ -53,6 +49,6 @@ namespace QtSharp
                 Helpers.CreateInstanceIdentifier, ctx.ReturnVarName);
         }
 
-        CSharpTypePrinter typePrinter;
+        private CSharpTypePrinter typePrinter;
     }
 }
