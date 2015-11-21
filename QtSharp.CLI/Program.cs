@@ -95,7 +95,8 @@ namespace QtSharp.CLI
                     dependencies[libFile] = Enumerable.Empty<string>();
                 }
             }
-            var modules = new List<string> { "Qt5Core", "Qt5Gui", "Qt5Widgets", "Qt5Xml", "Qt5Designer", "Qt5Network", "Qt5Qml" };
+            var modules = new List<string> { "Qt5Core", "Qt5Gui", "Qt5Widgets", "Qt5Xml", "Qt5Designer", "Qt5Network", "Qt5Qml",
+                "Qt5Nfc", "Qt5OpenGL", "Qt5ScriptTools", "Qt5Sensors", "Qt5SerialPort"};
             if (debug)
             {
                 for (var i = 0; i < modules.Count; i++)
