@@ -14,7 +14,8 @@ Qt for OS X and Linux are planned, Qt for VC++ has not been planned for now.
 The source code is separated into a library that contains the settings and passes the generator needs, and a command-line client.
 In the future a GUI client, constructed with Qt# itself, is planned as well.
 
-When the generated bindings are stable, binary releases will be uploaded.
+The are binary releases for Windows and Qt MinGW at https://github.com/ddobrev/QtSharp/releases. They are in an alpha stage.
+As they get more stable, binaries for other operating systems will be added as well.
 
 ## Documentation
 
