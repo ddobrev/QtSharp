@@ -20,9 +20,9 @@ namespace QtSharp
 
         public override void CSharpMarshalToNative(MarshalContext ctx)
         {
-            ctx.SupportBefore.WriteLine("var __stringPtr{0} = (ushort*) Marshal.StringToHGlobalUni({1}).ToPointer();",
+            ctx.SupportBefore.WriteLine("var __stringPtr{0} = ReferenceEquals({1}, null) ? null : (ushort*) Marshal.StringToHGlobalUni({1}).ToPointer();",
                                         ctx.ParameterIndex, ctx.Parameter.Name);
-            ctx.SupportBefore.WriteLine("var __qstring{0} = QtCore.QString.FromUtf16(ref *__stringPtr{0}, {1}.Length);",
+            ctx.SupportBefore.WriteLine("var __qstring{0} = __stringPtr{0} == null ? null : QtCore.QString.FromUtf16(ref *__stringPtr{0}, {1}.Length);",
                                         ctx.ParameterIndex, ctx.Parameter.Name);
             var type = ctx.Parameter.Type.Desugar();
             if (type.IsAddress())
