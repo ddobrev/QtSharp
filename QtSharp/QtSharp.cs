@@ -63,24 +63,28 @@ namespace QtSharp
             lib.SetClassAsValueType("QVariant");
             lib.IgnoreClassMethodWithName("QString", "fromStdWString");
             lib.IgnoreClassMethodWithName("QString", "toStdWString");
-            if (this.module == "Widgets")
+            string[] classesWithTypeEnums = { };
+            switch (this.module)
             {
-                // HACK: work around https://llvm.org/bugs/show_bug.cgi?id=24655
-                foreach (var method in lib.FindCompleteClass("QAbstractSlider").Methods.Where(m => m.Access == AccessSpecifier.Protected))
-                {
-                    method.AccessDecl.PreprocessedEntities.Clear();
-                }
-                string[] classesWithTypeEnums =
-                {
-                    "QGraphicsEllipseItem", "QGraphicsItemGroup", "QGraphicsLineItem",
-                    "QGraphicsPathItem", "QGraphicsPixmapItem", "QGraphicsPolygonItem", "QGraphicsProxyWidget",
-                    "QGraphicsRectItem", "QGraphicsSimpleTextItem", "QGraphicsTextItem", "QGraphicsWidget"
-                };
-                foreach (var enumeration in classesWithTypeEnums.Select(c => lib.FindCompleteClass(c)).SelectMany(
-                    @class => @class.Enums.Where(e => string.IsNullOrEmpty(e.Name))))
-                {
-                    enumeration.Name = "TypeEnum";
-                }
+                case "Widgets":
+                    classesWithTypeEnums = new[]
+                                           {
+                                               "QGraphicsEllipseItem", "QGraphicsItemGroup", "QGraphicsLineItem",
+                                               "QGraphicsPathItem", "QGraphicsPixmapItem", "QGraphicsPolygonItem",
+                                               "QGraphicsProxyWidget", "QGraphicsRectItem", "QGraphicsSimpleTextItem",
+                                               "QGraphicsTextItem", "QGraphicsWidget"
+                                           };
+                    break;
+                case "Svg":
+                    classesWithTypeEnums = new[] { "QGraphicsSvgItem" };
+                    break;
+            }
+            foreach (var enumeration in from @class in classesWithTypeEnums
+                                        from @enum in lib.FindCompleteClass(@class).Enums
+                                        where string.IsNullOrEmpty(@enum.Name)
+                                        select @enum)
+            {
+                enumeration.Name = "TypeEnum";
             }
         }
 
