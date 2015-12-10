@@ -309,11 +309,14 @@ namespace QtSharp
                         {
                             comment.BriefText = ((Class) property.Namespace).GetBaseProperty(property).Comment.BriefText;
                         }
-                        if (!string.IsNullOrEmpty(comment.BriefText))
+                        if (string.IsNullOrEmpty(comment.BriefText))
                         {
-                            comment.BriefText += Environment.NewLine;
+                            comment.BriefText += setter.Comment.BriefText;
                         }
-                        comment.BriefText += setter.Comment.BriefText;
+                        else
+                        {
+                            comment.BriefText += Environment.NewLine + setter.Comment.BriefText;
+                        }
                     }
                 }
                 if (!string.IsNullOrEmpty(comment.BriefText))
@@ -661,6 +664,5 @@ namespace QtSharp
         private readonly List<XElement> classNodes;
         private readonly List<XElement> enumNodes;
         private readonly List<XElement> variableNodes;
-
     }
 }

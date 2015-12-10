@@ -7,9 +7,8 @@ namespace QtSharp
 {
     public class GetCommentsFromQtDocsPass : TranslationUnitPass
     {
-        public GetCommentsFromQtDocsPass(string docsPath, string module, List<ASTContext> dependencies)
+        public GetCommentsFromQtDocsPass(string docsPath, string module)
         {
-            this.dependencies = dependencies;
             this.documentation = new Documentation(docsPath, module);
             this.Options.VisitFunctionReturnType = false;
             this.Options.VisitFunctionParameters = false;
@@ -86,11 +85,10 @@ namespace QtSharp
                 var @class = function.OriginalNamespace as Class;
                 if (@class != null && @class.IsInterface && @class.GenerationKind == GenerationKind.Link)
                 {
-                    function.Comment = (from dependency in this.dependencies
-                                        from found in dependency.FindClass(@class.Name)
-                                        from method in found.Methods
-                                        where method.USR == function.USR
-                                        select method.Comment).FirstOrDefault();
+                    if (functionsComments.ContainsKey(function.Mangled))
+                    {
+                        function.Comment = new RawComment { BriefText = functionsComments[function.Mangled] };
+                    }
                 }
                 else
                 {
@@ -115,17 +113,36 @@ namespace QtSharp
                                        where @class != null && @class.IsInterface && @class.GenerationKind == GenerationKind.Link
                                        select @class)
                 {
-                    property.Comment = (from dependency in this.dependencies
-                                        from found in dependency.FindClass(@class.Name)
-                                        from prop in found.Properties
-                                        where prop.OriginalName == property.OriginalName
-                                        select prop.Comment).FirstOrDefault();
+                    RawComment comment = null;
+                    if (property.GetMethod != null && functionsComments.ContainsKey(property.GetMethod.Mangled))
+                    {
+                        comment = new RawComment { BriefText = functionsComments[property.GetMethod.Mangled] };
+                    }
+                    if (comment == null && property.SetMethod != null && functionsComments.ContainsKey(property.SetMethod.Mangled))
+                    {
+                        comment = new RawComment { BriefText = functionsComments[property.SetMethod.Mangled] };
+                    }
+                    property.Comment = comment;
                     if (property.Comment != null)
                     {
                         return true;
                     }
                 }
                 this.documentation.DocumentProperty(property);
+                if (property.Comment != null)
+                {
+                    if (property.GetMethod != null)
+                    {
+                        functionsComments[property.GetMethod.Mangled] = property.Comment.BriefText;
+                    }
+                    else
+                    {
+                        if (property.SetMethod != null)
+                        {
+                            functionsComments[property.SetMethod.Mangled] = property.Comment.BriefText;
+                        }
+                    }
+                }
                 return true;
             }
             return false;
@@ -177,10 +194,15 @@ namespace QtSharp
                 {
                     this.documentation.DocumentFunction(function);
                 }
+                if (function.Comment != null)
+                {
+                    functionsComments[function.Mangled] = function.Comment.BriefText;
+                }
             }
         }
 
+        private static readonly Dictionary<string, string> functionsComments = new Dictionary<string, string>();
+
         private readonly Documentation documentation;
-        private readonly List<ASTContext> dependencies;
     }
 }

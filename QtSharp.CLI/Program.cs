@@ -120,16 +120,13 @@ namespace QtSharp.CLI
             }
             libFiles = libFiles.TopologicalSort(l => dependencies.ContainsKey(l) ? dependencies[l] : Enumerable.Empty<string>());
             var wrappedModules = new List<KeyValuePair<string, string>>(modules.Count);
-            var astContexts = new List<ASTContext>(libFiles.Count);
             foreach (var libFile in libFiles.Where(l => modules.Any(m => m == Path.GetFileNameWithoutExtension(l))))
             {
                 logredirect.SetLogFile(libFile.Replace(".dll", "") + "Log.txt");
                 logredirect.Start();
 
-                var qtSharp = new QtSharp(new QtModuleInfo(qmake, make, headers, libs, libFile, target, systemIncludeDirs, docs),
-                                          astContexts);
+                var qtSharp = new QtSharp(new QtModuleInfo(qmake, make, headers, libs, libFile, target, systemIncludeDirs, docs));
                 ConsoleDriver.Run(qtSharp);
-                astContexts.Add(qtSharp.AST);
                 if (File.Exists(qtSharp.LibraryName) && File.Exists(Path.Combine("release", qtSharp.InlinesLibraryName)))
                 {
                     wrappedModules.Add(new KeyValuePair<string, string>(qtSharp.LibraryName, qtSharp.InlinesLibraryName));
