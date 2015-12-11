@@ -72,6 +72,12 @@ namespace QtSharp
                                                "QGraphicsProxyWidget", "QGraphicsRectItem", "QGraphicsSimpleTextItem",
                                                "QGraphicsTextItem", "QGraphicsWidget"
                                            };
+                    // HACK: work around https://github.com/mono/CppSharp/issues/594
+                    lib.FindCompleteClass("QGraphicsItem").FindEnum("Extension").Access = AccessSpecifier.Public;
+                    lib.FindCompleteClass("QAbstractSlider").FindEnum("SliderChange").Access = AccessSpecifier.Public;
+                    lib.FindCompleteClass("QAbstractItemView").FindEnum("CursorAction").Access = AccessSpecifier.Public;
+                    lib.FindCompleteClass("QAbstractItemView").FindEnum("State").Access = AccessSpecifier.Public;
+                    lib.FindCompleteClass("QAbstractItemView").FindEnum("DropIndicatorPosition").Access = AccessSpecifier.Public;
                     break;
                 case "Svg":
                     classesWithTypeEnums = new[] { "QGraphicsSvgItem" };
