@@ -277,8 +277,6 @@ namespace QtSharp
 		        var name = macroExpansion.Text.Split(' ')[1];
 		        if (name == property.Name || name == alternativeName)
 		        {
-                    property.LineNumberStart = macroExpansion.LineNumberStart;
-                    property.LineNumberEnd = macroExpansion.LineNumberEnd;
                     property.Name = name;
 					this.DocumentQtProperty(property);
 					return;

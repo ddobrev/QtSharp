@@ -47,12 +47,14 @@ namespace QtSharp
             var parserOptions = new ParserOptions();
             parserOptions.addLibraryDirs(dir);
             parserOptions.FileName = inlines;
-            var parserResult = ClangParser.ParseLibrary(parserOptions);
-            if (parserResult.Kind == ParserResultKind.Success)
+            using (var parserResult = ClangParser.ParseLibrary(parserOptions))
             {
-                var nativeLibrary = CppSharp.ClangParser.ConvertLibrary(parserResult.Library);
-                this.Driver.Symbols.Libraries.Add(nativeLibrary);
-                this.Driver.Symbols.IndexSymbols();
+                if (parserResult.Kind == ParserResultKind.Success)
+                {
+                    var nativeLibrary = CppSharp.ClangParser.ConvertLibrary(parserResult.Library);
+                    this.Driver.Symbols.Libraries.Add(nativeLibrary);
+                    this.Driver.Symbols.IndexSymbols();
+                }
             }
             return true;
         }

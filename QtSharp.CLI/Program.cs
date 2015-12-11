@@ -85,14 +85,16 @@ namespace QtSharp.CLI
             foreach (var libFile in libFiles)
             {
                 parserOptions.FileName = libFile;
-                var parserResult = ClangParser.ParseLibrary(parserOptions);
-                if (parserResult.Kind == ParserResultKind.Success)
+                using (var parserResult = ClangParser.ParseLibrary(parserOptions))
                 {
-                    dependencies[libFile] = CppSharp.ClangParser.ConvertLibrary(parserResult.Library).Dependencies;
-                }
-                else
-                {
-                    dependencies[libFile] = Enumerable.Empty<string>();
+                    if (parserResult.Kind == ParserResultKind.Success)
+                    {
+                        dependencies[libFile] = CppSharp.ClangParser.ConvertLibrary(parserResult.Library).Dependencies;
+                    }
+                    else
+                    {
+                        dependencies[libFile] = Enumerable.Empty<string>();
+                    }
                 }
             }
             var modules = new List<string>
