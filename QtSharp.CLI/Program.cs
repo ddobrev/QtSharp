@@ -109,7 +109,9 @@ namespace QtSharp.CLI
                               "Qt5ScriptTools",
                               "Qt5Sensors",
                               "Qt5SerialPort",
-                              "Qt5Svg"
+                              "Qt5Svg",
+                              "Qt5Multimedia",
+                              "Qt5Quick"
                           };
             if (debug)
             {

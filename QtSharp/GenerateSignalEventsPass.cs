@@ -139,7 +139,9 @@ namespace QtSharp
                 return false;
             }
             foreach (var method in from method in @class.Methods
-                                   where method.Access != AccessSpecifier.Private && method.AccessDecl != null
+                                   where method.Access != AccessSpecifier.Private && method.AccessDecl != null &&
+                                         // HACK: work around https://llvm.org/bugs/show_bug.cgi?id=24655
+                                         !method.IsConstructor && !method.IsDestructor && !method.IsOperator
                                    select method)
             {
                 this.HandleQSignal(@class, method);

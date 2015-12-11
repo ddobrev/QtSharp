@@ -195,6 +195,10 @@ namespace QtSharp
                     // HACK: work around https://github.com/mono/CppSharp/issues/582
                     driver.Options.CodeFiles.Add(Path.Combine(dir, "IQAccessibleActionInterface.cs"));
                     break;
+                case "Qml":
+                    // HACK: work around https://github.com/mono/CppSharp/issues/582
+                    driver.Options.CodeFiles.Add(Path.Combine(dir, "IQQmlParserStatus.cs"));
+                    break;
             }
             var extension = Path.GetExtension(this.library);
             this.LibraryName = driver.Options.LibraryName + extension;
