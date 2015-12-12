@@ -113,7 +113,9 @@ namespace QtSharp.CLI
                               "Qt5SerialPort",
                               "Qt5Svg",
                               "Qt5Multimedia",
-                              "Qt5Quick"
+                              "Qt5MultimediaWidgets",
+                              "Qt5Quick",
+                              "Qt5QuickWidgets"
                           };
             if (debug)
             {

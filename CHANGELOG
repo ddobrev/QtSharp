@@ -1,3 +1,7 @@
+0.0.7 - 12.12.2015
+Added:
+- Bindings for QtQuickWidgets and QtMultimediaWidgets.
+
 0.0.6 - 11.12.2015
 Added:
 - Bindings for QtQuick (just the library, no QtQuick/QML support yet) and QtMultimedia.
