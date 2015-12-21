@@ -54,6 +54,7 @@ namespace QtSharp
                     var nativeLibrary = CppSharp.ClangParser.ConvertLibrary(parserResult.Library);
                     this.Driver.Symbols.Libraries.Add(nativeLibrary);
                     this.Driver.Symbols.IndexSymbols();
+                    parserResult.Library.Dispose();
                 }
             }
             return true;

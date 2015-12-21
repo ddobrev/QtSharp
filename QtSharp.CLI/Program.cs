@@ -90,6 +90,7 @@ namespace QtSharp.CLI
                     if (parserResult.Kind == ParserResultKind.Success)
                     {
                         dependencies[libFile] = CppSharp.ClangParser.ConvertLibrary(parserResult.Library).Dependencies;
+                        parserResult.Library.Dispose();
                     }
                     else
                     {

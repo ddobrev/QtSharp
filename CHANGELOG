@@ -1,3 +1,7 @@
+0.0.8 - 21.12.2015
+Added:
+- Properly wrapped non-virtual destructors in derived types.
+
 0.0.7 - 12.12.2015
 Added:
 - Bindings for QtQuickWidgets and QtMultimediaWidgets.
