@@ -139,9 +139,7 @@ namespace QtSharp
                 return false;
             }
             foreach (var method in from method in @class.Methods
-                                   where method.Access != AccessSpecifier.Private && method.AccessDecl != null &&
-                                         // HACK: work around https://llvm.org/bugs/show_bug.cgi?id=24655
-                                         !method.IsConstructor && !method.IsDestructor && !method.IsOperator
+                                   where method.Access != AccessSpecifier.Private
                                    select method)
             {
                 this.HandleQSignal(@class, method);
@@ -149,35 +147,44 @@ namespace QtSharp
             return true;
         }
 
-        private void HandleQSignal(DeclarationContext @class, Method method)
+        private void HandleQSignal(Class @class, Method method)
         {
-            var expansions = method.AccessDecl.PreprocessedEntities.OfType<MacroExpansion>();
-            if (expansions.All(e => e.Text != "Q_SIGNALS"))
+            for (int i = 0; i < @class.Specifiers.Count; i++)
             {
-                return;
-            }
-            if (method.Parameters.Any())
-            {
-                Class decl;
-                if (method.Parameters.Last().Type.TryGetClass(out decl) && decl.Name == "QPrivateSignal")
+                var accessSpecifierDecl = @class.Specifiers[i];
+                if (accessSpecifierDecl.LineNumberStart <= method.LineNumberStart &&
+                    (i == @class.Specifiers.Count - 1 || method.LineNumberEnd <= @class.Specifiers[i + 1].LineNumberStart))
                 {
-                    method.Parameters.RemoveAt(method.Parameters.Count - 1);
+                    var expansions = accessSpecifierDecl.PreprocessedEntities.OfType<MacroExpansion>();
+                    if (expansions.All(e => e.Text != "Q_SIGNALS"))
+                    {
+                        return;
+                    }
+                    if (method.Parameters.Any())
+                    {
+                        Class decl;
+                        if (method.Parameters.Last().Type.TryGetClass(out decl) && decl.Name == "QPrivateSignal")
+                        {
+                            method.Parameters.RemoveAt(method.Parameters.Count - 1);
+                        }
+                    }
+                    var functionType = method.GetFunctionType();
+
+                    var @event = new Event
+                    {
+                        OriginalDeclaration = method,
+                        Name = method.Name,
+                        OriginalName = method.OriginalName,
+                        Namespace = method.Namespace,
+                        QualifiedType = new QualifiedType(functionType),
+                        Parameters = method.Parameters
+                    };
+                    method.GenerationKind = GenerationKind.None;
+                    @class.Events.Add(@event);
+                    this.events.Add(@event);
+                    return;
                 }
             }
-            var functionType = method.GetFunctionType();
-
-            var @event = new Event
-                         {
-                             OriginalDeclaration = method,
-                             Name = method.Name,
-                             OriginalName = method.OriginalName,
-                             Namespace = method.Namespace,
-                             QualifiedType = new QualifiedType(functionType),
-                             Parameters = method.Parameters
-                         };
-            method.GenerationKind = GenerationKind.None;
-            @class.Events.Add(@event);
-            this.events.Add(@event);
         }
 
         private static string GetSignalEventSuffix(Event signalToUse)
