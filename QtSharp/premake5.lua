@@ -4,7 +4,6 @@ project "QtSharp"
   language "C#"
   flags { "Unsafe" }
 
-  SetupCppSharp()
   SetupManagedProject()
 
   files { "*.cs" }
@@ -13,6 +12,10 @@ project "QtSharp"
   libdirs { "../References" }
   links
   {
+    "CppSharp",
+    "CppSharp.AST",
+    "CppSharp.Parser.CLI",
+    "CppSharp.Generator",
   	"System",
   	"System.Core",
   	"System.Data",

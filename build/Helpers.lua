@@ -39,20 +39,6 @@ function SafePath(path)
   return "\"" .. path .. "\""
 end
 
-    
-cppSharpLocation = path.getabsolute("../../CppSharp/build/vs2013/lib/Release_x32/")
-
-function SetupCppSharp()
-  libdirs { cppSharpLocation }
-  links
-  {
-    "CppSharp",
-    "CppSharp.AST",
-    "CppSharp.Parser.CLI",
-    "CppSharp.Generator",
-  }
-end
-
 function SetupManagedProject()
   language "C#"
   location (path.join(builddir, "projects"))

@@ -7,4 +7,12 @@ project "QtSharp.Tests"
   SetupManagedProject()
 
   files { "*.cs" }
-  links { "System", "System.Core" }
+  links
+  {
+    "CppSharp",
+    "CppSharp.AST",
+    "CppSharp.Parser.CLI",
+    "CppSharp.Generator",  
+    "System",
+    "System.Core"
+  }
