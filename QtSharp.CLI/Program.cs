@@ -13,26 +13,89 @@ namespace QtSharp.CLI
 {
     public class Program
     {
-        public static int Main(string[] args)
+        static int ParseArgs(string[] args, out string qmake, out string make, out bool debug)
         {
+            qmake = null;
+            make = null;
+            debug = false;
+
             if (args.Length < 2)
             {
-                Console.WriteLine("Please enter the paths to qmake and make.");
-                return 0;
+               Console.WriteLine("Please enter the paths to qmake and make.");
+               return 1;
             }
-            string qmake = args[0];
+
+            qmake = args [0];
             if (!File.Exists(qmake))
             {
                 Console.WriteLine("The specified qmake does not exist.");
                 return 1;
             }
-            string make = args[1];
+
+            make = args [1];
             if (!File.Exists(make))
             {
-                Console.WriteLine("The specified make does not exist.");
-                return 1;
+               Console.WriteLine("The specified make does not exist.");
+               return 1;
             }
-            var debug = args.Length > 2 && (args[2] == "d" || args[2] == "debug");
+
+            debug = args.Length > 2 && (args[2] == "d" || args[2] == "debug");
+
+            return 0;
+        }
+
+        struct QtVersion
+        {
+            public int MajorVersion;
+            public int MinorVersion;
+            public string Path;
+        }
+
+        static List<QtVersion> FindQt()
+        {
+            var home = Environment.GetFolderPath(System.Environment.SpecialFolder.Personal);
+            var qts = new List<QtVersion>();
+
+            foreach (var path in Directory.EnumerateDirectories(Path.Combine(home, "Qt")))
+            {
+                var dir = Path.GetFileName(path);
+                bool isNumber = dir.All(c => char.IsDigit(c) || c == '.');
+                if (!isNumber)
+                    continue;
+                var qt = new QtVersion { Path = path };
+                var match = Regex.Match(dir, @"([0-9]+)\.([0-9]+)");
+                if (!match.Success)
+                    continue;
+                qt.MajorVersion = int.Parse(match.Groups[1].Value);
+                qt.MinorVersion = int.Parse(match.Groups[2].Value);
+                qts.Add(qt);
+            }
+
+            return qts;
+        }
+
+        public static int Main(string[] args)
+        {
+            var qts = FindQt();
+            bool found = qts.Count != 0;
+
+            string qmake;
+            string make;
+            bool debug = false;
+
+            if (!found)
+            {
+                var result = ParseArgs(args, out make, out qmake, out debug);
+                if (result != 0)
+                    return result;
+            }
+            else
+            {
+                // TODO: Only for OSX for now, generalize for all platforms.
+                var qt = qts.Last();
+                qmake = Path.Combine(qt.Path, "clang_64/bin/qmake");
+                make = "/usr/bin/make";
+            }
 
             ConsoleLogger logredirect = new ConsoleLogger();
             logredirect.CreateLogDirectory();
@@ -42,7 +105,8 @@ namespace QtSharp.CLI
             Environment.SetEnvironmentVariable("Path", path, EnvironmentVariableTarget.Process);
 
             string error;
-            string libs = ProcessHelper.Run(qmake, "-query QT_INSTALL_BINS", out error);
+            var queryLibs = Platform.IsWindows ? "QT_INSTALL_BINS" : "QT_INSTALL_LIBS";
+            string libs = ProcessHelper.Run(qmake, string.Format("-query {0}", queryLibs), out error);
             if (!string.IsNullOrEmpty(error))
             {
                 Console.WriteLine(error);
@@ -52,7 +116,7 @@ namespace QtSharp.CLI
             if (!libsInfo.Exists)
             {
                 Console.WriteLine(
-                    "The directory \"{0}\" that qmake returned as the lib direcory of the Qt installation, does not exist.",
+                    "The directory \"{0}\" that qmake returned as the lib directory of the Qt installation, does not exist.",
                     libsInfo.Name);
                 return 1;
             }
@@ -72,7 +136,7 @@ namespace QtSharp.CLI
                 return 1;
             }
             string docs = ProcessHelper.Run(qmake, "-query QT_INSTALL_DOCS", out error);
-            string emptyFile = Environment.OSVersion.Platform == PlatformID.Win32NT ? "NUL" : "/dev/null";
+            string emptyFile = Platform.IsWindows ? "NUL" : "/dev/null";
             string output;
             ProcessHelper.Run("gcc", string.Format("-v -E -x c++ {0}", emptyFile), out output);
             string target = Regex.Match(output, @"Target:\s*(?<target>[^\r\n]+)").Groups["target"].Value;
