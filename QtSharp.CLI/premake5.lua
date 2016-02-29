@@ -12,7 +12,6 @@ project "QtSharp.CLI"
   {
     "CppSharp",
     "CppSharp.AST",
-    "CppSharp.Parser.CLI",
     "CppSharp.Generator",  
     "System",
     "System.Core",
@@ -20,3 +19,6 @@ project "QtSharp.CLI"
     "System.IO.Compression.FileSystem",
     "QtSharp"
   }
+
+  SetupParser()
+  
