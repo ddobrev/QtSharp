@@ -136,6 +136,31 @@ namespace QtSharp.CLI
             return true;
         }
 
+        static Dictionary<string, IEnumerable<string>> GetDependencies(QtVersion qt)
+        {
+            Dictionary<string, IEnumerable<string>> dependencies = new Dictionary<string, IEnumerable<string>>();
+            var parserOptions = new ParserOptions();
+            parserOptions.addLibraryDirs(qt.Libs);
+            foreach (var libFile in qt.LibFiles)
+            {
+                parserOptions.FileName = libFile;
+                using (var parserResult = ClangParser.ParseLibrary(parserOptions))
+                {
+                    if (parserResult.Kind == ParserResultKind.Success)
+                    {
+                        dependencies[libFile] = CppSharp.ClangParser.ConvertLibrary(parserResult.Library).Dependencies;
+                        parserResult.Library.Dispose();
+                    }
+                    else
+                    {
+                        dependencies[libFile] = Enumerable.Empty<string>();
+                    }
+                }
+            }
+
+            return dependencies;
+        }
+
         public static int Main(string[] args)
         {
             var qts = FindQt();
@@ -163,25 +188,8 @@ namespace QtSharp.CLI
             if (!QueryQt(qt, debug))
                 return 1;
 
-            Dictionary<string, IEnumerable<string>> dependencies = new Dictionary<string, IEnumerable<string>>();
-            var parserOptions = new ParserOptions();
-            parserOptions.addLibraryDirs(qt.Libs);
-            foreach (var libFile in qt.LibFiles)
-            {
-                parserOptions.FileName = libFile;
-                using (var parserResult = ClangParser.ParseLibrary(parserOptions))
-                {
-                    if (parserResult.Kind == ParserResultKind.Success)
-                    {
-                        dependencies[libFile] = CppSharp.ClangParser.ConvertLibrary(parserResult.Library).Dependencies;
-                        parserResult.Library.Dispose();
-                    }
-                    else
-                    {
-                        dependencies[libFile] = Enumerable.Empty<string>();
-                    }
-                }
-            }
+            var dependencies = GetDependencies(qt);
+
             var modules = new List<string>
                           {
                               "Qt5Core",
