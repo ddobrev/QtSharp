@@ -44,11 +44,19 @@ namespace QtSharp.CLI
             return 0;
         }
 
-        struct QtVersion
+        class QtVersion
         {
             public int MajorVersion;
             public int MinorVersion;
             public string Path;
+            public string Target;
+            public string Docs;
+            public string QMake;
+            public string Make;
+            public string Libs;
+            public string Headers;
+            public IEnumerable<string> LibFiles;
+            public IEnumerable<string> SystemIncludeDirs;
         }
 
         static List<QtVersion> FindQt()
@@ -74,79 +82,91 @@ namespace QtSharp.CLI
             return qts;
         }
 
+        static bool QueryQt(QtVersion qt, bool debug)
+        {
+            qt.QMake = Path.Combine(qt.Path, "clang_64/bin/qmake");
+            qt.Make = "/usr/bin/make";
+
+            string path = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine);
+            path = Path.GetDirectoryName(qt.Make) + Path.PathSeparator + path;
+            Environment.SetEnvironmentVariable("Path", path, EnvironmentVariableTarget.Process);
+
+            string error;
+            var queryLibs = Platform.IsWindows ? "QT_INSTALL_BINS" : "QT_INSTALL_LIBS";
+            qt.Libs = ProcessHelper.Run(qt.QMake, string.Format("-query {0}", queryLibs), out error);
+            if (!string.IsNullOrEmpty(error))
+            {
+                Console.WriteLine(error);
+                return false;
+            }
+            DirectoryInfo libsInfo = new DirectoryInfo(qt.Libs);
+            if (!libsInfo.Exists)
+            {
+                Console.WriteLine(
+                    "The directory \"{0}\" that qmake returned as the lib directory of the Qt installation, does not exist.",
+                    libsInfo.Name);
+                return false;
+            }
+            qt.LibFiles = GetLibFiles(libsInfo, debug);
+            qt.Headers = ProcessHelper.Run(qt.QMake, "-query QT_INSTALL_HEADERS", out error);
+            if (!string.IsNullOrEmpty(error))
+            {
+                Console.WriteLine(error);
+                return false;
+            }
+            DirectoryInfo headersInfo = new DirectoryInfo(qt.Headers);
+            if (!headersInfo.Exists)
+            {
+                Console.WriteLine(
+                    "The directory \"{0}\" that qmake returned as the header direcory of the Qt installation, does not exist.",
+                    headersInfo.Name);
+                return false;
+            }
+            qt.Docs = ProcessHelper.Run(qt.QMake, "-query QT_INSTALL_DOCS", out error);
+
+            string emptyFile = Platform.IsWindows ? "NUL" : "/dev/null";
+            string output;
+            ProcessHelper.Run("gcc", string.Format("-v -E -x c++ {0}", emptyFile), out output);
+            qt.Target = Regex.Match(output, @"Target:\s*(?<target>[^\r\n]+)").Groups["target"].Value;
+
+            const string includeDirsRegex = @"#include <\.\.\.> search starts here:(?<includes>.+)End of search list";
+            string allIncludes = Regex.Match(output, includeDirsRegex, RegexOptions.Singleline).Groups["includes"].Value;
+            qt.SystemIncludeDirs = allIncludes.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Select(Path.GetFullPath);            
+
+            return true;
+        }
+
         public static int Main(string[] args)
         {
             var qts = FindQt();
             bool found = qts.Count != 0;
-
-            string qmake;
-            string make;
             bool debug = false;
+            QtVersion qt;
 
             if (!found)
             {
-                var result = ParseArgs(args, out make, out qmake, out debug);
+                qt = new QtVersion();
+
+                var result = ParseArgs(args, out qt.Make, out qt.QMake, out debug);
                 if (result != 0)
                     return result;
             }
             else
             {
                 // TODO: Only for OSX for now, generalize for all platforms.
-                var qt = qts.Last();
-                qmake = Path.Combine(qt.Path, "clang_64/bin/qmake");
-                make = "/usr/bin/make";
+                qt = qts.Last();
             }
 
             ConsoleLogger logredirect = new ConsoleLogger();
             logredirect.CreateLogDirectory();
 
-            string path = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine);
-            path = Path.GetDirectoryName(make) + Path.PathSeparator + path;
-            Environment.SetEnvironmentVariable("Path", path, EnvironmentVariableTarget.Process);
+            if (!QueryQt(qt, debug))
+                return 1;
 
-            string error;
-            var queryLibs = Platform.IsWindows ? "QT_INSTALL_BINS" : "QT_INSTALL_LIBS";
-            string libs = ProcessHelper.Run(qmake, string.Format("-query {0}", queryLibs), out error);
-            if (!string.IsNullOrEmpty(error))
-            {
-                Console.WriteLine(error);
-                return 1;
-            }
-            DirectoryInfo libsInfo = new DirectoryInfo(libs);
-            if (!libsInfo.Exists)
-            {
-                Console.WriteLine(
-                    "The directory \"{0}\" that qmake returned as the lib directory of the Qt installation, does not exist.",
-                    libsInfo.Name);
-                return 1;
-            }
-            ICollection<string> libFiles = GetLibFiles(libsInfo, debug);
-            string headers = ProcessHelper.Run(qmake, "-query QT_INSTALL_HEADERS", out error);
-            if (!string.IsNullOrEmpty(error))
-            {
-                Console.WriteLine(error);
-                return 1;
-            }
-            DirectoryInfo headersInfo = new DirectoryInfo(headers);
-            if (!headersInfo.Exists)
-            {
-                Console.WriteLine(
-                    "The directory \"{0}\" that qmake returned as the header direcory of the Qt installation, does not exist.",
-                    headersInfo.Name);
-                return 1;
-            }
-            string docs = ProcessHelper.Run(qmake, "-query QT_INSTALL_DOCS", out error);
-            string emptyFile = Platform.IsWindows ? "NUL" : "/dev/null";
-            string output;
-            ProcessHelper.Run("gcc", string.Format("-v -E -x c++ {0}", emptyFile), out output);
-            string target = Regex.Match(output, @"Target:\s*(?<target>[^\r\n]+)").Groups["target"].Value;
-            const string includeDirsRegex = @"#include <\.\.\.> search starts here:(?<includes>.+)End of search list";
-            string allIncludes = Regex.Match(output, includeDirsRegex, RegexOptions.Singleline).Groups["includes"].Value;
-            var systemIncludeDirs = allIncludes.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Select(Path.GetFullPath);
             Dictionary<string, IEnumerable<string>> dependencies = new Dictionary<string, IEnumerable<string>>();
             var parserOptions = new ParserOptions();
-            parserOptions.addLibraryDirs(libs);
-            foreach (var libFile in libFiles)
+            parserOptions.addLibraryDirs(qt.Libs);
+            foreach (var libFile in qt.LibFiles)
             {
                 parserOptions.FileName = libFile;
                 using (var parserResult = ClangParser.ParseLibrary(parserOptions))
@@ -189,14 +209,15 @@ namespace QtSharp.CLI
                     modules[i] += "d";
                 }
             }
-            libFiles = libFiles.TopologicalSort(l => dependencies.ContainsKey(l) ? dependencies[l] : Enumerable.Empty<string>());
+            qt.LibFiles = qt.LibFiles.ToList().TopologicalSort(l => dependencies.ContainsKey(l) ? dependencies[l] : Enumerable.Empty<string>());
             var wrappedModules = new List<KeyValuePair<string, string>>(modules.Count);
-            foreach (var libFile in libFiles.Where(l => modules.Any(m => m == Path.GetFileNameWithoutExtension(l))))
+            foreach (var libFile in qt.LibFiles.Where(l => modules.Any(m => m == Path.GetFileNameWithoutExtension(l))))
             {
                 logredirect.SetLogFile(libFile.Replace(".dll", "") + "Log.txt");
                 logredirect.Start();
 
-                var qtSharp = new QtSharp(new QtModuleInfo(qmake, make, headers, libs, libFile, target, systemIncludeDirs, docs));
+                var qtSharp = new QtSharp(new QtModuleInfo(qt.QMake, qt.Make, qt.Headers, qt.Libs, libFile,
+                    qt.Target, qt.SystemIncludeDirs, qt.Docs));
                 ConsoleDriver.Run(qtSharp);
                 if (File.Exists(qtSharp.LibraryName) && File.Exists(Path.Combine("release", qtSharp.InlinesLibraryName)))
                 {
