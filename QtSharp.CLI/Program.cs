@@ -157,13 +157,44 @@ namespace QtSharp.CLI
             return true;
         }
 
-        static Dictionary<string, IEnumerable<string>> GetDependencies(QtVersion qt)
+        static IEnumerable<string> ParseDependenciesFromLibtool(string libFile)
         {
-            Dictionary<string, IEnumerable<string>> dependencies = new Dictionary<string, IEnumerable<string>>();
+            libFile = libFile.Replace(".framework", ".la");
+            if (!File.Exists(libFile))
+                return Enumerable.Empty<string>();
+
+            var text = File.ReadAllText(libFile);
+
+            // Get the dependency_libs section from file.
+            // dependency_libs='... -framework Foundation -framework QtCore ...'
+            var libs = Regex.Match(text, "dependency_libs='(.*)'");
+
+            if (!libs.Success)
+                throw new Exception(
+                    string.Format("Error getting dependency libraries from libtool file '{0}'",
+                        libFile));
+
+            var matches = Regex.Matches(libs.Groups[1].Value, @"-framework\s+(\w+)");
+            var frameworks = matches.OfType<Match>().Select(m => m.Groups[1].Value)
+                .Where(s => s.StartsWith("Qt"));
+
+            if (Platform.IsMacOS)
+                frameworks = frameworks.Select(framework => framework + ".framework");
+
+            return frameworks;
+        }
+
+        static Dictionary<string, IList<string>> GetDependencies(QtVersion qt)
+        {
+            var dependencies = new Dictionary<string, IList<string>>();
+
             var parserOptions = new ParserOptions();
             parserOptions.addLibraryDirs(qt.Libs);
+
             foreach (var libFile in qt.LibFiles)
             {
+                dependencies[libFile] = Enumerable.Empty<string>().ToList();
+
                 parserOptions.FileName = libFile;
                 using (var parserResult = ClangParser.ParseLibrary(parserOptions))
                 {
@@ -174,7 +205,8 @@ namespace QtSharp.CLI
                     }
                     else
                     {
-                        dependencies[libFile] = Enumerable.Empty<string>();
+                        var path = Path.Combine(qt.Libs, libFile);
+                        dependencies[libFile] = ParseDependenciesFromLibtool(path).ToList();
                     }
                 }
             }
