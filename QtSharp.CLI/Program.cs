@@ -214,6 +214,21 @@ namespace QtSharp.CLI
             return dependencies;
         }
 
+        static void ProcessGeneratedInlines ()
+        {
+#if DEBUG
+            if (File.Exists("../../../QtSharp.Tests/bin/Debug/QtCore-inlines.dll"))
+                File.Delete("../../../QtSharp.Tests/bin/Debug/QtCore-inlines.dll");
+
+            File.Copy("release/QtCore-inlines.dll", "../../../QtSharp.Tests/bin/Debug/QtCore-inlines.dll");
+#else
+            if (File.Exists("../../../QtSharp.Tests/bin/Release/QtCore-inlines.dll"))
+                File.Delete("../../../QtSharp.Tests/bin/Release/QtCore-inlines.dll");
+
+            File.Copy ("release/QtCore-inlines.dll", "../../../QtSharp.Tests/bin/Release/QtCore-inlines.dll");
+#endif
+        }
+
         public static int Main(string[] args)
         {
             var qts = FindQt();
@@ -287,19 +302,8 @@ namespace QtSharp.CLI
                 logredirect.Stop();
             }
 
-#if DEBUG
-            if (File.Exists("../../../QtSharp.Tests/bin/Debug/QtCore-inlines.dll"))
-            {
-                File.Delete("../../../QtSharp.Tests/bin/Debug/QtCore-inlines.dll");
-            }
-			File.Copy("release/QtCore-inlines.dll", "../../../QtSharp.Tests/bin/Debug/QtCore-inlines.dll");
-#else
-            if (File.Exists("../../../QtSharp.Tests/bin/Release/QtCore-inlines.dll"))
-            {
-                File.Delete("../../../QtSharp.Tests/bin/Release/QtCore-inlines.dll");
-            }
-			System.IO.File.Copy("release/QtCore-inlines.dll", "../../../QtSharp.Tests/bin/Release/QtCore-inlines.dll");
-#endif
+            ProcessGeneratedInlines();
+
             if (wrappedModules.Count == 0)
             {
                 Console.WriteLine("Generation failed.");
