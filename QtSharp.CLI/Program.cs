@@ -216,6 +216,9 @@ namespace QtSharp.CLI
 
         static void ProcessGeneratedInlines ()
         {
+            if (!Platform.IsWindows)
+                return;
+            
 #if DEBUG
             if (File.Exists("../../../QtSharp.Tests/bin/Debug/QtCore-inlines.dll"))
                 File.Delete("../../../QtSharp.Tests/bin/Debug/QtCore-inlines.dll");
