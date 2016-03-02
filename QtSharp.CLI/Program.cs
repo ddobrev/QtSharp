@@ -53,6 +53,7 @@ namespace QtSharp.CLI
             public string Docs;
             public string QMake;
             public string Make;
+            public string Bins;
             public string Libs;
             public string Headers;
             public IEnumerable<string> LibFiles;
@@ -105,14 +106,21 @@ namespace QtSharp.CLI
             Environment.SetEnvironmentVariable("Path", path, EnvironmentVariableTarget.Process);
 
             string error;
-            var queryLibs = Platform.IsWindows ? "QT_INSTALL_BINS" : "QT_INSTALL_LIBS";
-            qt.Libs = ProcessHelper.Run(qt.QMake, string.Format("-query {0}", queryLibs), out error);
+            qt.Bins = ProcessHelper.Run(qt.QMake, "-query QT_INSTALL_BINS", out error);
             if (!string.IsNullOrEmpty(error))
             {
                 Console.WriteLine(error);
                 return false;
             }
-            DirectoryInfo libsInfo = new DirectoryInfo(qt.Libs);
+
+            qt.Libs = ProcessHelper.Run(qt.QMake, "-query QT_INSTALL_LIBS", out error);
+            if (!string.IsNullOrEmpty(error))
+            {
+                Console.WriteLine(error);
+                return false;
+            }
+
+            DirectoryInfo libsInfo = new DirectoryInfo(Platform.IsWindows ? qt.Bins : qt.Libs);
             if (!libsInfo.Exists)
             {
                 Console.WriteLine(
@@ -291,9 +299,24 @@ namespace QtSharp.CLI
 
         private static IList<string> GetLibFiles(DirectoryInfo libsInfo, bool debug)
         {
-            List<string> modules = (from file in libsInfo.EnumerateFiles()
-                                    where Regex.IsMatch(file.Name, @"^Qt\d?\w+\.\w+$")
-                                    select file.Name).ToList();
+            List<string> modules;
+
+            if (Platform.IsWindows)
+            {
+                modules = (from file in libsInfo.EnumerateFiles()
+                                   where Regex.IsMatch(file.Name, @"^Qt\d?\w+\.\w+$")
+                                   select file.Name).ToList();
+            }
+            else if (Platform.IsMacOS)
+            {
+                modules = libsInfo.EnumerateDirectories().Select(dir => dir.Name)
+                    .Where(dir => dir.EndsWith(".framework")).ToList();
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }                
+
             for (var i = modules.Count - 1; i >= 0; i--)
             {
                 var module = Path.GetFileNameWithoutExtension(modules[i]);
