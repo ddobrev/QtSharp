@@ -287,18 +287,25 @@ namespace QtSharp.CLI
             }
             qt.LibFiles = qt.LibFiles.ToList().TopologicalSort(l => dependencies.ContainsKey(l) ? dependencies[l] : Enumerable.Empty<string>());
             var wrappedModules = new List<KeyValuePair<string, string>>(modules.Count);
-            foreach (var libFile in qt.LibFiles.Where(l => modules.Any(m => m == Path.GetFileNameWithoutExtension(l))))
+            foreach (var libFile in qt.LibFiles)
             {
-                logredirect.SetLogFile(libFile.Replace(".dll", "") + "Log.txt");
+                string lib = libFile.Replace(".dll", string.Empty);
+                if (!Platform.IsWindows)
+                    lib = lib.Replace(".framework", string.Empty).Replace("Qt", "Qt5");
+
+                if (!modules.Any(m => m == Path.GetFileNameWithoutExtension(lib)))
+                    continue;
+
+                logredirect.SetLogFile(lib + "Log.txt");
                 logredirect.Start();
 
                 var qtSharp = new QtSharp(new QtModuleInfo(qt.QMake, qt.Make, qt.Headers, qt.Libs, libFile,
                     qt.Target, qt.SystemIncludeDirs, qt.Docs));
                 ConsoleDriver.Run(qtSharp);
+
                 if (File.Exists(qtSharp.LibraryName) && File.Exists(Path.Combine("release", qtSharp.InlinesLibraryName)))
-                {
                     wrappedModules.Add(new KeyValuePair<string, string>(qtSharp.LibraryName, qtSharp.InlinesLibraryName));
-                }
+                
                 logredirect.Stop();
             }
 
