@@ -64,7 +64,13 @@ namespace QtSharp.CLI
             var home = Environment.GetFolderPath(System.Environment.SpecialFolder.Personal);
             var qts = new List<QtVersion>();
 
-            foreach (var path in Directory.EnumerateDirectories(Path.Combine(home, "Qt")))
+            var qtPath = Path.Combine(home, "Qt");
+            if (!Directory.Exists(qtPath))
+            {
+                return new List<QtVersion>();
+            }
+
+            foreach (var path in Directory.EnumerateDirectories(qtPath))
             {
                 var dir = Path.GetFileName(path);
                 bool isNumber = dir.All(c => char.IsDigit(c) || c == '.');
@@ -84,8 +90,15 @@ namespace QtSharp.CLI
 
         static bool QueryQt(QtVersion qt, bool debug)
         {
-            qt.QMake = Path.Combine(qt.Path, "clang_64/bin/qmake");
-            qt.Make = "/usr/bin/make";
+            // check for OS X
+            if (string.IsNullOrWhiteSpace(qt.QMake))
+            {
+                qt.QMake = Path.Combine(qt.Path, "clang_64/bin/qmake");
+            }
+            if (string.IsNullOrWhiteSpace(qt.Make))
+            {
+                qt.Make = "/usr/bin/make";
+            }
 
             string path = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine);
             path = Path.GetDirectoryName(qt.Make) + Path.PathSeparator + path;
@@ -172,7 +185,7 @@ namespace QtSharp.CLI
             {
                 qt = new QtVersion();
 
-                var result = ParseArgs(args, out qt.Make, out qt.QMake, out debug);
+                var result = ParseArgs(args, out qt.QMake, out qt.Make, out debug);
                 if (result != 0)
                     return result;
             }
