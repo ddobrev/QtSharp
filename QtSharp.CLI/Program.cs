@@ -336,27 +336,23 @@ namespace QtSharp.CLI
         private static IList<string> GetLibFiles(DirectoryInfo libsInfo, bool debug)
         {
             List<string> modules;
-
-            if (Platform.IsWindows)
-            {
-                modules = (from file in libsInfo.EnumerateFiles()
-                                   where Regex.IsMatch(file.Name, @"^Qt\d?\w+\.\w+$")
-                                   select file.Name).ToList();
-            }
-            else if (Platform.IsMacOS)
+            
+            if (Platform.IsMacOS)
             {
                 modules = libsInfo.EnumerateDirectories().Select(dir => dir.Name)
-                    .Where(dir => dir.EndsWith(".framework")).ToList();
+                    .Where(dir => dir.EndsWith(".framework", StringComparison.Ordinal)).ToList();
             }
             else
             {
-                throw new NotImplementedException();
+                modules = (from file in libsInfo.EnumerateFiles()
+                           where Regex.IsMatch(file.Name, @"^Qt\d?\w+\.\w+$")
+                           select file.Name).ToList();
             }                
 
             for (var i = modules.Count - 1; i >= 0; i--)
             {
                 var module = Path.GetFileNameWithoutExtension(modules[i]);
-                if (debug && module != null && !module.EndsWith("d"))
+                if (debug && module != null && !module.EndsWith("d", StringComparison.Ordinal))
                 {
                     modules.Remove(module + Path.GetExtension(modules[i]));                    
                 }
