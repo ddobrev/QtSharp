@@ -292,9 +292,9 @@ namespace QtSharp.CLI
             var wrappedModules = new List<KeyValuePair<string, string>>(modules.Count);
             foreach (var libFile in qt.LibFiles)
             {
-                string lib = libFile.Replace(".dll", string.Empty);
+                string lib = Path.GetFileNameWithoutExtension(libFile);
                 if (!Platform.IsWindows)
-                    lib = lib.Replace(".framework", string.Empty).Replace("Qt", "Qt5");
+                    lib = lib.Replace("Qt", "Qt5");
 
                 if (!modules.Any(m => m == Path.GetFileNameWithoutExtension(lib)))
                     continue;
