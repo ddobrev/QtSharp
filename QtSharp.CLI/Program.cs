@@ -58,6 +58,7 @@ namespace QtSharp.CLI
             public string Headers;
             public IEnumerable<string> LibFiles;
             public IEnumerable<string> SystemIncludeDirs;
+            public IEnumerable<string> FrameworkDirs;
         }
 
         static List<QtVersion> FindQt()
@@ -152,7 +153,17 @@ namespace QtSharp.CLI
 
             const string includeDirsRegex = @"#include <\.\.\.> search starts here:(?<includes>.+)End of search list";
             string allIncludes = Regex.Match(output, includeDirsRegex, RegexOptions.Singleline).Groups["includes"].Value;
-            qt.SystemIncludeDirs = allIncludes.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Select(Path.GetFullPath);            
+            var includeDirs = allIncludes.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => s.Trim());
+
+            const string frameworkDirectory = "(framework directory)";
+
+            qt.SystemIncludeDirs = includeDirs.Where(s => !s.Contains(frameworkDirectory))
+                .Select(Path.GetFullPath);
+
+            if (Platform.IsMacOS)
+                qt.FrameworkDirs = includeDirs.Where(s => s.Contains(frameworkDirectory))
+                    .Select(s => s.Replace(frameworkDirectory, string.Empty).Trim()).Select(Path.GetFullPath);
 
             return true;
         }
