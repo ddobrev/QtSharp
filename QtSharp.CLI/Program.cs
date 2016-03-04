@@ -314,7 +314,7 @@ namespace QtSharp.CLI
                 logredirect.Start();
 
                 var qtSharp = new QtSharp(new QtModuleInfo(qt.QMake, qt.Make, qt.Headers, qt.Libs, libFile,
-                    qt.Target, qt.SystemIncludeDirs, qt.Docs));
+                    qt.Target, qt.SystemIncludeDirs, qt.FrameworkDirs, qt.Docs));
                 ConsoleDriver.Run(qtSharp);
 
                 if (File.Exists(qtSharp.LibraryName) && File.Exists(Path.Combine("release", qtSharp.InlinesLibraryName)))

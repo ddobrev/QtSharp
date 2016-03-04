@@ -4,7 +4,7 @@ namespace QtSharp
 {
     public class QtModuleInfo
     {
-        public QtModuleInfo(string qmake, string make, string includePath, string libraryPath, string library, string target, IEnumerable<string> systemIncludeDirs, string docs)
+        public QtModuleInfo(string qmake, string make, string includePath, string libraryPath, string library, string target, IEnumerable<string> systemIncludeDirs, IEnumerable<string> frameworkDirs, string docs)
         {
             this.Qmake = qmake;
             this.Make = make;
@@ -13,6 +13,7 @@ namespace QtSharp
             this.Library = library;
             this.Target = target;
             this.SystemIncludeDirs = systemIncludeDirs;
+            this.FrameworkDirs = frameworkDirs;
             this.Docs = docs;
         }
 
@@ -29,6 +30,8 @@ namespace QtSharp
         public string Target { get; private set; }
 
         public IEnumerable<string> SystemIncludeDirs { get; private set; }
+
+        public IEnumerable<string> FrameworkDirs { get; private set; }
 
         public string Docs { get; private set; }
     }

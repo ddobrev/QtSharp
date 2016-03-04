@@ -23,6 +23,7 @@ namespace QtSharp
             this.library = qtModuleInfo.Library;
             this.target = qtModuleInfo.Target;
             this.systemIncludeDirs = qtModuleInfo.SystemIncludeDirs;
+            this.frameworkDirs = qtModuleInfo.FrameworkDirs;
             this.make = qtModuleInfo.Make;
             this.docs = qtModuleInfo.Docs;
         }
@@ -177,6 +178,14 @@ namespace QtSharp
             foreach (var systemIncludeDir in this.systemIncludeDirs)
             {
                 driver.Options.addSystemIncludeDirs(systemIncludeDir);
+            if (Platform.IsMacOS)
+            {
+                foreach (var frameworkDir in this.frameworkDirs)
+                    driver.Options.addArguments(string.Format("-F{0}", frameworkDir));
+                driver.Options.addArguments(string.Format("-F{0}", libraryPath));
+
+                var frameworkIncludePath = Path.Combine(libraryPath, library, "Headers");
+                driver.Options.addIncludeDirs(frameworkIncludePath);
             }
             driver.Options.addIncludeDirs(this.includePath);
             driver.Options.addIncludeDirs(Path.Combine(this.includePath, qtModule));
@@ -219,6 +228,7 @@ namespace QtSharp
         private readonly string libraryPath;
         private readonly string library;
         private readonly IEnumerable<string> systemIncludeDirs;
+        private readonly IEnumerable<string> frameworkDirs;
         private readonly string target;
         private readonly string docs;
     }
