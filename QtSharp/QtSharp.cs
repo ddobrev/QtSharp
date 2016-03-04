@@ -143,12 +143,14 @@ namespace QtSharp
             {
                 case "Core":
                     var qChar = lib.FindCompleteClass("QChar");
-                    qChar.FindOperator(CXXOperatorKind.ExplicitConversion)
-                        .First(o => o.Parameters[0].Type.IsPrimitiveType(PrimitiveType.Char))
-                        .ExplicitlyIgnore();
-                    qChar.FindOperator(CXXOperatorKind.Conversion)
-                        .First(o => o.Parameters[0].Type.IsPrimitiveType(PrimitiveType.Int))
-                        .ExplicitlyIgnore();
+                    var op = qChar.FindOperator(CXXOperatorKind.ExplicitConversion)
+                        .FirstOrDefault(o => o.Parameters[0].Type.IsPrimitiveType(PrimitiveType.Char));
+                    if (op != null)
+                        op.ExplicitlyIgnore();
+                    op = qChar.FindOperator(CXXOperatorKind.Conversion)
+                        .FirstOrDefault(o => o.Parameters[0].Type.IsPrimitiveType(PrimitiveType.Int));
+                    if (op != null)
+                        op.ExplicitlyIgnore();
                     break;
             }
         }
