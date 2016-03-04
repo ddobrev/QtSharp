@@ -188,7 +188,11 @@ namespace QtSharp
                 driver.Options.addIncludeDirs(frameworkIncludePath);
             }
             driver.Options.addIncludeDirs(this.includePath);
-            driver.Options.addIncludeDirs(Path.Combine(this.includePath, qtModule));
+
+            var moduleInclude = Path.Combine(this.includePath, qtModule);
+            if (Directory.Exists(moduleInclude))
+                driver.Options.addIncludeDirs(moduleInclude);
+            
             driver.Options.addLibraryDirs(this.libraryPath);
             driver.Options.Libraries.Add(this.library);
             driver.Options.ExplicitlyPatchedVirtualFunctions.Add("qt_metacall");
