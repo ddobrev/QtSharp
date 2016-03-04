@@ -17,6 +17,7 @@ namespace QtSharp
                     process.StartInfo.RedirectStandardOutput = true;
                     process.StartInfo.RedirectStandardError = true;
                     process.Start();
+                    process.WaitForExit();
                     while (readOutputByLines && !process.StandardOutput.EndOfStream)
                     {
                         Console.WriteLine(process.StandardOutput.ReadLine());
