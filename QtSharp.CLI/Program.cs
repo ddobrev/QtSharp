@@ -264,8 +264,10 @@ namespace QtSharp.CLI
                 qt = qts.Last();
             }
 
-            ConsoleLogger logredirect = new ConsoleLogger();
-            logredirect.CreateLogDirectory();
+            bool log = false;
+            ConsoleLogger logredirect = log ? new ConsoleLogger() : null;
+            if (logredirect != null)
+                logredirect.CreateLogDirectory();
 
             if (!QueryQt(qt, debug))
                 return 1;
@@ -310,8 +312,11 @@ namespace QtSharp.CLI
                 if (!modules.Any(m => m == Path.GetFileNameWithoutExtension(lib)))
                     continue;
 
-                logredirect.SetLogFile(lib + "Log.txt");
-                logredirect.Start();
+                if (log)
+                {
+                    logredirect.SetLogFile(lib + "Log.txt");
+                    logredirect.Start();
+                }
 
                 var qtSharp = new QtSharp(new QtModuleInfo(qt.QMake, qt.Make, qt.Headers, qt.Libs, libFile,
                     qt.Target, qt.SystemIncludeDirs, qt.FrameworkDirs, qt.Docs));
@@ -319,8 +324,9 @@ namespace QtSharp.CLI
 
                 if (File.Exists(qtSharp.LibraryName) && File.Exists(Path.Combine("release", qtSharp.InlinesLibraryName)))
                     wrappedModules.Add(new KeyValuePair<string, string>(qtSharp.LibraryName, qtSharp.InlinesLibraryName));
-                
-                logredirect.Stop();
+
+                if (log)
+                    logredirect.Stop();
             }
 
             ProcessGeneratedInlines();
