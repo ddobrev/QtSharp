@@ -148,7 +148,7 @@ namespace QtSharp.CLI
 
             string emptyFile = Platform.IsWindows ? "NUL" : "/dev/null";
             string output;
-            ProcessHelper.Run("gcc", string.Format("-v -E -x c++ {0}", emptyFile), out output);
+            ProcessHelper.Run("gcc", string.Format("-v -E -x c++ {0}", emptyFile), out output, waitForExit: !Platform.IsWindows);
             qt.Target = Regex.Match(output, @"Target:\s*(?<target>[^\r\n]+)").Groups["target"].Value;
 
             const string includeDirsRegex = @"#include <\.\.\.> search starts here:(?<includes>.+)End of search list";
@@ -200,7 +200,7 @@ namespace QtSharp.CLI
             var dependencies = new Dictionary<string, IList<string>>();
 
             var parserOptions = new ParserOptions();
-            parserOptions.addLibraryDirs(qt.Libs);
+            parserOptions.addLibraryDirs(Platform.IsWindows ? qt.Bins : qt.Libs);
 
             foreach (var libFile in qt.LibFiles)
             {
@@ -216,7 +216,7 @@ namespace QtSharp.CLI
                     }
                     else
                     {
-                        var path = Path.Combine(qt.Libs, libFile);
+                        var path = Path.Combine(Platform.IsWindows ? qt.Bins : qt.Libs, libFile);
                         dependencies[libFile] = ParseDependenciesFromLibtool(path).ToList();
                     }
                 }
@@ -318,8 +318,8 @@ namespace QtSharp.CLI
                     logredirect.Start();
                 }
 
-                var qtSharp = new QtSharp(new QtModuleInfo(qt.QMake, qt.Make, qt.Headers, qt.Libs, libFile,
-                    qt.Target, qt.SystemIncludeDirs, qt.FrameworkDirs, qt.Docs));
+                var qtSharp = new QtSharp(new QtModuleInfo(qt.QMake, qt.Make, qt.Headers, Platform.IsWindows ? qt.Bins : qt.Libs,
+                    libFile, qt.Target, qt.SystemIncludeDirs, qt.FrameworkDirs, qt.Docs));
                 ConsoleDriver.Run(qtSharp);
 
                 if (File.Exists(qtSharp.LibraryName) && File.Exists(Path.Combine("release", qtSharp.InlinesLibraryName)))

@@ -397,10 +397,12 @@ namespace QtSharp
                         Text = text,
                         FullComment = new FullComment()
                     };
-                    var paragraphComment = new ParagraphComment();
-                    paragraphComment.Content.Add(new TextComment { Text = briefText });
-                    paragraphComment.Content.AddRange(text.Split('\n').Select(t => new TextComment { Text = t }));
-                    type.Comment.FullComment.Blocks.Add(paragraphComment);
+                    var summary = new ParagraphComment();
+                    summary.Content.Add(new TextComment { Text = briefText });
+                    type.Comment.FullComment.Blocks.Add(summary);
+                    var remarks = new ParagraphComment();
+                    remarks.Content.AddRange(text.Split('\n').Select(t => new TextComment { Text = t }));
+                    type.Comment.FullComment.Blocks.Add(remarks);
                 }
             }
         }

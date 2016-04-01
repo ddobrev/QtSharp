@@ -5,7 +5,7 @@ namespace QtSharp
 {
     public class ProcessHelper
     {
-        public static string Run(string path, string args, out string error, bool readOutputByLines = false)
+        public static string Run(string path, string args, out string error, bool readOutputByLines = false, bool waitForExit = true)
         {
             try
             {
@@ -17,7 +17,10 @@ namespace QtSharp
                     process.StartInfo.RedirectStandardOutput = true;
                     process.StartInfo.RedirectStandardError = true;
                     process.Start();
-                    process.WaitForExit();
+                    if (waitForExit)
+                    {
+                        process.WaitForExit();
+                    }
                     while (readOutputByLines && !process.StandardOutput.EndOfStream)
                     {
                         Console.WriteLine(process.StandardOutput.ReadLine());
