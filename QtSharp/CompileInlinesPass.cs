@@ -68,7 +68,8 @@ namespace QtSharp
             proBuilder.AppendFormat("QT += {0}\n",
                                     string.Join(" ",
                                                 this.Driver.Options.Headers.Select(h => h.Substring("Qt".Length).ToLowerInvariant())));
-            proBuilder.Append("QMAKE_CXXFLAGS += -fkeep-inline-functions -std=c++0x\n");
+            proBuilder.Append("CONFIG += c++11\n");
+            proBuilder.Append("QMAKE_CXXFLAGS += -fkeep-inline-functions\n");
             proBuilder.AppendFormat("TARGET = {0}\n", this.Driver.Options.InlinesLibraryName);
             proBuilder.Append("TEMPLATE = lib\n");
             proBuilder.AppendFormat("SOURCES += {0}\n", Path.ChangeExtension(pro, "cpp"));
@@ -84,8 +85,8 @@ namespace QtSharp
                 Console.WriteLine(error);
                 return false;
             }
-            ProcessHelper.Run(this.make, string.Format("-j{0} -f Makefile.Release", Environment.ProcessorCount + 1),
-                              out error, true);
+            var makefile = File.Exists(Path.Combine(Driver.Options.OutputDir, "Makefile.Release")) ? "Makefile.Release" : "Makefile";
+            ProcessHelper.Run(this.make, string.Format("-j{0} -f {1}", Environment.ProcessorCount + 1, makefile), out error, true);
             if (!string.IsNullOrEmpty(error))
             {
                 Console.WriteLine(error);

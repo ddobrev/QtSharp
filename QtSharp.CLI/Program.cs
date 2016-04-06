@@ -201,6 +201,12 @@ namespace QtSharp.CLI
 
             var parserOptions = new ParserOptions();
             parserOptions.addLibraryDirs(Platform.IsWindows ? qt.Bins : qt.Libs);
+            if (Platform.IsMacOS)
+            {
+                var libsInfo = new DirectoryInfo(qt.Libs);
+                foreach (var frameworkDir in libsInfo.EnumerateDirectories("*.framework").Select(d => d.FullName))
+                    parserOptions.addLibraryDirs(Path.Combine(frameworkDir, "Versions", "Current"));
+            }
 
             foreach (var libFile in qt.LibFiles)
             {
@@ -337,7 +343,7 @@ namespace QtSharp.CLI
                 return 1;
             }
 
-            var qtSharpZip = "QtSharp.zip";
+            const string qtSharpZip = "QtSharp.zip";
             if (File.Exists(qtSharpZip))
             {
                 File.Delete(qtSharpZip);
@@ -366,8 +372,7 @@ namespace QtSharp.CLI
             
             if (Platform.IsMacOS)
             {
-                modules = libsInfo.EnumerateDirectories().Select(dir => dir.Name)
-                    .Where(dir => dir.EndsWith(".framework", StringComparison.Ordinal)).ToList();
+                modules = libsInfo.EnumerateDirectories("*.framework").Select(dir => Path.GetFileNameWithoutExtension(dir.Name)).ToList();
             }
             else
             {

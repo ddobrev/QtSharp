@@ -18,7 +18,7 @@ namespace QtSharp
         {
             this.qmake = qtModuleInfo.Qmake;
             this.includePath = qtModuleInfo.IncludePath.Replace('/', Path.DirectorySeparatorChar);
-            this.module = Regex.Match(qtModuleInfo.Library, @"Qt\d?(?<module>\w+?)d?\.\w+$").Groups["module"].Value;
+            this.module = Regex.Match(qtModuleInfo.Library, @"Qt\d?(?<module>\w+?)d?(\.\w+)?$").Groups["module"].Value;
             this.libraryPath = qtModuleInfo.LibraryPath.Replace('/', Path.DirectorySeparatorChar);
             this.library = qtModuleInfo.Library;
             this.target = qtModuleInfo.Target;
@@ -34,7 +34,16 @@ namespace QtSharp
         public void Preprocess(Driver driver, ASTContext lib)
         {
             var qtModule = "Qt" + this.module;
-            var moduleIncludes = Path.Combine(this.includePath, qtModule);
+            string moduleIncludes;
+            if (Platform.IsMacOS)
+            {
+                var framework = string.Format("{0}.framework", this.library);
+                moduleIncludes = Path.Combine(this.libraryPath, framework, "Headers");
+            }
+            else
+            {
+                moduleIncludes = Path.Combine(this.includePath, qtModule);
+            }
             foreach (var unit in lib.TranslationUnits.Where(u => u.FilePath != "<invalid>"))
             {
                 if (Path.GetDirectoryName(unit.FilePath) != moduleIncludes)
@@ -187,8 +196,9 @@ namespace QtSharp
                     driver.Options.addArguments(string.Format("-F{0}", frameworkDir));
                 driver.Options.addArguments(string.Format("-F{0}", libraryPath));
 
-                var frameworkIncludePath = Path.Combine(libraryPath, library, "Headers");
-                driver.Options.addIncludeDirs(frameworkIncludePath);
+                var framework = string.Format("{0}.framework", this.library);
+                driver.Options.addIncludeDirs(Path.Combine(this.libraryPath, framework, "Headers"));
+                driver.Options.addLibraryDirs(Path.Combine(this.libraryPath, framework, "Versions", "Current"));
             }
 
             driver.Options.addIncludeDirs(this.includePath);
