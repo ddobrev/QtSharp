@@ -179,7 +179,10 @@ namespace QtSharp
                         QualifiedType = new QualifiedType(functionType),
                         Parameters = method.Parameters
                     };
-                    method.GenerationKind = GenerationKind.None;
+                    if (method.IsGenerated)
+                    {
+                        method.ExplicitlyIgnore();
+                    }
                     @class.Events.Add(@event);
                     this.events.Add(@event);
                     return;
@@ -195,7 +198,7 @@ namespace QtSharp
             {
                 suffix = suffix.Substring(0, indexOfSpace);
             }
-            if (suffix.StartsWith("_"))
+            if (suffix.StartsWith("_", StringComparison.Ordinal))
             {
                 var lastType = signalToUse.Parameters.Last().Type.ToString();
                 suffix = lastType.Substring(lastType.LastIndexOf('.') + 1);
