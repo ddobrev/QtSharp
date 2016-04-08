@@ -29,7 +29,7 @@ namespace QtSharp
         }
 
         public string LibraryName { get; set; }
-        public string InlinesLibraryName { get; set; }
+        public string InlinesLibraryPath { get; set; }
 
         public void Preprocess(Driver driver, ASTContext lib)
         {
@@ -74,6 +74,18 @@ namespace QtSharp
             string[] classesWithTypeEnums = { };
             switch (this.module)
             {
+                case "Core":
+                    // QString is type-mapped to string so we only need two methods for the conversion
+                    var qString = lib.FindCompleteClass("QString");
+                    foreach (var @class in qString.Declarations)
+                    {
+                        @class.ExplicitlyIgnore();
+                    }
+                    foreach (var method in qString.Methods.Where(m => m.OriginalName != "utf16" && m.OriginalName != "fromUtf16"))
+                    {
+                        method.ExplicitlyIgnore();
+                    }
+                    break;
                 case "Widgets":
                     classesWithTypeEnums = new[]
                                            {
@@ -160,6 +172,14 @@ namespace QtSharp
                         .FirstOrDefault(o => o.Parameters[0].Type.IsPrimitiveType(PrimitiveType.Int));
                     if (op != null)
                         op.ExplicitlyIgnore();
+                    // QString is type-mapped to string so we only need two methods for the conversion
+                    // go through the methods a second time to ignore free operators moved to the class
+                    var qString = lib.FindCompleteClass("QString");
+                    foreach (var method in qString.Methods.Where(
+                        m => !m.Ignore && m.OriginalName != "utf16" && m.OriginalName != "fromUtf16"))
+                    {
+                        method.ExplicitlyIgnore();
+                    }
                     break;
             }
         }
@@ -227,9 +247,11 @@ namespace QtSharp
                     driver.Options.CodeFiles.Add(Path.Combine(dir, "IQQmlParserStatus.cs"));
                     break;
             }
-            var extension = Path.GetExtension(this.library);
-            this.LibraryName = driver.Options.LibraryName + extension;
-            this.InlinesLibraryName = driver.Options.InlinesLibraryName + extension;
+            this.LibraryName = driver.Options.LibraryName + ".dll";
+            var prefix = Platform.IsWindows ? string.Empty : "lib";
+            var extension = Platform.IsWindows ? ".dll" : Platform.IsMacOS ? ".dylib" : ".so";
+            var inlinesLibraryFile = string.Format("{0}{1}{2}", prefix, driver.Options.InlinesLibraryName, extension);
+            this.InlinesLibraryPath = Path.Combine(driver.Options.OutputDir, Platform.IsWindows ? "release" : string.Empty, inlinesLibraryFile);
         }
 
         public void SetupPasses(Driver driver)

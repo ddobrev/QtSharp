@@ -63,7 +63,7 @@ namespace QtSharp.CLI
 
         static List<QtVersion> FindQt()
         {
-            var home = Environment.GetFolderPath(System.Environment.SpecialFolder.Personal);
+            var home = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             var qts = new List<QtVersion>();
 
             var qtPath = Path.Combine(home, "Qt");
@@ -154,7 +154,7 @@ namespace QtSharp.CLI
             const string includeDirsRegex = @"#include <\.\.\.> search starts here:(?<includes>.+)End of search list";
             string allIncludes = Regex.Match(output, includeDirsRegex, RegexOptions.Singleline).Groups["includes"].Value;
             var includeDirs = allIncludes.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(s => s.Trim());
+                .Select(s => s.Trim()).ToList();
 
             const string frameworkDirectory = "(framework directory)";
 
@@ -187,7 +187,7 @@ namespace QtSharp.CLI
 
             var matches = Regex.Matches(libs.Groups[1].Value, @"-framework\s+(\w+)");
             var frameworks = matches.OfType<Match>().Select(m => m.Groups[1].Value)
-                .Where(s => s.StartsWith("Qt"));
+                .Where(s => s.StartsWith("Qt", StringComparison.Ordinal));
 
             if (Platform.IsMacOS)
                 frameworks = frameworks.Select(framework => framework + ".framework");
@@ -315,7 +315,7 @@ namespace QtSharp.CLI
                 if (!Platform.IsWindows)
                     lib = lib.Replace("Qt", "Qt5");
 
-                if (!modules.Any(m => m == Path.GetFileNameWithoutExtension(lib)))
+                if (modules.All(m => m != Path.GetFileNameWithoutExtension(lib)))
                     continue;
 
                 if (log)
@@ -328,8 +328,8 @@ namespace QtSharp.CLI
                     libFile, qt.Target, qt.SystemIncludeDirs, qt.FrameworkDirs, qt.Docs));
                 ConsoleDriver.Run(qtSharp);
 
-                if (File.Exists(qtSharp.LibraryName) && File.Exists(Path.Combine("release", qtSharp.InlinesLibraryName)))
-                    wrappedModules.Add(new KeyValuePair<string, string>(qtSharp.LibraryName, qtSharp.InlinesLibraryName));
+                if (File.Exists(qtSharp.LibraryName) && File.Exists(qtSharp.InlinesLibraryPath))
+                    wrappedModules.Add(new KeyValuePair<string, string>(qtSharp.LibraryName, qtSharp.InlinesLibraryPath));
 
                 if (log)
                     logredirect.Stop();
@@ -357,7 +357,7 @@ namespace QtSharp.CLI
                         zipArchive.CreateEntryFromFile(wrappedModule.Key, wrappedModule.Key);
                         var documentation = Path.ChangeExtension(wrappedModule.Key, "xml");
                         zipArchive.CreateEntryFromFile(documentation, documentation);
-                        zipArchive.CreateEntryFromFile(Path.Combine("release", wrappedModule.Value), wrappedModule.Value);
+                        zipArchive.CreateEntryFromFile(wrappedModule.Value, Path.GetFileName(wrappedModule.Value));
                     }
                     zipArchive.CreateEntryFromFile("CppSharp.Runtime.dll", "CppSharp.Runtime.dll");
                 }
