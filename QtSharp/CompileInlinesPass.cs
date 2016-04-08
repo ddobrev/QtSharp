@@ -5,6 +5,7 @@ using System.Text;
 using CppSharp.AST;
 using CppSharp.Parser;
 using CppSharp.Passes;
+using CppSharp;
 
 namespace QtSharp
 {
@@ -25,8 +26,8 @@ namespace QtSharp
             const string qtVersionVariable = "QT_VERSION";
             var qtVersion = ProcessHelper.Run(this.qmake, string.Format("-query {0}", qtVersionVariable), out error);
             var qtVersionFile = Path.Combine(this.Driver.Options.OutputDir, qtVersionVariable);
-            var dir = Path.Combine(this.Driver.Options.OutputDir, "release");
-            var inlines = Path.GetFileName(string.Format("lib{0}.a", this.Driver.Options.InlinesLibraryName));
+            var dir = Platform.IsMacOS ? this.Driver.Options.OutputDir : Path.Combine(this.Driver.Options.OutputDir, "release");
+            var inlines = Path.GetFileName(string.Format("lib{0}.{1}", this.Driver.Options.InlinesLibraryName, Platform.IsMacOS ? "dylib" : "a"));
             var libFile = Path.Combine(dir, inlines);
             var qtVersionFileInfo = new FileInfo(qtVersionFile);
             var inlinesFileInfo = new FileInfo(libFile);
@@ -47,7 +48,7 @@ namespace QtSharp
             var parserOptions = new ParserOptions();
             parserOptions.addLibraryDirs(dir);
             parserOptions.FileName = inlines;
-            using (var parserResult = ClangParser.ParseLibrary(parserOptions))
+            using (var parserResult = CppSharp.Parser.ClangParser.ParseLibrary(parserOptions))
             {
                 if (parserResult.Kind == ParserResultKind.Success)
                 {
@@ -79,13 +80,24 @@ namespace QtSharp
             }
             File.WriteAllText(path, proBuilder.ToString());
             string error;
-            ProcessHelper.Run(this.qmake, string.Format("\"{0}\"", path), out error);
+            // HACK: Clang does not support -fkeep-inline-functions so force compilation with (the real) GCC on OS X
+            ProcessHelper.Run(this.qmake, string.Format("{0}\"{1}\"", Platform.IsMacOS ? "-spec macx-g++ " : string.Empty, path), out error);
             if (!string.IsNullOrEmpty(error))
             {
                 Console.WriteLine(error);
                 return false;
             }
             var makefile = File.Exists(Path.Combine(Driver.Options.OutputDir, "Makefile.Release")) ? "Makefile.Release" : "Makefile";
+            if (Platform.IsMacOS)
+            {
+                // HACK: Clang does not support -fkeep-inline-functions so force compilation with (the real) GCC on OS X
+                var makefilePath = Path.Combine(Driver.Options.OutputDir, makefile);
+                var script = new StringBuilder(File.ReadAllText(makefilePath));
+                var xcodePath = XcodeToolchain.GetXcodePath();
+                script.Replace(Path.Combine(xcodePath, "Contents", "Developer", "usr", "bin", "gcc"), "/usr/local/bin/gcc");
+                script.Replace(Path.Combine(xcodePath, "Contents", "Developer", "usr", "bin", "g++"), "/usr/local/bin/g++");
+                File.WriteAllText(makefilePath, script.ToString());
+            }
             ProcessHelper.Run(this.make, string.Format("-j{0} -f {1}", Environment.ProcessorCount + 1, makefile), out error, true);
             if (!string.IsNullOrEmpty(error))
             {
