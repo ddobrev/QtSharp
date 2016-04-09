@@ -217,8 +217,8 @@ namespace QtSharp
                 driver.Options.addArguments(string.Format("-F{0}", libraryPath));
 
                 var framework = string.Format("{0}.framework", this.library);
+                driver.Options.addLibraryDirs(Path.Combine(this.libraryPath, framework));
                 driver.Options.addIncludeDirs(Path.Combine(this.libraryPath, framework, "Headers"));
-                driver.Options.addLibraryDirs(Path.Combine(this.libraryPath, framework, "Versions", "Current"));
             }
 
             driver.Options.addIncludeDirs(this.includePath);

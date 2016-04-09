@@ -205,7 +205,7 @@ namespace QtSharp.CLI
             {
                 var libsInfo = new DirectoryInfo(qt.Libs);
                 foreach (var frameworkDir in libsInfo.EnumerateDirectories("*.framework").Select(d => d.FullName))
-                    parserOptions.addLibraryDirs(Path.Combine(frameworkDir, "Versions", "Current"));
+                    parserOptions.addLibraryDirs(Path.Combine(frameworkDir));
             }
 
             foreach (var libFile in qt.LibFiles)
