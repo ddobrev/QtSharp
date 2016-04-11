@@ -27,7 +27,8 @@ namespace QtSharp
             var qtVersion = ProcessHelper.Run(this.qmake, string.Format("-query {0}", qtVersionVariable), out error);
             var qtVersionFile = Path.Combine(this.Driver.Options.OutputDir, qtVersionVariable);
             var dir = Platform.IsMacOS ? this.Driver.Options.OutputDir : Path.Combine(this.Driver.Options.OutputDir, "release");
-            var inlines = Path.GetFileName(string.Format("lib{0}.{1}", this.Driver.Options.InlinesLibraryName, Platform.IsMacOS ? "dylib" : "a"));
+            var inlines = Path.GetFileName(string.Format("{0}{1}.{2}", Platform.IsWindows ? string.Empty : "lib",
+                this.Driver.Options.InlinesLibraryName, Platform.IsMacOS ? "dylib" : "dll"));
             var libFile = Path.Combine(dir, inlines);
             var qtVersionFileInfo = new FileInfo(qtVersionFile);
             var inlinesFileInfo = new FileInfo(libFile);
