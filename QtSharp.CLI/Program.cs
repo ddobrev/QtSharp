@@ -5,7 +5,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text.RegularExpressions;
 using CppSharp;
-using CppSharp.AST;
 using CppSharp.Parser;
 using ClangParser = CppSharp.Parser.ClangParser;
 
@@ -168,33 +167,6 @@ namespace QtSharp.CLI
             return true;
         }
 
-        static IEnumerable<string> ParseDependenciesFromLibtool(string libFile)
-        {
-            libFile = libFile.Replace(".framework", ".la");
-            if (!File.Exists(libFile))
-                return Enumerable.Empty<string>();
-
-            var text = File.ReadAllText(libFile);
-
-            // Get the dependency_libs section from file.
-            // dependency_libs='... -framework Foundation -framework QtCore ...'
-            var libs = Regex.Match(text, "dependency_libs='(.*)'");
-
-            if (!libs.Success)
-                throw new Exception(
-                    string.Format("Error getting dependency libraries from libtool file '{0}'",
-                        libFile));
-
-            var matches = Regex.Matches(libs.Groups[1].Value, @"-framework\s+(\w+)");
-            var frameworks = matches.OfType<Match>().Select(m => m.Groups[1].Value)
-                .Where(s => s.StartsWith("Qt", StringComparison.Ordinal));
-
-            if (Platform.IsMacOS)
-                frameworks = frameworks.Select(framework => framework + ".framework");
-
-            return frameworks;
-        }
-
         static Dictionary<string, IList<string>> GetDependencies(QtVersion qt)
         {
             var dependencies = new Dictionary<string, IList<string>>();
@@ -219,11 +191,6 @@ namespace QtSharp.CLI
                     {
                         dependencies[libFile] = CppSharp.ClangParser.ConvertLibrary(parserResult.Library).Dependencies;
                         parserResult.Library.Dispose();
-                    }
-                    else
-                    {
-                        var path = Path.Combine(Platform.IsWindows ? qt.Bins : qt.Libs, libFile);
-                        dependencies[libFile] = ParseDependenciesFromLibtool(path).ToList();
                     }
                 }
             }
