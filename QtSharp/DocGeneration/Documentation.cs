@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.Util;
-using System.Xml.Linq;
+using System.Xml;
 using CppSharp;
 using CppSharp.AST;
 using CppSharp.Generators.CSharp;
@@ -14,38 +14,138 @@ using Mono.Data.Sqlite;
 using zlib;
 using Attribute = CppSharp.AST.Attribute;
 
-namespace QtSharp
+namespace QtSharp.DocGeneration
 {
     public class Documentation
     {
-        public Documentation(string docsPath, string module)
+        public Documentation(string docsPath, IEnumerable<string> modules)
         {
-            foreach (var entry in Get(docsPath, module))
+            foreach (var module in modules)
             {
-                var htmlDocument = new HtmlDocument();
-                htmlDocument.LoadHtml(entry.Value);
-                this.CollectMembersDocumentation(htmlDocument.DocumentNode, entry.Key);
-                this.CollectTypesDocumentation(htmlDocument.DocumentNode, entry.Key);
+                var entries = Get(docsPath, module);
+                foreach (var entry in entries)
+                {
+                    var htmlDocument = new HtmlDocument();
+                    htmlDocument.LoadHtml(entry.Value);
+                    this.CollectMembersDocumentation(htmlDocument.DocumentNode, entry.Key);
+                    this.CollectTypesDocumentation(htmlDocument.DocumentNode, entry.Key);
+                }
+                if (entries.Any())
+                {
+                    this.CollectIndices(docsPath, module);
+                }
             }
             this.Exists = this.membersDocumentation.Any() || this.typesDocumentation.Any();
-            if (!this.Exists)
-            {
-                return;
-            }
+        }
+
+        private void CollectIndices(string docsPath, string module)
+        {
+            var xmlReaderSettings = new XmlReaderSettings();
+            xmlReaderSettings.DtdProcessing = DtdProcessing.Parse;
             var file = module.ToLowerInvariant();
-            var index = XDocument.Load(Path.Combine(docsPath, string.Format("qt{0}", file), string.Format("qt{0}.index", file)));
-            this.functionNodes = index.Descendants("function").GroupBy(f => f.Attribute("name").Value).ToDictionary(g => g.Key, g => g.ToList());
-            this.propertyNodes = index.Descendants("property").GroupBy(f => f.Attribute("name").Value).ToDictionary(g => g.Key, g => g.ToList());
-            this.classNodes = index.Descendants("class").ToList();
-            this.enumNodes = index.Descendants("enum").ToList();
-            this.variableNodes = index.Descendants("variable").ToList();
+            using (var stream = new FileStream(Path.Combine(docsPath, file, string.Format("{0}.index", file)), FileMode.Open))
+            {
+                using (var xmlReader = XmlReader.Create(stream, xmlReaderSettings))
+                {
+                    while (xmlReader.Read())
+                    {
+                        if (xmlReader.NodeType == XmlNodeType.Element)
+                        {
+                            switch (xmlReader.Name)
+                            {
+                                case "function":
+                                    var functionDocumentationNode = GetFunctionDocumentationNode(xmlReader);
+                                    if (this.functionNodes.ContainsKey(functionDocumentationNode.Name))
+                                    {
+                                        this.functionNodes[functionDocumentationNode.Name].Add(functionDocumentationNode);
+                                    }
+                                    else
+                                    {
+                                        this.functionNodes.Add(functionDocumentationNode.Name, new List<FunctionDocIndexNode> { functionDocumentationNode });
+                                    }
+                                    break;
+                                case "property":
+                                    var fullNameDocumentationNode = GetFullNameDocumentationNode(xmlReader);
+                                    if (this.propertyNodes.ContainsKey(fullNameDocumentationNode.Name))
+                                    {
+                                        this.propertyNodes[fullNameDocumentationNode.Name].Add(fullNameDocumentationNode);
+                                    }
+                                    else
+                                    {
+                                        this.propertyNodes.Add(fullNameDocumentationNode.Name, new List<FullNameDocIndexNode> { fullNameDocumentationNode });
+                                    }
+                                    break;
+                                case "class":
+                                    this.classNodes.Add(GetDocumentationNode(xmlReader));
+                                    break;
+                                case "enum":
+                                    this.enumNodes.Add(GetDocumentationNode(xmlReader));
+                                    break;
+                                case "variable":
+                                    this.variableNodes.Add(GetDocumentationNode(xmlReader));
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static FunctionDocIndexNode GetFunctionDocumentationNode(XmlReader xmlReader)
+        {
+            var functionDocumentationNode = new FunctionDocIndexNode
+                                            {
+                                                Name = xmlReader.GetAttribute("name"),
+                                                FullName = xmlReader.GetAttribute("fullname"),
+                                                Access = xmlReader.GetAttribute("access"),
+                                                Location = xmlReader.GetAttribute("location"),
+                                                LineNumber = int.Parse(xmlReader.GetAttribute("lineno")),
+                                                HRef = xmlReader.GetAttribute("href"),
+                                                IsObsolete = xmlReader.GetAttribute("status") == "obsolete"
+                                            };
+            using (var xmlSubReader = xmlReader.ReadSubtree())
+            {
+                while (xmlSubReader.Read())
+                {
+                    if (xmlSubReader.NodeType == XmlNodeType.Element && xmlSubReader.Name == "parameter")
+                    {
+                        functionDocumentationNode.ParametersModifiers.Add(xmlSubReader.GetAttribute("left"));
+                    }
+                }
+            }
+            return functionDocumentationNode;
+        }
+
+        private static FullNameDocIndexNode GetFullNameDocumentationNode(XmlReader xmlReader)
+        {
+            return new FullNameDocIndexNode
+                   {
+                       Name = xmlReader.GetAttribute("name"),
+                       FullName = xmlReader.GetAttribute("fullname"),
+                       Location = xmlReader.GetAttribute("location"),
+                       LineNumber = int.Parse(xmlReader.GetAttribute("lineno")),
+                       HRef = xmlReader.GetAttribute("href"),
+                       IsObsolete = xmlReader.GetAttribute("status") == "obsolete"
+                   };
+        }
+
+        private static DocIndexNode GetDocumentationNode(XmlReader xmlReader)
+        {
+            return new DocIndexNode
+                   {
+                       Name = xmlReader.GetAttribute("name"),
+                       Location = xmlReader.GetAttribute("location"),
+                       LineNumber = int.Parse(xmlReader.GetAttribute("lineno")),
+                       HRef = xmlReader.GetAttribute("href"),
+                       IsObsolete = xmlReader.GetAttribute("status") == "obsolete"
+                   };
         }
 
         public bool Exists { get; set; }
 
         private void CollectMembersDocumentation(HtmlNode documentRoot, string docFile)
         {
-            var members = new Dictionary<string, List<HtmlNode>>();
+            var members = new Dictionary<string, List<MemberDocumentationNode>>();
             this.membersDocumentation.Add(docFile, members);
             foreach (var fn in documentRoot.Descendants("h3").Where(
                 n =>
@@ -54,13 +154,13 @@ namespace QtSharp
                     return @class == "fn" || @class == "flags";
                 }))
             {
-                var nodes = new List<HtmlNode>();
+                var nodes = new List<MemberDocumentationNode>();
                 var node = fn;
                 while (node != null && node.NodeType != HtmlNodeType.Comment)
                 {
                     if (!string.IsNullOrWhiteSpace(node.OuterHtml))
                     {
-                        nodes.Add(node);
+                        nodes.Add(GetDocumentationNode(node));
                     }
                     node = node.NextSibling;
                 }
@@ -77,18 +177,47 @@ namespace QtSharp
             }
         }
 
+        private static MemberDocumentationNode GetDocumentationNode(HtmlNode node)
+        {
+            var memberDocumentationNode = new MemberDocumentationNode();
+            memberDocumentationNode.Name = node.Name;
+            memberDocumentationNode.OuterHtml = node.OuterHtml;
+            memberDocumentationNode.InnerHtml = node.InnerHtml;
+            memberDocumentationNode.InnerText = node.InnerText;
+            if (memberDocumentationNode.ContainsEnumMembers =
+                (node.Name == "div" && node.FirstChild.GetAttributeValue("class", string.Empty) == "valuelist") ||
+                (node.Name == "p" && node.GetAttributeValue("class", string.Empty) == "figCaption"))
+            {
+                foreach (var code in node.Descendants("code"))
+                {
+                    var codeNode = GetDocumentationNode(code);
+                    memberDocumentationNode.Codes.Add(codeNode);
+                    codeNode.ParentOfParent = GetDocumentationNode(code.ParentNode.ParentNode);
+                    foreach (var td in code.ParentNode.ParentNode.Descendants("td"))
+                    {
+                        codeNode.ParentOfParent.Td.Add(GetDocumentationNode(td));
+                    }
+                    if (codeNode.ParentOfParent.Td.Count <= 2)
+                    {
+                        codeNode.ParentOfParent.ParentOfParent = memberDocumentationNode;
+                    }
+                }
+            }
+            return memberDocumentationNode;
+        }
+
         private void CollectTypesDocumentation(HtmlNode documentRoot, string docFile)
         {
             var typeNode = documentRoot.Descendants("h2").FirstOrDefault(n => n.GetAttributeValue("id", "") == "details");
             if (typeNode != null)
             {
-                var nodes = new List<HtmlNode>();
+                var nodes = new List<DocumentationNode>();
                 var node = typeNode.NextSibling;
                 while (node != null)
                 {
                     if (!string.IsNullOrWhiteSpace(node.OuterHtml))
                     {
-                        nodes.Add(node);                        
+                        nodes.Add(new DocumentationNode(node.OuterHtml, node.InnerHtml));
                     }
                     node = node.NextSibling;
                 }
@@ -100,10 +229,11 @@ namespace QtSharp
                     {
                         if (!addedNewLine)
                         {
-                            nodes.Add(node.OwnerDocument.CreateTextNode());
+                            var newLine = node.OwnerDocument.CreateTextNode();
+                            nodes.Add(new DocumentationNode(newLine.OuterHtml, newLine.InnerHtml));
                             addedNewLine = true;
                         }
-                        nodes.Add(node);
+                        nodes.Add(new DocumentationNode(node.OuterHtml, node.InnerHtml));
                     }
                     node = node.NextSibling;
                 }
@@ -118,22 +248,22 @@ namespace QtSharp
                 return;
             }
 
-            var lineStart = function.LineNumberStart.ToString();
-            var lineEnd = function.LineNumberEnd.ToString();
+            var lineStart = function.LineNumberStart;
+            var lineEnd = function.LineNumberEnd;
             var functions = this.functionNodes[function.OriginalName];
             var node = functions.Find(
-                f => f.Attribute("location").Value == function.TranslationUnit.FileName &&
-                     (f.Attribute("lineno").Value == lineStart || f.Attribute("lineno").Value == lineEnd));
+                f => f.Location == function.TranslationUnit.FileName &&
+                     (f.LineNumber == lineStart || f.LineNumber == lineEnd));
             // HACK: functions in qglobal.h have weird additional definitions just for docs
-            if ((node == null || node.Attribute("href") == null) && function.TranslationUnit.FileName == "qglobal.h")
+            if ((node == null || node.HRef == null) && function.TranslationUnit.FileName == "qglobal.h")
             {
                 node = functions.Find(
-                    c => c.Attribute("location").Value == function.TranslationUnit.FileName &&
-                         c.Attribute("name").Value == function.OriginalName);
+                    c => c.Location == function.TranslationUnit.FileName &&
+                         c.Name == function.OriginalName);
             }
             // HACK: some functions are "located" in a cpp, go figure...
             var @params = function.Parameters.Where(p => p.Kind == ParameterKind.Regular).ToList();
-            if ((node == null || node.Attribute("href") == null) && function.Signature != null)
+            if ((node == null || node.HRef == null) && function.Signature != null)
             {
                 var qualifiedOriginalName = function.GetQualifiedName(decl => decl.OriginalName,
                     decl =>
@@ -141,16 +271,14 @@ namespace QtSharp
                         var @class = decl.OriginalNamespace as Class;
                         return @class != null ? (@class.OriginalClass ?? @class) : decl.OriginalNamespace;
                     });
-                var nodes = functions.Where(f => f.Attribute("fullname") != null &&
-                                                 f.Attribute("fullname").Value == qualifiedOriginalName &&
-                                                 f.Descendants("parameter").Count() == @params.Count).ToList();
+                var nodes = functions.Where(f => f.FullName == qualifiedOriginalName &&
+                                                 f.ParametersModifiers.Count == @params.Count).ToList();
                 if (nodes.Count == 0)
                 {
                     @params.RemoveAll(p => string.IsNullOrEmpty(p.OriginalName) && p.DefaultArgument != null);
                 }
-                nodes = functions.Where(f => f.Attribute("fullname") != null &&
-                                             f.Attribute("fullname").Value == qualifiedOriginalName &&
-                                             f.Descendants("parameter").Count() == @params.Count).ToList();
+                nodes = functions.Where(f => f.FullName == qualifiedOriginalName &&
+                                             f.ParametersModifiers.Count == @params.Count).ToList();
                 if (nodes.Count == 0)
                 {
                     var method = function as Method;
@@ -158,8 +286,8 @@ namespace QtSharp
                     {
                         return;
                     }
-                    nodes = functions.Where(f => f.Attribute("name").Value == function.OriginalName &&
-                                                 f.Descendants("parameter").Count() == @params.Count).ToList();
+                    nodes = functions.Where(f => f.Name == function.OriginalName &&
+                                                 f.ParametersModifiers.Count == @params.Count).ToList();
                 }
                 if (nodes.Count == 1)
                 {
@@ -178,25 +306,25 @@ namespace QtSharp
                         signature = signature.Substring(startArgs, signature.LastIndexOf(')') - startArgs);
                         signature = this.regexSpaceBetweenArgs.Replace(this.regexArgName.Replace(signature, "$1$3$5"), " ");
                         node = nodes.Find(f => string.Join(", ",
-                            f.Descendants("parameter").Select(d => d.Attribute("left").Value.Replace(" *", "*").Replace(" &", "&"))) == signature);
+                            f.ParametersModifiers.Select(m => m.Replace(" *", "*").Replace(" &", "&"))) == signature);
                     }
                 }
             }
-            if (node != null && node.Attribute("href") != null)
+            if (node != null && node.HRef != null)
             {
-                var link = node.Attribute("href").Value.Split('#');
+                var link = node.HRef.Split('#');
                 var file = link[0];
                 if (this.membersDocumentation.ContainsKey(file))
                 {
                     var id = link[1].Split('-');
-                    var key = EscapeId(function.IsAmbiguous && node.Attribute("access").Value == "private" ? id[0] : link[1]);
+                    var key = EscapeId(function.IsAmbiguous && node.Access == "private" ? id[0] : link[1]);
                     if (this.membersDocumentation[file].ContainsKey(key))
                     {
                         var docs = this.membersDocumentation[file][key];
                         var i = 0;
                         // HACK: work around bugs of the type of https://bugreports.qt.io/browse/QTBUG-46148
                         if ((function.OperatorKind == CXXOperatorKind.Greater && function.Namespace.Name == "QLatin1String" &&
-                            @params[0].Type.ToString() == "QLatin1String") ||
+                            @params[0].Type.ToString() == "QtCore.QLatin1String") ||
                             ((function.OriginalName == "flush" || function.OriginalName == "reset") &&
                             function.Namespace.Name == "QTextStream" && @params.Count > 0))
                         {
@@ -212,10 +340,10 @@ namespace QtSharp
                         {
                             BriefText = StripTags(ConstructDocumentText(docs.Skip(1)))
                         };
-                        if (node.Attribute("status").Value == "obsolete")
+                        if (node.IsObsolete)
                         {
                             AddObsoleteAttribute(function);
-                        }   
+                        }
                     }
                 }
             }
@@ -337,11 +465,10 @@ namespace QtSharp
                 return;
             }
             var qualifiedName = property.GetQualifiedName(decl => decl.OriginalName, decl => decl.Namespace);
-            var node = this.propertyNodes[property.Name].Find(
-                c => c.Attribute("fullname").Value == qualifiedName);
-	        if (node != null && node.Attribute("href") != null)
+            var node = this.propertyNodes[property.Name].Find(c => c.FullName == qualifiedName);
+	        if (node != null && node.HRef != null)
 			{
-				var link = node.Attribute("href").Value.Split('#');
+				var link = node.HRef.Split('#');
 				var file = link[0];
 		        if (this.membersDocumentation.ContainsKey(file))
 		        {
@@ -380,16 +507,15 @@ namespace QtSharp
         public void DocumentType(Class type)
         {
             var node = this.classNodes.Find(
-                c => c.Attribute("location").Value == type.TranslationUnit.FileName &&
-                     c.Attribute("name").Value == type.OriginalName);
+                c => c.Location == type.TranslationUnit.FileName && c.Name == type.OriginalName);
             if (node != null)
             {
-                var file = node.Attribute("href").Value;
+                var file = node.HRef;
                 if (this.typesDocumentation.ContainsKey(file))
                 {
                     var docs = this.typesDocumentation[file];
                     var briefText = StripTags(docs[0].InnerHtml);
-                    var text = StripTags(ConstructDocumentText(docs.Skip(1)));
+                    var text = StripTags(ConstructDocumentText(docs.Skip(1).Select(d => d.OuterHtml)));
                     type.Comment = new RawComment
                     {
                         BriefText = briefText,
@@ -410,11 +536,10 @@ namespace QtSharp
         public void DocumentEnum(Enumeration @enum)
         {
             var node = this.enumNodes.Find(
-                c => c.Attribute("location").Value == @enum.TranslationUnit.FileName &&
-                     c.Attribute("name").Value == @enum.OriginalName);
+                c => c.Location == @enum.TranslationUnit.FileName && c.Name == @enum.OriginalName);
             if (node != null)
             {
-                var link = node.Attribute("href").Value.Split('#');
+                var link = node.HRef.Split('#');
                 var file = link[0];
                 if (this.membersDocumentation.ContainsKey(file))
                 {
@@ -422,12 +547,11 @@ namespace QtSharp
                     if (this.membersDocumentation[file].ContainsKey(key))
                     {
                         var docs = this.membersDocumentation[file][key];
-                        var enumMembersDocs = new List<HtmlNode>();
+                        var enumMembersDocs = new List<MemberDocumentationNode>();
                         for (var i = docs.Count - 1; i >= 0; i--)
                         {
                             var doc = docs[i];
-                            if ((doc.Name == "div" && doc.FirstChild.GetAttributeValue("class", "") == "valuelist") ||
-                                (doc.Name == "p" && doc.GetAttributeValue("class", "") == "figCaption"))
+                            if (doc.ContainsEnumMembers)
                             {
                                 enumMembersDocs.Add(doc);
                                 docs.RemoveAt(i);
@@ -444,21 +568,21 @@ namespace QtSharp
                         {
                             var itemQualifiedName = enumPrefix + item.Name;
                             var enumMemberDocs = (from member in enumMembersDocs
-                                                  from code in member.Descendants("code")
+                                                  from code in member.Codes
                                                   where code.InnerText == itemQualifiedName
-                                                  select code.ParentNode.ParentNode).FirstOrDefault();
+                                                  select code.ParentOfParent).FirstOrDefault();
                             if (enumMemberDocs != null)
                             {
-                                if (enumMemberDocs.Descendants("td").Count() > 2)
+                                if (enumMemberDocs.Td.Count > 2)
                                 {
                                     item.Comment = new RawComment
                                     {
-                                        BriefText = StripTags(enumMemberDocs.Descendants("td").Last().InnerText).Trim()
+                                        BriefText = StripTags(enumMemberDocs.Td.Last().InnerText).Trim()
                                     };
                                 }
                                 else
                                 {
-                                    enumMemberDocs = enumMemberDocs.ParentNode.ParentNode;
+                                    enumMemberDocs = enumMemberDocs.ParentOfParent;
                                     enumMemberDocs = enumMembersDocs.SkipWhile(n => n != enumMemberDocs).FirstOrDefault(n => n.Name == "p");
                                     if (enumMemberDocs != null)
                                     {
@@ -474,14 +598,14 @@ namespace QtSharp
 
         public void DocumentVariable(Declaration variable)
         {
-            var lineStart = variable.LineNumberStart.ToString();
-            var lineEnd = variable.LineNumberEnd.ToString();
+            var lineStart = variable.LineNumberStart;
+            var lineEnd = variable.LineNumberEnd;
             var node = this.variableNodes.Find(
-                f => f.Attribute("location").Value == variable.TranslationUnit.FileName &&
-                     (f.Attribute("lineno").Value == lineStart || f.Attribute("lineno").Value == lineEnd));
+                f => f.Location == variable.TranslationUnit.FileName &&
+                     (f.LineNumber == lineStart || f.LineNumber == lineEnd));
             if (node != null)
             {
-                var link = node.Attribute("href").Value.Split('#');
+                var link = node.HRef.Split('#');
                 var file = link[0];
                 if (this.membersDocumentation.ContainsKey(file))
                 {
@@ -494,7 +618,7 @@ namespace QtSharp
                         {
                             BriefText = StripTags(ConstructDocumentText(docs.Skip(1)))
                         };
-                        if (node.Attribute("status").Value == "obsolete")
+                        if (node.IsObsolete)
                         {
                             AddObsoleteAttribute(variable);
                         }
@@ -533,7 +657,7 @@ namespace QtSharp
 
         private static IDictionary<string, string> GetFromQch(string docsPath, string module)
         {
-            var dataSource = Path.Combine(docsPath, string.Format("qt{0}.qch", module.ToLowerInvariant()));
+            var dataSource = Path.Combine(docsPath, string.Format("{0}.qch", module.ToLowerInvariant()));
             if (!File.Exists(dataSource))
             {
                 return new Dictionary<string, string>();
@@ -571,7 +695,12 @@ namespace QtSharp
             }
         }
 
-        private static string ConstructDocumentText(IEnumerable<HtmlNode> html)
+        private static string ConstructDocumentText(IEnumerable<string> html)
+        {
+            return string.Join("\n", html);
+        }
+
+        private static string ConstructDocumentText(IEnumerable<DocumentationNode> html)
         {
             return string.Join("\n", html.Select(n => n.OuterHtml));
         }
@@ -654,15 +783,15 @@ namespace QtSharp
             });
         }
 
-        private readonly Dictionary<string, List<HtmlNode>> typesDocumentation = new Dictionary<string, List<HtmlNode>>();
-        private readonly Dictionary<string, Dictionary<string, List<HtmlNode>>> membersDocumentation = new Dictionary<string, Dictionary<string, List<HtmlNode>>>();
+        private readonly Dictionary<string, List<DocumentationNode>> typesDocumentation = new Dictionary<string, List<DocumentationNode>>();
+        private readonly Dictionary<string, Dictionary<string, List<MemberDocumentationNode>>> membersDocumentation = new Dictionary<string, Dictionary<string, List<MemberDocumentationNode>>>();
         private readonly Regex regexArgName = new Regex(@"((unsigned\s*)?[\w<>]+)\s*(\*|&)?\s*\w*(\s*=\s*[^=,]+?)?(,|$)", RegexOptions.Compiled);
         private readonly Regex regexSpaceBetweenArgs = new Regex(@"\r?\n\s+", RegexOptions.Compiled);
 
-        private readonly Dictionary<string, List<XElement>> functionNodes;
-        private readonly Dictionary<string, List<XElement>> propertyNodes;
-        private readonly List<XElement> classNodes;
-        private readonly List<XElement> enumNodes;
-        private readonly List<XElement> variableNodes;
+        private readonly Dictionary<string, List<FunctionDocIndexNode>> functionNodes = new Dictionary<string, List<FunctionDocIndexNode>>();
+        private readonly Dictionary<string, List<FullNameDocIndexNode>> propertyNodes = new Dictionary<string, List<FullNameDocIndexNode>>();
+        private readonly List<DocIndexNode> classNodes = new List<DocIndexNode>();
+        private readonly List<DocIndexNode> enumNodes = new List<DocIndexNode>();
+        private readonly List<DocIndexNode> variableNodes = new List<DocIndexNode>();
     }
 }

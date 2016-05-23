@@ -20,59 +20,63 @@ namespace QtSharp
             this.make = make;
         }
 
-        public override bool VisitLibrary(ASTContext library)
+        public override bool VisitLibrary(ASTContext context)
         {
-            string error;
-            const string qtVersionVariable = "QT_VERSION";
-            var qtVersion = ProcessHelper.Run(this.qmake, string.Format("-query {0}", qtVersionVariable), out error);
-            var qtVersionFile = Path.Combine(this.Driver.Options.OutputDir, qtVersionVariable);
-            var dir = Platform.IsMacOS ? this.Driver.Options.OutputDir : Path.Combine(this.Driver.Options.OutputDir, "release");
-            var inlines = Path.GetFileName(string.Format("{0}{1}.{2}", Platform.IsWindows ? string.Empty : "lib",
-                this.Driver.Options.InlinesLibraryName, Platform.IsMacOS ? "dylib" : "dll"));
-            var libFile = Path.Combine(dir, inlines);
-            var qtVersionFileInfo = new FileInfo(qtVersionFile);
-            var inlinesFileInfo = new FileInfo(libFile);
-            string text = string.Empty;
-            if (!qtVersionFileInfo.Exists || (text = File.ReadAllText(qtVersionFile)) != qtVersion ||
-                !inlinesFileInfo.Exists || qtVersionFileInfo.CreationTimeUtc > inlinesFileInfo.CreationTimeUtc ||
-                qtVersionFileInfo.LastWriteTimeUtc > inlinesFileInfo.LastWriteTimeUtc)
+            foreach (var module in Driver.Options.Modules)
             {
-                if (text != qtVersion)
+                string error;
+                const string qtVersionVariable = "QT_VERSION";
+                var qtVersion = ProcessHelper.Run(this.qmake, string.Format("-query {0}", qtVersionVariable), out error);
+                var qtVersionFile = Path.Combine(this.Driver.Options.OutputDir, qtVersionVariable);
+                var dir = Platform.IsMacOS ? this.Driver.Options.OutputDir : Path.Combine(this.Driver.Options.OutputDir, "release");
+                var inlines = Path.GetFileName(string.Format("{0}{1}.{2}", Platform.IsWindows ? string.Empty : "lib",
+                    module.InlinesLibraryName, Platform.IsMacOS ? "dylib" : "dll"));
+                var libFile = Path.Combine(dir, inlines);
+                var qtVersionFileInfo = new FileInfo(qtVersionFile);
+                var inlinesFileInfo = new FileInfo(libFile);
+                string text = string.Empty;
+                if (!qtVersionFileInfo.Exists || (text = File.ReadAllText(qtVersionFile)) != qtVersion ||
+                    !inlinesFileInfo.Exists || qtVersionFileInfo.CreationTimeUtc > inlinesFileInfo.CreationTimeUtc ||
+                    qtVersionFileInfo.LastWriteTimeUtc > inlinesFileInfo.LastWriteTimeUtc)
                 {
-                    File.WriteAllText(qtVersionFile, qtVersion);
+                    if (text != qtVersion)
+                    {
+                        File.WriteAllText(qtVersionFile, qtVersion);
+                    }
+                    if (!this.CompileInlines(module))
+                    {
+                        continue;
+                    }
                 }
-                if (!this.CompileInlines())
+                var parserOptions = new ParserOptions();
+                parserOptions.addLibraryDirs(dir);
+                parserOptions.LibraryFile = inlines;
+                using (var parserResult = CppSharp.Parser.ClangParser.ParseLibrary(parserOptions))
                 {
-                    return false;
-                }
-            }
-            var parserOptions = new ParserOptions();
-            parserOptions.addLibraryDirs(dir);
-            parserOptions.FileName = inlines;
-            using (var parserResult = CppSharp.Parser.ClangParser.ParseLibrary(parserOptions))
-            {
-                if (parserResult.Kind == ParserResultKind.Success)
-                {
-                    var nativeLibrary = CppSharp.ClangParser.ConvertLibrary(parserResult.Library);
-                    this.Driver.Symbols.Libraries.Add(nativeLibrary);
-                    this.Driver.Symbols.IndexSymbols();
-                    parserResult.Library.Dispose();
+                    if (parserResult.Kind == ParserResultKind.Success)
+                    {
+                        var nativeLibrary = CppSharp.ClangParser.ConvertLibrary(parserResult.Library);
+                        this.Driver.Symbols.Libraries.Add(nativeLibrary);
+                        this.Driver.Symbols.IndexSymbols();
+                        parserResult.Library.Dispose();
+                    }
                 }
             }
             return true;
         }
 
-        private bool CompileInlines()
+        private bool CompileInlines(Module module)
         {
-            var pro = string.Format("{0}.pro", this.Driver.Options.InlinesLibraryName);
+            var pro = string.Format("{0}.pro", module.InlinesLibraryName);
             var path = Path.Combine(this.Driver.Options.OutputDir, pro);
             var proBuilder = new StringBuilder();
             proBuilder.AppendFormat("QT += {0}\n",
-                                    string.Join(" ",
-                                                this.Driver.Options.Headers.Select(h => h.Substring("Qt".Length).ToLowerInvariant())));
+                                    string.Join(" ", from header in module.Headers
+                                                     where !header.EndsWith(".h", StringComparison.Ordinal)
+                                                     select header.Substring("Qt".Length).ToLowerInvariant()));
             proBuilder.Append("CONFIG += c++11\n");
             proBuilder.Append("QMAKE_CXXFLAGS += -fkeep-inline-functions\n");
-            proBuilder.AppendFormat("TARGET = {0}\n", this.Driver.Options.InlinesLibraryName);
+            proBuilder.AppendFormat("TARGET = {0}\n", module.InlinesLibraryName);
             proBuilder.Append("TEMPLATE = lib\n");
             proBuilder.AppendFormat("SOURCES += {0}\n", Path.ChangeExtension(pro, "cpp"));
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)

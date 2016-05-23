@@ -5,8 +5,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text.RegularExpressions;
 using CppSharp;
-using CppSharp.Parser;
-using ClangParser = CppSharp.Parser.ClangParser;
 
 namespace QtSharp.CLI
 {
@@ -43,32 +41,15 @@ namespace QtSharp.CLI
             return 0;
         }
 
-        class QtVersion
-        {
-            public int MajorVersion;
-            public int MinorVersion;
-            public string Path;
-            public string Target;
-            public string Docs;
-            public string QMake;
-            public string Make;
-            public string Bins;
-            public string Libs;
-            public string Headers;
-            public IEnumerable<string> LibFiles;
-            public IEnumerable<string> SystemIncludeDirs;
-            public IEnumerable<string> FrameworkDirs;
-        }
-
-        static List<QtVersion> FindQt()
+        static List<QtInfo> FindQt()
         {
             var home = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            var qts = new List<QtVersion>();
+            var qts = new List<QtInfo>();
 
             var qtPath = Path.Combine(home, "Qt");
             if (!Directory.Exists(qtPath))
             {
-                return new List<QtVersion>();
+                return new List<QtInfo>();
             }
 
             foreach (var path in Directory.EnumerateDirectories(qtPath))
@@ -77,7 +58,7 @@ namespace QtSharp.CLI
                 bool isNumber = dir.All(c => char.IsDigit(c) || c == '.');
                 if (!isNumber)
                     continue;
-                var qt = new QtVersion { Path = path };
+                var qt = new QtInfo { Path = path };
                 var match = Regex.Match(dir, @"([0-9]+)\.([0-9]+)");
                 if (!match.Success)
                     continue;
@@ -89,7 +70,7 @@ namespace QtSharp.CLI
             return qts;
         }
 
-        static bool QueryQt(QtVersion qt, bool debug)
+        static bool QueryQt(QtInfo qt, bool debug)
         {
             // check for OS X
             if (string.IsNullOrWhiteSpace(qt.QMake))
@@ -167,37 +148,6 @@ namespace QtSharp.CLI
             return true;
         }
 
-        static Dictionary<string, IList<string>> GetDependencies(QtVersion qt)
-        {
-            var dependencies = new Dictionary<string, IList<string>>();
-
-            var parserOptions = new ParserOptions();
-            parserOptions.addLibraryDirs(Platform.IsWindows ? qt.Bins : qt.Libs);
-            if (Platform.IsMacOS)
-            {
-                var libsInfo = new DirectoryInfo(qt.Libs);
-                foreach (var frameworkDir in libsInfo.EnumerateDirectories("*.framework").Select(d => d.FullName))
-                    parserOptions.addLibraryDirs(Path.Combine(frameworkDir));
-            }
-
-            foreach (var libFile in qt.LibFiles)
-            {
-                dependencies[libFile] = Enumerable.Empty<string>().ToList();
-
-                parserOptions.FileName = libFile;
-                using (var parserResult = ClangParser.ParseLibrary(parserOptions))
-                {
-                    if (parserResult.Kind == ParserResultKind.Success)
-                    {
-                        dependencies[libFile] = CppSharp.ClangParser.ConvertLibrary(parserResult.Library).Dependencies;
-                        parserResult.Library.Dispose();
-                    }
-                }
-            }
-
-            return dependencies;
-        }
-
         static void ProcessGeneratedInlines ()
         {
             if (!Platform.IsWindows)
@@ -221,11 +171,11 @@ namespace QtSharp.CLI
             var qts = FindQt();
             bool found = qts.Count != 0;
             bool debug = false;
-            QtVersion qt;
+            QtInfo qt;
 
             if (!found)
             {
-                qt = new QtVersion();
+                qt = new QtInfo();
 
                 var result = ParseArgs(args, out qt.QMake, out qt.Make, out debug);
                 if (result != 0)
@@ -245,27 +195,25 @@ namespace QtSharp.CLI
             if (!QueryQt(qt, debug))
                 return 1;
 
-            var dependencies = GetDependencies(qt);
-
             var modules = new List<string>
                           {
-                              "Qt5Core",
-                              "Qt5Gui",
-                              "Qt5Widgets",
-                              "Qt5Xml",
-                              "Qt5Designer",
-                              "Qt5Network",
-                              "Qt5Qml",
-                              "Qt5Nfc",
-                              "Qt5OpenGL",
-                              "Qt5ScriptTools",
-                              "Qt5Sensors",
-                              "Qt5SerialPort",
-                              "Qt5Svg",
-                              "Qt5Multimedia",
-                              "Qt5MultimediaWidgets",
-                              "Qt5Quick",
-                              "Qt5QuickWidgets"
+                              "QtCore",
+                              "QtGui",
+                              "QtWidgets",
+                              "QtXml",
+                              "QtDesigner",
+                              "QtNetwork",
+                              "QtQml",
+                              "QtNfc",
+                              "QtOpenGL",
+                              "QtScriptTools",
+                              "QtSensors",
+                              "QtSerialPort",
+                              "QtSvg",
+                              "QtMultimedia",
+                              "QtMultimediaWidgets",
+                              "QtQuick",
+                              "QtQuickWidgets"
                           };
             if (debug)
             {
@@ -274,33 +222,16 @@ namespace QtSharp.CLI
                     modules[i] += "d";
                 }
             }
-            qt.LibFiles = qt.LibFiles.ToList().TopologicalSort(l => dependencies.ContainsKey(l) ? dependencies[l] : Enumerable.Empty<string>());
-            var wrappedModules = new List<KeyValuePair<string, string>>(modules.Count);
-            foreach (var libFile in qt.LibFiles)
+            for (int i = qt.LibFiles.Count - 1; i >= 0; i--)
             {
-                string lib = Path.GetFileNameWithoutExtension(libFile);
-                if (!Platform.IsWindows)
-                    lib = lib.Replace("Qt", "Qt5");
-
-                if (modules.All(m => m != Path.GetFileNameWithoutExtension(lib)))
-                    continue;
-
-                if (log)
+                if (!modules.Contains(QtSharp.GetModuleNameFromLibFile(qt.LibFiles[i])))
                 {
-                    logredirect.SetLogFile(lib + "Log.txt");
-                    logredirect.Start();
+                    qt.LibFiles.RemoveAt(i);
                 }
-
-                var qtSharp = new QtSharp(new QtModuleInfo(qt.QMake, qt.Make, qt.Headers, Platform.IsWindows ? qt.Bins : qt.Libs,
-                    libFile, qt.Target, qt.SystemIncludeDirs, qt.FrameworkDirs, qt.Docs));
-                ConsoleDriver.Run(qtSharp);
-
-                if (File.Exists(qtSharp.LibraryName) && File.Exists(qtSharp.InlinesLibraryPath))
-                    wrappedModules.Add(new KeyValuePair<string, string>(qtSharp.LibraryName, qtSharp.InlinesLibraryPath));
-
-                if (log)
-                    logredirect.Stop();
             }
+            var qtSharp = new QtSharp(qt);
+            ConsoleDriver.Run(qtSharp);
+            var wrappedModules = qtSharp.GetVerifiedWrappedModules();
 
             ProcessGeneratedInlines();
 

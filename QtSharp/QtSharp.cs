@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using CppSharp;
 using CppSharp.AST;
 using CppSharp.AST.Extensions;
@@ -14,46 +13,29 @@ namespace QtSharp
 {
     public class QtSharp : ILibrary
     {
-        public QtSharp(QtModuleInfo qtModuleInfo)
+        public QtSharp(QtInfo qtInfo)
         {
-            this.qmake = qtModuleInfo.Qmake;
-            this.includePath = qtModuleInfo.IncludePath.Replace('/', Path.DirectorySeparatorChar);
-            this.module = Regex.Match(qtModuleInfo.Library, @"Qt\d?(?<module>\w+?)d?(\.\w+)?$").Groups["module"].Value;
-            this.libraryPath = qtModuleInfo.LibraryPath.Replace('/', Path.DirectorySeparatorChar);
-            this.library = qtModuleInfo.Library;
-            this.target = qtModuleInfo.Target;
-            this.systemIncludeDirs = qtModuleInfo.SystemIncludeDirs;
-            this.frameworkDirs = qtModuleInfo.FrameworkDirs;
-            this.make = qtModuleInfo.Make;
-            this.docs = qtModuleInfo.Docs;
+            this.qtInfo = qtInfo;
         }
 
-        public string LibraryName { get; set; }
-        public string InlinesLibraryPath { get; set; }
+        public ICollection<KeyValuePair<string, string>> GetVerifiedWrappedModules()
+        {
+            for (int i = this.wrappedModules.Count - 1; i >= 0; i--)
+            {
+                var wrappedModule = this.wrappedModules[i];
+                if (!File.Exists(wrappedModule.Key) || !File.Exists(wrappedModule.Value))
+                {
+                    this.wrappedModules.RemoveAt(i);
+                }
+            }
+            return this.wrappedModules;
+        }
 
         public void Preprocess(Driver driver, ASTContext lib)
         {
-            var qtModule = "Qt" + this.module;
-            string moduleIncludes;
-            if (Platform.IsMacOS)
-            {
-                var framework = string.Format("{0}.framework", this.library);
-                moduleIncludes = Path.Combine(this.libraryPath, framework, "Headers");
-            }
-            else
-            {
-                moduleIncludes = Path.Combine(this.includePath, qtModule);
-            }
             foreach (var unit in lib.TranslationUnits.Where(u => u.FilePath != "<invalid>"))
             {
-                if (Path.GetDirectoryName(unit.FilePath) != moduleIncludes)
-                {
-                    LinkDeclaration(unit);
-                }
-                else
-                {
-                    IgnorePrivateDeclarations(unit);
-                }
+                IgnorePrivateDeclarations(unit);
             }
             lib.SetClassAsValueType("QByteArray");
             lib.SetClassAsValueType("QListData");
@@ -71,59 +53,84 @@ namespace QtSharp
             lib.SetClassAsValueType("QVariant");
             lib.IgnoreClassMethodWithName("QString", "fromStdWString");
             lib.IgnoreClassMethodWithName("QString", "toStdWString");
-            string[] classesWithTypeEnums = { };
-            switch (this.module)
+
+            // QString is type-mapped to string so we only need two methods for the conversion
+            var qString = lib.FindCompleteClass("QString");
+            foreach (var @class in qString.Declarations)
             {
-                case "Core":
-                    // QString is type-mapped to string so we only need two methods for the conversion
-                    var qString = lib.FindCompleteClass("QString");
-                    foreach (var @class in qString.Declarations)
-                    {
-                        @class.ExplicitlyIgnore();
-                    }
-                    foreach (var method in qString.Methods.Where(m => m.OriginalName != "utf16" && m.OriginalName != "fromUtf16"))
-                    {
-                        method.ExplicitlyIgnore();
-                    }
-                    break;
-                case "Widgets":
-                    classesWithTypeEnums = new[]
-                                           {
-                                               "QGraphicsEllipseItem", "QGraphicsItemGroup", "QGraphicsLineItem",
-                                               "QGraphicsPathItem", "QGraphicsPixmapItem", "QGraphicsPolygonItem",
-                                               "QGraphicsProxyWidget", "QGraphicsRectItem", "QGraphicsSimpleTextItem",
-                                               "QGraphicsTextItem", "QGraphicsWidget"
-                                           };
-                    // HACK: work around https://github.com/mono/CppSharp/issues/594
-                    lib.FindCompleteClass("QGraphicsItem").FindEnum("Extension").Access = AccessSpecifier.Public;
-                    lib.FindCompleteClass("QAbstractSlider").FindEnum("SliderChange").Access = AccessSpecifier.Public;
-                    lib.FindCompleteClass("QAbstractItemView").FindEnum("CursorAction").Access = AccessSpecifier.Public;
-                    lib.FindCompleteClass("QAbstractItemView").FindEnum("State").Access = AccessSpecifier.Public;
-                    lib.FindCompleteClass("QAbstractItemView").FindEnum("DropIndicatorPosition").Access = AccessSpecifier.Public;
-                    break;
-                case "Svg":
-                    classesWithTypeEnums = new[] { "QGraphicsSvgItem" };
-                    break;
+                @class.ExplicitlyIgnore();
             }
+            foreach (var method in qString.Methods.Where(m => m.OriginalName != "utf16" && m.OriginalName != "fromUtf16"))
+            {
+                method.ExplicitlyIgnore();
+            }
+
+            // HACK: forward declarations can enable declarations to use types from other modules; ignore such declarations until properly fixed
+            var qSignalMapper = lib.FindCompleteClass("QSignalMapper");
+            for (int i = qSignalMapper.Methods.Count - 1; i >= 0; i--)
+            {
+                Class @class;
+                var method = qSignalMapper.Methods[i];
+                if (method.Parameters.Count > 0)
+                {
+                    var type = method.Parameters.Last().Type;
+                    var finalType = type.GetFinalPointee() ?? type;
+                    if (finalType.TryGetClass(out @class) &&
+                        @class.TranslationUnit.Module.OutputNamespace == "QtWidgets")
+                    {
+                        if (method.Name == "mapped")
+                        {
+                            qSignalMapper.Methods.RemoveAt(i);
+                        }
+                        else
+                        {
+                            method.ExplicitlyIgnore();
+                        }
+                    }
+                }
+            }
+            var qActionEvent = lib.FindCompleteClass("QActionEvent");
+            foreach (var method in qActionEvent.Methods)
+            {
+                if ((method.Name == "QActionEvent" && method.Parameters.Count == 3) ||
+                    method.Name == "action" || method.Name == "before")
+                {
+                    method.ExplicitlyIgnore();
+                }
+            }
+            var qCamera = lib.FindCompleteClass("QCamera");
+            var qMediaPlayer = lib.FindCompleteClass("QMediaPlayer");
+            foreach (var method in qCamera.Methods.Union(qMediaPlayer.Methods).Where(m => m.Parameters.Any()))
+            {
+                Class @class;
+                var type = method.Parameters.Last().Type;
+                var finalType = type.GetFinalPointee() ?? type;
+                if (finalType.TryGetClass(out @class) &&
+                    @class.TranslationUnit.Module.OutputNamespace == "QtMultimediaWidgets")
+                {
+                    method.ExplicitlyIgnore();
+                }
+            }
+
+            // HACK: work around https://github.com/mono/CppSharp/issues/594
+            lib.FindCompleteClass("QGraphicsItem").FindEnum("Extension").Access = AccessSpecifier.Public;
+            lib.FindCompleteClass("QAbstractSlider").FindEnum("SliderChange").Access = AccessSpecifier.Public;
+            lib.FindCompleteClass("QAbstractItemView").FindEnum("CursorAction").Access = AccessSpecifier.Public;
+            lib.FindCompleteClass("QAbstractItemView").FindEnum("State").Access = AccessSpecifier.Public;
+            lib.FindCompleteClass("QAbstractItemView").FindEnum("DropIndicatorPosition").Access = AccessSpecifier.Public;
+            var classesWithTypeEnums = new[]
+                                       {
+                                           "QGraphicsEllipseItem", "QGraphicsItemGroup", "QGraphicsLineItem",
+                                           "QGraphicsPathItem", "QGraphicsPixmapItem", "QGraphicsPolygonItem",
+                                           "QGraphicsProxyWidget", "QGraphicsRectItem", "QGraphicsSimpleTextItem",
+                                           "QGraphicsTextItem", "QGraphicsWidget", "QGraphicsSvgItem"
+                                       };
             foreach (var enumeration in from @class in classesWithTypeEnums
                                         from @enum in lib.FindCompleteClass(@class).Enums
                                         where string.IsNullOrEmpty(@enum.Name)
                                         select @enum)
             {
                 enumeration.Name = "TypeEnum";
-            }
-        }
-
-        private static void LinkDeclaration(Declaration declaration)
-        {
-            declaration.GenerationKind = GenerationKind.Link;
-            DeclarationContext declarationContext = declaration as DeclarationContext;
-            if (declarationContext != null)
-            {
-                foreach (var nestedDeclaration in declarationContext.Declarations)
-                {
-                    LinkDeclaration(nestedDeclaration);
-                }
             }
         }
 
@@ -138,9 +145,10 @@ namespace QtSharp
         private static void IgnorePrivateDeclaration(Declaration declaration)
         {
             if (declaration.Name != null &&
-                (declaration.Name.StartsWith("Private") || declaration.Name.EndsWith("Private")))
+                (declaration.Name.StartsWith("Private", System.StringComparison.Ordinal) ||
+                 declaration.Name.EndsWith("Private", System.StringComparison.Ordinal)))
             {
-                declaration.ExplicityIgnored = true;
+                declaration.ExplicitlyIgnore();
             }
             else
             {
@@ -155,48 +163,43 @@ namespace QtSharp
         public void Postprocess(Driver driver, ASTContext lib)
         {
             new ClearCommentsPass().VisitLibrary(driver.ASTContext);
-            new GetCommentsFromQtDocsPass(this.docs, this.module).VisitLibrary(driver.ASTContext);
+            var modules = this.qtInfo.LibFiles.Select(l => GetModuleNameFromLibFile(l));
+            new GetCommentsFromQtDocsPass(this.qtInfo.Docs, modules).VisitLibrary(driver.ASTContext);
             new CaseRenamePass(
                 RenameTargets.Function | RenameTargets.Method | RenameTargets.Property | RenameTargets.Delegate |
                 RenameTargets.Field | RenameTargets.Variable,
                 RenameCasePattern.UpperCamelCase).VisitLibrary(driver.ASTContext);
-            switch (this.module)
+
+            var qChar = lib.FindCompleteClass("QChar");
+            var op = qChar.FindOperator(CXXOperatorKind.ExplicitConversion)
+                .FirstOrDefault(o => o.Parameters[0].Type.IsPrimitiveType(PrimitiveType.Char));
+            if (op != null)
+                op.ExplicitlyIgnore();
+            op = qChar.FindOperator(CXXOperatorKind.Conversion)
+                .FirstOrDefault(o => o.Parameters[0].Type.IsPrimitiveType(PrimitiveType.Int));
+            if (op != null)
+                op.ExplicitlyIgnore();
+            // QString is type-mapped to string so we only need two methods for the conversion
+            // go through the methods a second time to ignore free operators moved to the class
+            var qString = lib.FindCompleteClass("QString");
+            foreach (var method in qString.Methods.Where(
+                m => !m.Ignore && m.OriginalName != "utf16" && m.OriginalName != "fromUtf16"))
             {
-                case "Core":
-                    var qChar = lib.FindCompleteClass("QChar");
-                    var op = qChar.FindOperator(CXXOperatorKind.ExplicitConversion)
-                        .FirstOrDefault(o => o.Parameters[0].Type.IsPrimitiveType(PrimitiveType.Char));
-                    if (op != null)
-                        op.ExplicitlyIgnore();
-                    op = qChar.FindOperator(CXXOperatorKind.Conversion)
-                        .FirstOrDefault(o => o.Parameters[0].Type.IsPrimitiveType(PrimitiveType.Int));
-                    if (op != null)
-                        op.ExplicitlyIgnore();
-                    // QString is type-mapped to string so we only need two methods for the conversion
-                    // go through the methods a second time to ignore free operators moved to the class
-                    var qString = lib.FindCompleteClass("QString");
-                    foreach (var method in qString.Methods.Where(
-                        m => !m.Ignore && m.OriginalName != "utf16" && m.OriginalName != "fromUtf16"))
-                    {
-                        method.ExplicitlyIgnore();
-                    }
-                    break;
+                method.ExplicitlyIgnore();
             }
         }
 
         public void Setup(Driver driver)
         {
             driver.Options.GeneratorKind = GeneratorKind.CSharp;
-            var qtModule = "Qt" + this.module;
             driver.Options.MicrosoftMode = false;
             driver.Options.NoBuiltinIncludes = true;
-            driver.Options.TargetTriple = this.target;
+            driver.Options.TargetTriple = this.qtInfo.Target;
             driver.Options.Abi = CppAbi.Itanium;
-            driver.Options.LibraryName = string.Format("{0}Sharp", qtModule);
-            driver.Options.OutputNamespace = qtModule;
             driver.Options.Verbose = true;
             driver.Options.GenerateInterfacesForMultipleInheritance = true;
             driver.Options.GeneratePropertiesAdvanced = true;
+            driver.Options.UnityBuild = true;
             driver.Options.IgnoreParseWarnings = true;
             driver.Options.CheckSymbols = true;
             driver.Options.GenerateSingleCSharpFile = true;
@@ -205,71 +208,96 @@ namespace QtSharp
             driver.Options.GenerateDefaultValuesForArguments = true;
             driver.Options.GenerateConversionOperators = true;
             driver.Options.MarshalCharAsManagedChar = true;
-            driver.Options.Headers.Add(qtModule);
 
-            foreach (var systemIncludeDir in this.systemIncludeDirs)
+            string dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            const string qt = "Qt";
+            foreach (var libFile in this.qtInfo.LibFiles)
+            {
+                string qtModule = GetModuleNameFromLibFile(libFile);
+                var module = new CppSharp.AST.Module();
+                module.LibraryName = string.Format("{0}Sharp", qtModule);
+                module.OutputNamespace = qtModule;
+                module.Headers.Add(qtModule);
+                var moduleName = qtModule.Substring(qt.Length);
+                if (Platform.IsMacOS)
+                {
+                    var framework = string.Format("{0}.framework", qtModule);
+                    module.IncludeDirs.Add(Path.Combine(this.qtInfo.Libs, framework));
+                    module.IncludeDirs.Add(Path.Combine(this.qtInfo.Libs, framework, "Headers"));
+                    if (moduleName == "UiPlugin")
+                    {
+                        var qtUiPlugin = string.Format("Qt{0}.framework", moduleName);
+                        module.IncludeDirs.Add(Path.Combine(this.qtInfo.Libs, qtUiPlugin));
+                        module.IncludeDirs.Add(Path.Combine(this.qtInfo.Libs, qtUiPlugin, "Headers"));
+                    }
+                }
+                else
+                {
+                    var moduleInclude = Path.Combine(qtInfo.Headers, qtModule);
+                    if (Directory.Exists(moduleInclude))
+                        module.IncludeDirs.Add(moduleInclude);
+                    if (moduleName == "Designer")
+                    {
+                        module.IncludeDirs.Add(Path.Combine(qtInfo.Headers, "QtUiPlugin"));
+                    }
+                }
+                if (moduleName == "Designer")
+                {
+                    foreach (var header in Directory.EnumerateFiles(module.IncludeDirs.Last(), "*.h"))
+                    {
+                        module.Headers.Add(Path.GetFileName(header));
+                    }
+                }
+                module.Libraries.Add(libFile);
+                if (moduleName == "Core")
+                {
+                    module.CodeFiles.Add(Path.Combine(dir, "QObject.cs"));
+                    module.CodeFiles.Add(Path.Combine(dir, "QChar.cs"));
+                    module.CodeFiles.Add(Path.Combine(dir, "_iobuf.cs"));
+                }
+
+                driver.Options.Modules.Add(module);
+                var prefix = Platform.IsWindows ? string.Empty : "lib";
+                var extension = Platform.IsWindows ? ".dll" : Platform.IsMacOS ? ".dylib" : ".so";
+                var inlinesLibraryFile = string.Format("{0}{1}{2}", prefix, module.InlinesLibraryName, extension);
+                var inlinesLibraryPath = Path.Combine(driver.Options.OutputDir, Platform.IsWindows ? "release" : string.Empty, inlinesLibraryFile);
+                this.wrappedModules.Add(new KeyValuePair<string, string>(module.LibraryName + ".dll", inlinesLibraryPath));
+            }
+
+            foreach (var systemIncludeDir in this.qtInfo.SystemIncludeDirs)
                 driver.Options.addSystemIncludeDirs(systemIncludeDir);
             
             if (Platform.IsMacOS)
             {
-                foreach (var frameworkDir in this.frameworkDirs)
+                foreach (var frameworkDir in this.qtInfo.FrameworkDirs)
                     driver.Options.addArguments(string.Format("-F{0}", frameworkDir));
-                driver.Options.addArguments(string.Format("-F{0}", libraryPath));
-
-                var framework = string.Format("{0}.framework", this.library);
-                driver.Options.addLibraryDirs(Path.Combine(this.libraryPath, framework));
-                driver.Options.addIncludeDirs(Path.Combine(this.libraryPath, framework, "Headers"));
+                driver.Options.addArguments(string.Format("-F{0}", qtInfo.Libs));
             }
 
-            driver.Options.addIncludeDirs(this.includePath);
-
-            var moduleInclude = Path.Combine(this.includePath, qtModule);
-            if (Directory.Exists(moduleInclude))
-                driver.Options.addIncludeDirs(moduleInclude);
+            driver.Options.addIncludeDirs(qtInfo.Headers);
             
-            driver.Options.addLibraryDirs(this.libraryPath);
-            driver.Options.Libraries.Add(this.library);
+            driver.Options.addLibraryDirs(Platform.IsWindows ? qtInfo.Bins : qtInfo.Libs);
             driver.Options.ExplicitlyPatchedVirtualFunctions.Add("qt_metacall");
-            string dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            switch (this.module)
+        }
+
+        public static string GetModuleNameFromLibFile(string libFile)
+        {
+            var qtModule = Path.GetFileNameWithoutExtension(libFile);
+            if (Platform.IsWindows)
             {
-                case "Core":
-                    driver.Options.CodeFiles.Add(Path.Combine(dir, "QObject.cs"));
-                    driver.Options.CodeFiles.Add(Path.Combine(dir, "QChar.cs"));
-                    driver.Options.CodeFiles.Add(Path.Combine(dir, "_iobuf.cs"));
-                    break;
-                case "Gui":
-                    // HACK: work around https://github.com/mono/CppSharp/issues/582
-                    driver.Options.CodeFiles.Add(Path.Combine(dir, "IQAccessibleActionInterface.cs"));
-                    break;
-                case "Qml":
-                    // HACK: work around https://github.com/mono/CppSharp/issues/582
-                    driver.Options.CodeFiles.Add(Path.Combine(dir, "IQQmlParserStatus.cs"));
-                    break;
+                return "Qt" + qtModule.Substring("Qt".Length + 1);
             }
-            this.LibraryName = driver.Options.LibraryName + ".dll";
-            var prefix = Platform.IsWindows ? string.Empty : "lib";
-            var extension = Platform.IsWindows ? ".dll" : Platform.IsMacOS ? ".dylib" : ".so";
-            var inlinesLibraryFile = string.Format("{0}{1}{2}", prefix, driver.Options.InlinesLibraryName, extension);
-            this.InlinesLibraryPath = Path.Combine(driver.Options.OutputDir, Platform.IsWindows ? "release" : string.Empty, inlinesLibraryFile);
+            return libFile.Substring("lib".Length);
         }
 
         public void SetupPasses(Driver driver)
         {
-            driver.TranslationUnitPasses.AddPass(new CompileInlinesPass(this.qmake, this.make));
+            driver.TranslationUnitPasses.AddPass(new CompileInlinesPass(this.qtInfo.QMake, this.qtInfo.Make));
             driver.TranslationUnitPasses.AddPass(new GenerateSignalEventsPass());
             driver.TranslationUnitPasses.AddPass(new GenerateEventEventsPass());
         }
 
-        private readonly string qmake;
-        private readonly string make;
-        private readonly string includePath;
-        private readonly string module;
-        private readonly string libraryPath;
-        private readonly string library;
-        private readonly IEnumerable<string> systemIncludeDirs;
-        private readonly IEnumerable<string> frameworkDirs;
-        private readonly string target;
-        private readonly string docs;
+        private readonly QtInfo qtInfo;
+        private List<KeyValuePair<string, string>> wrappedModules = new List<KeyValuePair<string, string>>();
     }
 }

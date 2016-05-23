@@ -2,14 +2,15 @@
 using System.Linq;
 using CppSharp.AST;
 using CppSharp.Passes;
+using QtSharp.DocGeneration;
 
 namespace QtSharp
 {
     public class GetCommentsFromQtDocsPass : TranslationUnitPass
     {
-        public GetCommentsFromQtDocsPass(string docsPath, string module)
+        public GetCommentsFromQtDocsPass(string docsPath, IEnumerable<string> modules)
         {
-            this.documentation = new Documentation(docsPath, module);
+            this.documentation = new Documentation(docsPath, modules);
             this.Options.VisitFunctionReturnType = false;
             this.Options.VisitFunctionParameters = false;
             this.Options.VisitClassBases = false;
@@ -83,7 +84,7 @@ namespace QtSharp
             if (function.IsGenerated)
             {
                 var @class = function.OriginalNamespace as Class;
-                if (@class != null && @class.IsInterface && @class.GenerationKind == GenerationKind.Link)
+                if (@class != null && @class.IsInterface)
                 {
                     if (functionsComments.ContainsKey(function.Mangled))
                     {
@@ -110,7 +111,7 @@ namespace QtSharp
                 foreach (var @class in from m in new[] { property.GetMethod, property.SetMethod }
                                        where m != null
                                        let @class = m.OriginalNamespace as Class
-                                       where @class != null && @class.IsInterface && @class.GenerationKind == GenerationKind.Link
+                                       where @class != null && @class.IsInterface
                                        select @class)
                 {
                     RawComment comment = null;
