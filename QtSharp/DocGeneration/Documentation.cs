@@ -49,7 +49,7 @@ namespace QtSharp.DocGeneration
                 {
                     while (xmlReader.Read())
                     {
-                        if (xmlReader.NodeType == XmlNodeType.Element)
+                        if (xmlReader.NodeType == XmlNodeType.Element && xmlReader.GetAttribute("lineno") != null)
                         {
                             switch (xmlReader.Name)
                             {
@@ -254,15 +254,16 @@ namespace QtSharp.DocGeneration
             var node = functions.Find(
                 f => f.Location == function.TranslationUnit.FileName &&
                      (f.LineNumber == lineStart || f.LineNumber == lineEnd));
+            var @params = function.Parameters.Where(p => p.Kind == ParameterKind.Regular).ToList();
             // HACK: functions in qglobal.h have weird additional definitions just for docs
             if ((node == null || node.HRef == null) && function.TranslationUnit.FileName == "qglobal.h")
             {
                 node = functions.Find(
                     c => c.Location == function.TranslationUnit.FileName &&
-                         c.Name == function.OriginalName);
+                         (c.FullName == function.QualifiedOriginalName || c.Name == function.OriginalName) &&
+                         c.Access != "private" && c.ParametersModifiers.Count == @params.Count);
             }
             // HACK: some functions are "located" in a cpp, go figure...
-            var @params = function.Parameters.Where(p => p.Kind == ParameterKind.Regular).ToList();
             if ((node == null || node.HRef == null) && function.Signature != null)
             {
                 var qualifiedOriginalName = function.GetQualifiedName(decl => decl.OriginalName,
@@ -323,17 +324,18 @@ namespace QtSharp.DocGeneration
                         var docs = this.membersDocumentation[file][key];
                         var i = 0;
                         // HACK: work around bugs of the type of https://bugreports.qt.io/browse/QTBUG-46148
-                        if ((function.OperatorKind == CXXOperatorKind.Greater && function.Namespace.Name == "QLatin1String" &&
-                            @params[0].Type.ToString() == "QtCore.QLatin1String") ||
-                            ((function.OriginalName == "flush" || function.OriginalName == "reset") &&
-                            function.Namespace.Name == "QTextStream" && @params.Count > 0))
+                        if (function.Namespace.Name == "QByteArray" &&
+                            ((function.OriginalName == "qCompress" && @params.Count == 2) ||
+                            (function.OriginalName == "qUncompress" && @params.Count == 1)))
                         {
                             docs = this.membersDocumentation[file][key + "-hack"];
                         }
-                        foreach (Match match in Regex.Matches(docs[0].InnerHtml, @"<i>\s*(.+?)\s*</i>"))
+                        foreach (Match match in regexParameters.Matches(docs[0].InnerHtml))
                         {
-                            @params[i].Name = Helpers.SafeIdentifier(match.Groups[1].Value);
-                            i++;
+                            // variadic and void "parameters" are invalid
+                            if (function.IsVariadic && @params.Count == i || match.Groups[1].Value == "void")
+                                break;
+                            @params[i++].Name = Helpers.SafeIdentifier(match.Groups[1].Value);
                         }
                         // TODO: create links in the "See Also" section
                         function.Comment = new RawComment
@@ -793,5 +795,7 @@ namespace QtSharp.DocGeneration
         private readonly List<DocIndexNode> classNodes = new List<DocIndexNode>();
         private readonly List<DocIndexNode> enumNodes = new List<DocIndexNode>();
         private readonly List<DocIndexNode> variableNodes = new List<DocIndexNode>();
+
+        private Regex regexParameters = new Regex(@"<i>\s*(.+?)\s*</i>", RegexOptions.Compiled);
     }
 }
