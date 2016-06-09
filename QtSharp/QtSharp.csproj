@@ -76,6 +76,7 @@
     <Compile Include="DocGeneration\MemberDocumentationNode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProcessHelper.cs" />
+    <Compile Include="RemoveQObjectMembersPass.cs" />
     <None Include="packages.config" />
     <None Include="_iobuf.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

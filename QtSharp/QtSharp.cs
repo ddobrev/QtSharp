@@ -295,6 +295,7 @@ namespace QtSharp
             driver.TranslationUnitPasses.AddPass(new CompileInlinesPass(this.qtInfo.QMake, this.qtInfo.Make));
             driver.TranslationUnitPasses.AddPass(new GenerateSignalEventsPass());
             driver.TranslationUnitPasses.AddPass(new GenerateEventEventsPass());
+            driver.TranslationUnitPasses.AddPass(new RemoveQObjectMembersPass());
         }
 
         private readonly QtInfo qtInfo;
