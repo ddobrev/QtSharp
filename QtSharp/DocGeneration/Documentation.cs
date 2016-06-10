@@ -8,6 +8,7 @@ using System.Web.Util;
 using System.Xml;
 using CppSharp;
 using CppSharp.AST;
+using CppSharp.Generators;
 using CppSharp.Generators.CSharp;
 using HtmlAgilityPack;
 using Mono.Data.Sqlite;
@@ -251,64 +252,31 @@ namespace QtSharp.DocGeneration
             var lineStart = function.LineNumberStart;
             var lineEnd = function.LineNumberEnd;
             var functions = this.functionNodes[function.OriginalName];
+            var unit = function.OriginalNamespace.TranslationUnit;
+            var location = unit.FileName;
             var node = functions.Find(
-                f => f.Location == function.TranslationUnit.FileName &&
-                     (f.LineNumber == lineStart || f.LineNumber == lineEnd));
+                f => f.Location == location &&
+                    (f.LineNumber == lineStart || f.LineNumber == lineEnd));
             var @params = function.Parameters.Where(p => p.Kind == ParameterKind.Regular).ToList();
-            // HACK: functions in qglobal.h have weird additional definitions just for docs
-            if ((node == null || node.HRef == null) && function.TranslationUnit.FileName == "qglobal.h")
+            int realParamsCount = @params.Count(p => !string.IsNullOrWhiteSpace(p.OriginalName) || p.DefaultArgument == null);
+            // functions can have different line numbers because of #defines
+            if (node == null || node.HRef == null)
             {
-                node = functions.Find(
-                    c => c.Location == function.TranslationUnit.FileName &&
-                         (c.FullName == function.QualifiedOriginalName || c.Name == function.OriginalName) &&
-                         c.Access != "private" && c.ParametersModifiers.Count == @params.Count);
-            }
-            // HACK: some functions are "located" in a cpp, go figure...
-            if ((node == null || node.HRef == null) && function.Signature != null)
-            {
-                var qualifiedOriginalName = function.GetQualifiedName(decl => decl.OriginalName,
-                    decl =>
-                    {
-                        var @class = decl.OriginalNamespace as Class;
-                        return @class != null ? (@class.OriginalClass ?? @class) : decl.OriginalNamespace;
-                    });
-                var nodes = functions.Where(f => f.FullName == qualifiedOriginalName &&
-                                                 f.ParametersModifiers.Count == @params.Count).ToList();
-                if (nodes.Count == 0)
-                {
-                    @params.RemoveAll(p => string.IsNullOrEmpty(p.OriginalName) && p.DefaultArgument != null);
-                }
-                nodes = functions.Where(f => f.FullName == qualifiedOriginalName &&
-                                             f.ParametersModifiers.Count == @params.Count).ToList();
-                if (nodes.Count == 0)
-                {
-                    var method = function as Method;
-                    if (method != null && !method.IsStatic && function.OriginalFunction == null)
-                    {
-                        return;
-                    }
-                    nodes = functions.Where(f => f.Name == function.OriginalName &&
-                                                 f.ParametersModifiers.Count == @params.Count).ToList();
-                }
+                var nodes = functions.FindAll(
+                    f => CheckLocation(f.Location, location) &&
+                         (f.FullName == function.QualifiedOriginalName || f.Name == function.OriginalName) &&
+                         f.Access != "private" && f.ParametersModifiers.Count == realParamsCount);
+                // HACK: work around https://bugreports.qt.io/browse/QTBUG-53994
                 if (nodes.Count == 1)
                 {
                     node = nodes[0];
                 }
                 else
                 {
-                    if (function.Signature.Contains('('))
-                    {
-                        var startArgs = function.Signature.IndexOf('(') + 1;
-                        var signature = function.Signature;
-                        if (signature.Contains(": "))
-                        {
-                            signature = signature.Substring(0, signature.IndexOf(": ", StringComparison.Ordinal));
-                        }
-                        signature = signature.Substring(startArgs, signature.LastIndexOf(')') - startArgs);
-                        signature = this.regexSpaceBetweenArgs.Replace(this.regexArgName.Replace(signature, "$1$3$5"), " ");
-                        node = nodes.Find(f => string.Join(", ",
-                            f.ParametersModifiers.Select(m => m.Replace(" *", "*").Replace(" &", "&"))) == signature);
-                    }
+                    Generator.CurrentOutputNamespace = unit.Module.OutputNamespace;
+                    var paramTypes = @params.Select(p => p.Type.ToString()).ToList();
+                    node = nodes.Find(
+                        f => f.ParametersModifiers.SequenceEqual(paramTypes, new TypeInIndexEqualityComparer()));
                 }
             }
             if (node != null && node.HRef != null)
@@ -323,7 +291,7 @@ namespace QtSharp.DocGeneration
                     {
                         var docs = this.membersDocumentation[file][key];
                         var i = 0;
-                        // HACK: work around bugs of the type of https://bugreports.qt.io/browse/QTBUG-46148
+                        // HACK: work around https://bugreports.qt.io/browse/QTBUG-53941
                         if (function.Namespace.Name == "QByteArray" &&
                             ((function.OriginalName == "qCompress" && @params.Count == 2) ||
                             (function.OriginalName == "qUncompress" && @params.Count == 1)))
@@ -349,6 +317,24 @@ namespace QtSharp.DocGeneration
                     }
                 }
             }
+        }
+
+        private static bool CheckLocation(string indexLocation, string location)
+        {
+            if (indexLocation == location)
+            {
+                return true;
+            }
+            // work around https://bugreports.qt.io/browse/QTBUG-53946
+            if (Path.GetExtension(indexLocation) != ".h" && indexLocation.Contains('_'))
+            {
+                var i = indexLocation.IndexOf('_');
+                if (i >= 0)
+                {
+                    return indexLocation.Substring(0, i) + ".h" == location;
+                }
+            }
+            return false;
         }
 
         private static string EscapeId(string link)
@@ -787,8 +773,6 @@ namespace QtSharp.DocGeneration
 
         private readonly Dictionary<string, List<DocumentationNode>> typesDocumentation = new Dictionary<string, List<DocumentationNode>>();
         private readonly Dictionary<string, Dictionary<string, List<MemberDocumentationNode>>> membersDocumentation = new Dictionary<string, Dictionary<string, List<MemberDocumentationNode>>>();
-        private readonly Regex regexArgName = new Regex(@"((unsigned\s*)?[\w<>]+)\s*(\*|&)?\s*\w*(\s*=\s*[^=,]+?)?(,|$)", RegexOptions.Compiled);
-        private readonly Regex regexSpaceBetweenArgs = new Regex(@"\r?\n\s+", RegexOptions.Compiled);
 
         private readonly Dictionary<string, List<FunctionDocIndexNode>> functionNodes = new Dictionary<string, List<FunctionDocIndexNode>>();
         private readonly Dictionary<string, List<FullNameDocIndexNode>> propertyNodes = new Dictionary<string, List<FullNameDocIndexNode>>();
@@ -797,5 +781,18 @@ namespace QtSharp.DocGeneration
         private readonly List<DocIndexNode> variableNodes = new List<DocIndexNode>();
 
         private Regex regexParameters = new Regex(@"<i>\s*(.+?)\s*</i>", RegexOptions.Compiled);
+
+        private class TypeInIndexEqualityComparer : IEqualityComparer<string>
+        {
+            public bool Equals(string x, string y)
+            {
+                return x.Contains(y);
+            }
+
+            public int GetHashCode(string obj)
+            {
+                return obj.GetHashCode();
+            }
+        }
     }
 }

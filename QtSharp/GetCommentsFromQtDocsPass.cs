@@ -13,6 +13,7 @@ namespace QtSharp
             this.documentation = new Documentation(docsPath, modules);
             this.Options.VisitFunctionReturnType = false;
             this.Options.VisitFunctionParameters = false;
+            this.Options.VisitEventParameters = false;
             this.Options.VisitClassBases = false;
             this.Options.VisitTemplateArguments = false;
             this.Options.VisitClassFields = false;
@@ -21,6 +22,11 @@ namespace QtSharp
         public override bool VisitLibrary(ASTContext context)
         {
             return this.documentation.Exists && base.VisitLibrary(context);
+        }
+
+        public override bool VisitTranslationUnit(TranslationUnit unit)
+        {
+            return !unit.IsSystemHeader && unit.IsGenerated && base.VisitTranslationUnit(unit);
         }
 
         public override bool VisitClassDecl(Class @class)
@@ -58,7 +64,7 @@ namespace QtSharp
 
         public override bool VisitDeclarationContext(DeclarationContext context)
         {
-            return context.IsGenerated && base.VisitDeclarationContext(context);
+            return context.IsGenerated && !context.TranslationUnit.IsSystemHeader && base.VisitDeclarationContext(context);
         }
 
         public override bool VisitEnumDecl(Enumeration @enum)
@@ -77,7 +83,7 @@ namespace QtSharp
 
         public override bool VisitFunctionDecl(Function function)
         {
-            if (!base.VisitFunctionDecl(function))
+            if (!base.VisitFunctionDecl(function) || function.TranslationUnit.IsSystemHeader)
             {
                 return false;
             }
@@ -102,7 +108,7 @@ namespace QtSharp
 
         public override bool VisitProperty(Property property)
         {
-            if (!base.VisitProperty(property))
+            if (!base.VisitProperty(property) || property.TranslationUnit.IsSystemHeader)
             {
                 return false;
             }
@@ -167,7 +173,7 @@ namespace QtSharp
         public override bool VisitVariableDecl(Variable variable)
         {
             // HACK: it doesn't work to call the base as everywhere else because the type of the variable is visited too
-            if (this.AlreadyVisited(variable))
+            if (this.AlreadyVisited(variable) || variable.TranslationUnit.IsSystemHeader)
             {
                 return false;
             }
