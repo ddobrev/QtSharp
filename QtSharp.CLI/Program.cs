@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -168,6 +169,7 @@ namespace QtSharp.CLI
 
         public static int Main(string[] args)
         {
+            Stopwatch s = Stopwatch.StartNew();
             var qts = FindQt();
             bool found = qts.Count != 0;
             bool debug = false;
@@ -195,36 +197,14 @@ namespace QtSharp.CLI
             if (!QueryQt(qt, debug))
                 return 1;
 
-            var modules = new List<string>
-                          {
-                              "QtCore",
-                              "QtGui",
-                              "QtWidgets",
-                              "QtXml",
-                              "QtDesigner",
-                              "QtNetwork",
-                              "QtQml",
-                              "QtNfc",
-                              "QtOpenGL",
-                              "QtScriptTools",
-                              "QtSensors",
-                              "QtSerialPort",
-                              "QtSvg",
-                              "QtMultimedia",
-                              "QtMultimediaWidgets",
-                              "QtQuick",
-                              "QtQuickWidgets"
-                          };
-            if (debug)
-            {
-                for (var i = 0; i < modules.Count; i++)
-                {
-                    modules[i] += "d";
-                }
-            }
             for (int i = qt.LibFiles.Count - 1; i >= 0; i--)
             {
-                if (!modules.Contains(QtSharp.GetModuleNameFromLibFile(qt.LibFiles[i])))
+                var libFile = qt.LibFiles[i];
+                var libFileName = Path.GetFileNameWithoutExtension(libFile);
+                if (Path.GetExtension(libFile) == ".exe" ||
+                    libFileName == "QtDeclarative" || libFileName == "Qt5Declarative" ||
+                    // QtQuickTest is a QML module but has 3 main C++ functions and is not auto-ignored
+                    libFileName == "QtQuickTest" || libFileName == "Qt5QuickTest")
                 {
                     qt.LibFiles.RemoveAt(i);
                 }
@@ -260,7 +240,7 @@ namespace QtSharp.CLI
                     zipArchive.CreateEntryFromFile("CppSharp.Runtime.dll", "CppSharp.Runtime.dll");
                 }
             }
-
+            Console.WriteLine("Done in: " + s.Elapsed);
             return 0;
         }
 

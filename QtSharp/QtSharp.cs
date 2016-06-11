@@ -65,7 +65,7 @@ namespace QtSharp
                 method.ExplicitlyIgnore();
             }
 
-            // HACK: forward declarations can enable declarations to use types from other modules; ignore such declarations until properly fixed
+            // HACK: work around https://github.com/mono/CppSharp/issues/657
             var qSignalMapper = lib.FindCompleteClass("QSignalMapper");
             for (int i = qSignalMapper.Methods.Count - 1; i >= 0; i--)
             {
@@ -98,7 +98,8 @@ namespace QtSharp
                     method.ExplicitlyIgnore();
                 }
             }
-            var qCamera = lib.FindCompleteClass("QCamera");
+            var qCamera = lib.FindClass("QCamera").FirstOrDefault(c => !c.IsIncomplete &&
+                c.TranslationUnit.Module.OutputNamespace == "QtMultimedia");
             var qMediaPlayer = lib.FindCompleteClass("QMediaPlayer");
             foreach (var method in qCamera.Methods.Union(qMediaPlayer.Methods).Where(m => m.Parameters.Any()))
             {
@@ -164,7 +165,9 @@ namespace QtSharp
         {
             new ClearCommentsPass().VisitLibrary(driver.ASTContext);
             var modules = this.qtInfo.LibFiles.Select(l => GetModuleNameFromLibFile(l));
+            var s = System.Diagnostics.Stopwatch.StartNew();
             new GetCommentsFromQtDocsPass(this.qtInfo.Docs, modules).VisitLibrary(driver.ASTContext);
+            System.Console.WriteLine("Documentation done in: {0}", s.Elapsed);
             new CaseRenamePass(
                 RenameTargets.Function | RenameTargets.Method | RenameTargets.Property | RenameTargets.Delegate |
                 RenameTargets.Field | RenameTargets.Variable,
@@ -186,6 +189,15 @@ namespace QtSharp
                 m => !m.Ignore && m.OriginalName != "utf16" && m.OriginalName != "fromUtf16"))
             {
                 method.ExplicitlyIgnore();
+            }
+
+            foreach (var module in driver.Options.Modules)
+            {
+                var prefix = Platform.IsWindows ? string.Empty : "lib";
+                var extension = Platform.IsWindows ? ".dll" : Platform.IsMacOS ? ".dylib" : ".so";
+                var inlinesLibraryFile = string.Format("{0}{1}{2}", prefix, module.InlinesLibraryName, extension);
+                var inlinesLibraryPath = Path.Combine(driver.Options.OutputDir, Platform.IsWindows ? "release" : string.Empty, inlinesLibraryFile);
+                this.wrappedModules.Add(new KeyValuePair<string, string>(module.LibraryName + ".dll", inlinesLibraryPath));
             }
         }
 
@@ -257,11 +269,6 @@ namespace QtSharp
                 }
 
                 driver.Options.Modules.Add(module);
-                var prefix = Platform.IsWindows ? string.Empty : "lib";
-                var extension = Platform.IsWindows ? ".dll" : Platform.IsMacOS ? ".dylib" : ".so";
-                var inlinesLibraryFile = string.Format("{0}{1}{2}", prefix, module.InlinesLibraryName, extension);
-                var inlinesLibraryPath = Path.Combine(driver.Options.OutputDir, Platform.IsWindows ? "release" : string.Empty, inlinesLibraryFile);
-                this.wrappedModules.Add(new KeyValuePair<string, string>(module.LibraryName + ".dll", inlinesLibraryPath));
             }
 
             foreach (var systemIncludeDir in this.qtInfo.SystemIncludeDirs)

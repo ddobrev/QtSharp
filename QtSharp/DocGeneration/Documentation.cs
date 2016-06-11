@@ -21,7 +21,12 @@ namespace QtSharp.DocGeneration
     {
         public Documentation(string docsPath, IEnumerable<string> modules)
         {
-            foreach (var module in modules)
+            // HACK: work around https://bugreports.qt.io/browse/QTBUG-54025
+            var documentationModules = new List<string>(modules);
+            const string qt3d = "Qt3D";
+            documentationModules.RemoveAll(d => d.StartsWith(qt3d, StringComparison.Ordinal));
+            documentationModules.Add(qt3d);
+            foreach (var module in documentationModules)
             {
                 var entries = Get(docsPath, module);
                 foreach (var entry in entries)
@@ -238,7 +243,10 @@ namespace QtSharp.DocGeneration
                     }
                     node = node.NextSibling;
                 }
-                this.typesDocumentation.Add(docFile, nodes);
+                if (nodes.Count > 0)
+                {
+                    this.typesDocumentation.Add(docFile, nodes);
+                }
             }
         }
 
@@ -254,15 +262,28 @@ namespace QtSharp.DocGeneration
             var functions = this.functionNodes[function.OriginalName];
             var unit = function.OriginalNamespace.TranslationUnit;
             var location = unit.FileName;
-            var node = functions.Find(
+            FunctionDocIndexNode node = null;
+            var nodes = functions.FindAll(
                 f => f.Location == location &&
                     (f.LineNumber == lineStart || f.LineNumber == lineEnd));
+            // incredible but we actually have a case of different functions with the same name in headers with the same name at the same line
+            if (nodes.Count > 0)
+            {
+                if (nodes.Count == 1)
+                {
+                    node = nodes[0];
+                }
+                else
+                {
+                    node = nodes.Find(n => n.FullName == function.QualifiedOriginalName);
+                }
+            }
             var @params = function.Parameters.Where(p => p.Kind == ParameterKind.Regular).ToList();
             int realParamsCount = @params.Count(p => !string.IsNullOrWhiteSpace(p.OriginalName) || p.DefaultArgument == null);
             // functions can have different line numbers because of #defines
             if (node == null || node.HRef == null)
             {
-                var nodes = functions.FindAll(
+                nodes = functions.FindAll(
                     f => CheckLocation(f.Location, location) &&
                          (f.FullName == function.QualifiedOriginalName || f.Name == function.OriginalName) &&
                          f.Access != "private" && f.ParametersModifiers.Count == realParamsCount);

@@ -67,17 +67,23 @@ namespace QtSharp
                 return false;
             }
 
-            if (!method.IsConstructor && (method.Name.EndsWith("Event") || method.Name == "event") &&
-                method.Parameters.Count == 1 && method.Parameters[0].Type.ToString().EndsWith("Event"))
+            if (!method.IsConstructor && (method.Name.EndsWith("Event", StringComparison.Ordinal) || method.Name == "event") &&
+                method.Parameters.Count == 1)
             {
-                var name = char.ToUpperInvariant(method.Name[0]) + method.Name.Substring(1);
-                method.Name = "on" + name;
-                Method baseMethod;
-                if (!method.IsOverride ||
-                    (baseMethod = ((Class) method.Namespace).GetBaseMethod(method, true, true)) == null ||
-                    baseMethod.IsPure)
+                var type = method.Parameters[0].Type;
+                type = type.GetFinalPointee() ?? type;
+                Class @class;
+                if (type.TryGetClass(out @class) && @class.Name.EndsWith("Event", StringComparison.Ordinal))
                 {
-                    this.events.Add(method);
+                    var name = char.ToUpperInvariant(method.Name[0]) + method.Name.Substring(1);
+                    method.Name = "on" + name;
+                    Method baseMethod;
+                    if (!method.IsOverride ||
+                        (baseMethod = ((Class) method.Namespace).GetBaseMethod(method, true, true)) == null ||
+                        baseMethod.IsPure)
+                    {
+                        this.events.Add(method);
+                    }
                 }
             }
             return true;

@@ -1,3 +1,7 @@
+0.5.0 - 12.6.2016
+Added:
+- Wrapped the entire Qt.
+
 0.0.8 - 21.12.2015
 Added:
 - Properly wrapped non-virtual destructors in derived types.

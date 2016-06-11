@@ -70,10 +70,22 @@ namespace QtSharp
             var pro = string.Format("{0}.pro", module.InlinesLibraryName);
             var path = Path.Combine(this.Driver.Options.OutputDir, pro);
             var proBuilder = new StringBuilder();
-            proBuilder.AppendFormat("QT += {0}\n",
-                                    string.Join(" ", from header in module.Headers
-                                                     where !header.EndsWith(".h", StringComparison.Ordinal)
-                                                     select header.Substring("Qt".Length).ToLowerInvariant()));
+            var qtModules = string.Join(" ", from header in module.Headers
+                                             where !header.EndsWith(".h", StringComparison.Ordinal)
+                                             select header.Substring("Qt".Length).ToLowerInvariant());
+            switch (qtModules)
+            {
+                // QtTest is only library which has a "lib" suffix to its module alias for qmake
+                case "test":
+                    qtModules += "lib";
+                    break;
+                // HACK: work around https://bugreports.qt.io/browse/QTBUG-54030
+                case "bluetooth":
+                    qtModules += " network";
+                    break;
+            }
+
+            proBuilder.AppendFormat("QT += {0}\n", qtModules);
             proBuilder.Append("CONFIG += c++11\n");
             proBuilder.Append("QMAKE_CXXFLAGS += -fkeep-inline-functions\n");
             proBuilder.AppendFormat("TARGET = {0}\n", module.InlinesLibraryName);
