@@ -38,25 +38,20 @@ namespace QtSharp
                 eventBlock.NewLine();
                 const string eventHandler = @"__eventHandler";
                 var raiseEvent = string.Format(
-                    @"    var {0} = {1};
+                    @"var {0} = {1};
     if ({0} != null)
         {0}(this, {2});
-", eventHandler, @event, method.Parameters[0].Name);
+    if ({2}.Handled)
+        return{3};
+",
+                    eventHandler, @event, method.Parameters[0].Name,
+                    method.OriginalReturnType.Type.IsPrimitiveType(PrimitiveType.Void) ? string.Empty : " true");
                 if (block.Blocks.Count > 0 && block.Blocks[0].Kind == BlockKind.BlockComment)
                 {
                     eventBlock.Blocks.Add(block.Blocks[0]);
                 }
                 block.Parent.Blocks.Insert(blockIndex, eventBlock);
-                var stringBuilder = block.Text.StringBuilder;
-                if (method.OriginalReturnType.Type.IsPrimitiveType(PrimitiveType.Void))
-                {
-                    stringBuilder.Insert(stringBuilder.Length - 1 - Environment.NewLine.Length, raiseEvent);
-                }
-                else
-                {
-                    const string @return = "    return ";
-                    stringBuilder.Replace(@return, raiseEvent + @return);
-                }
+                block.Text.StringBuilder.Replace("var __slot", raiseEvent + "    var __slot");
             }
         }
 
@@ -83,6 +78,7 @@ namespace QtSharp
                         baseMethod.IsPure)
                     {
                         this.events.Add(method);
+                        this.Driver.Options.ExplicitlyPatchedVirtualFunctions.Add(method.QualifiedOriginalName);
                     }
                 }
             }

@@ -265,6 +265,7 @@ namespace QtSharp
                 {
                     module.CodeFiles.Add(Path.Combine(dir, "QObject.cs"));
                     module.CodeFiles.Add(Path.Combine(dir, "QChar.cs"));
+                    module.CodeFiles.Add(Path.Combine(dir, "QEvent.cs"));
                     module.CodeFiles.Add(Path.Combine(dir, "_iobuf.cs"));
                 }
 
@@ -284,7 +285,6 @@ namespace QtSharp
             driver.Options.addIncludeDirs(qtInfo.Headers);
             
             driver.Options.addLibraryDirs(Platform.IsWindows ? qtInfo.Bins : qtInfo.Libs);
-            driver.Options.ExplicitlyPatchedVirtualFunctions.Add("qt_metacall");
         }
 
         public static string GetModuleNameFromLibFile(string libFile)

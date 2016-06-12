@@ -144,6 +144,11 @@ namespace QtSharp
             {
                 this.HandleQSignal(@class, method);
             }
+            var qtMetaCall = @class.FindMethod("qt_metacall");
+            if (qtMetaCall != null)
+            {
+                this.Driver.Options.ExplicitlyPatchedVirtualFunctions.Add(qtMetaCall.QualifiedOriginalName);
+            }
             return true;
         }
 
