@@ -19,7 +19,6 @@ namespace QtSharp.Tests.Manual.QtCore.Thread
         [Test]
         public void TestEmptyConstructorNotThrowingAnException()
         {
-            new QAtomicInteger();
         }
     }
 }
