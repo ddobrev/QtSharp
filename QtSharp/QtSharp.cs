@@ -227,7 +227,7 @@ namespace QtSharp
             {
                 string qtModule = GetModuleNameFromLibFile(libFile);
                 var module = new CppSharp.AST.Module();
-                module.LibraryName = string.Format("{0}Sharp", qtModule);
+                module.LibraryName = string.Format("{0}.Sharp", qtModule);
                 module.OutputNamespace = qtModule;
                 module.Headers.Add(qtModule);
                 var moduleName = qtModule.Substring(qt.Length);
