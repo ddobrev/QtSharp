@@ -36,7 +36,7 @@ namespace QtSharp
             foreach (var unit in lib.TranslationUnits.Where(u => u.IsValid))
             {
                 // HACK: work around https://github.com/mono/CppSharp/issues/677
-                if (unit.FileName == "locale_classes.tcc")
+                if (unit.FileName == "locale_classes.tcc" || unit.FileName == "locale_facets.tcc")
                 {
                     unit.ExplicitlyIgnore();
                 }
@@ -260,9 +260,20 @@ namespace QtSharp
                 string qtModule = GetModuleNameFromLibFile(libFile);
                 var module = new CppSharp.AST.Module();
                 module.LibraryName = string.Format("{0}.Sharp", qtModule);
-                module.OutputNamespace = qtModule;
                 module.Headers.Add(qtModule);
                 var moduleName = qtModule.Substring(qt.Length);
+                // some Qt modules have their own name-spaces
+                if (moduleName == "Charts" || moduleName == "QtDataVisualization" ||
+                    moduleName.StartsWith("3D", System.StringComparison.Ordinal))
+                {
+                    module.OutputNamespace = string.Empty;
+                    module.InlinesLibraryName = string.Format("{0}-inlines", qtModule);
+                    module.TemplatesLibraryName = string.Format("{0}-templates", qtModule);
+                }
+                else
+                {
+                    module.OutputNamespace = qtModule;
+                }
                 if (Platform.IsMacOS)
                 {
                     var framework = string.Format("{0}.framework", qtModule);

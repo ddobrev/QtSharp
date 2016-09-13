@@ -1,3 +1,14 @@
+0.6.0 - 14.9.2016
+BREAKING: The bindings are now named according to the pattern:
+  Qt<module>.Sharp
+instead of:
+  Qt<module>Sharp
+All users are asked to update their project files.  
+Added:
+ - Bindings for the new modules in Qt 5.7 - Charts, Data Visualization, Purchasing.
+Fixed:
+- Passing pointers as their secondary bases, such as QPainter(QPaintDevice).
+
 0.5.1 - 12.6.2016
 Fixed:
 - Regression - Qt events did not work at all. Also restored the ability to handle them.

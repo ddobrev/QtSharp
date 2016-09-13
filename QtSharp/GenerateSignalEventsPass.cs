@@ -163,14 +163,10 @@ namespace QtSharp
             for (int i = 0; i < @class.Specifiers.Count; i++)
             {
                 var accessSpecifierDecl = @class.Specifiers[i];
-                if (accessSpecifierDecl.LineNumberStart <= method.LineNumberStart &&
+                if (accessSpecifierDecl.DebugText == "Q_SIGNALS:" &&
+                    accessSpecifierDecl.LineNumberStart < method.LineNumberStart &&
                     (i == @class.Specifiers.Count - 1 || method.LineNumberEnd <= @class.Specifiers[i + 1].LineNumberStart))
                 {
-                    var expansions = accessSpecifierDecl.PreprocessedEntities.OfType<MacroExpansion>();
-                    if (expansions.All(e => e.Text != "Q_SIGNALS"))
-                    {
-                        return;
-                    }
                     if (method.Parameters.Any())
                     {
                         Class decl;

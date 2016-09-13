@@ -35,7 +35,15 @@ namespace QtSharp
             foreach (var block in blocks)
             {
                 var method = (Function) block.Declaration;
-                var @event = char.ToUpperInvariant(method.OriginalName[0]) + method.OriginalName.Substring(1);
+                string @event;
+                if (((Class) method.Namespace).Methods.Any(m => m != method && m.OriginalName == method.OriginalName))
+                {
+                    @event = method.OriginalName;
+                }
+                else
+                {
+                    @event = char.ToUpperInvariant(method.OriginalName[0]) + method.OriginalName.Substring(1);
+                }
                 var blockIndex = block.Parent.Blocks.IndexOf(block);
                 var eventBlock = new Block(CSharpBlockKind.Event);
                 eventBlock.WriteLine("public event global::System.Action<object, {0}> {1};",
