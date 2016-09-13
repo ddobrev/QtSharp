@@ -3,9 +3,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using CppSharp.AST;
-using CppSharp.Parser;
 using CppSharp.Passes;
 using CppSharp;
+using CppSharp.Parser;
 
 namespace QtSharp
 {
@@ -22,13 +22,13 @@ namespace QtSharp
 
         public override bool VisitLibrary(ASTContext context)
         {
-            foreach (var module in Driver.Options.Modules)
+            foreach (var module in this.Context.Options.Modules)
             {
                 string error;
                 const string qtVersionVariable = "QT_VERSION";
                 var qtVersion = ProcessHelper.Run(this.qmake, string.Format("-query {0}", qtVersionVariable), out error);
-                var qtVersionFile = Path.Combine(this.Driver.Options.OutputDir, qtVersionVariable);
-                var dir = Platform.IsMacOS ? this.Driver.Options.OutputDir : Path.Combine(this.Driver.Options.OutputDir, "release");
+                var qtVersionFile = Path.Combine(this.Context.Options.OutputDir, qtVersionVariable);
+                var dir = Platform.IsMacOS ? this.Context.Options.OutputDir : Path.Combine(this.Context.Options.OutputDir, "release");
                 var inlines = Path.GetFileName(string.Format("{0}{1}.{2}", Platform.IsWindows ? string.Empty : "lib",
                     module.InlinesLibraryName, Platform.IsMacOS ? "dylib" : "dll"));
                 var libFile = Path.Combine(dir, inlines);
@@ -56,8 +56,8 @@ namespace QtSharp
                     if (parserResult.Kind == ParserResultKind.Success)
                     {
                         var nativeLibrary = CppSharp.ClangParser.ConvertLibrary(parserResult.Library);
-                        this.Driver.Symbols.Libraries.Add(nativeLibrary);
-                        this.Driver.Symbols.IndexSymbols();
+                        this.Context.Symbols.Libraries.Add(nativeLibrary);
+                        this.Context.Symbols.IndexSymbols();
                         parserResult.Library.Dispose();
                     }
                 }
@@ -68,7 +68,7 @@ namespace QtSharp
         private bool CompileInlines(Module module)
         {
             var pro = string.Format("{0}.pro", module.InlinesLibraryName);
-            var path = Path.Combine(this.Driver.Options.OutputDir, pro);
+            var path = Path.Combine(this.Context.Options.OutputDir, pro);
             var proBuilder = new StringBuilder();
             var qtModules = string.Join(" ", from header in module.Headers
                                              where !header.EndsWith(".h", StringComparison.Ordinal)
@@ -104,11 +104,11 @@ namespace QtSharp
                 Console.WriteLine(error);
                 return false;
             }
-            var makefile = File.Exists(Path.Combine(Driver.Options.OutputDir, "Makefile.Release")) ? "Makefile.Release" : "Makefile";
+            var makefile = File.Exists(Path.Combine(this.Context.Options.OutputDir, "Makefile.Release")) ? "Makefile.Release" : "Makefile";
             if (Platform.IsMacOS)
             {
                 // HACK: Clang does not support -fkeep-inline-functions so force compilation with (the real) GCC on OS X
-                var makefilePath = Path.Combine(Driver.Options.OutputDir, makefile);
+                var makefilePath = Path.Combine(this.Context.Options.OutputDir, makefile);
                 var script = new StringBuilder(File.ReadAllText(makefilePath));
                 var xcodePath = XcodeToolchain.GetXcodePath();
                 script.Replace(Path.Combine(xcodePath, "Contents", "Developer", "usr", "bin", "gcc"), "/usr/local/bin/gcc");

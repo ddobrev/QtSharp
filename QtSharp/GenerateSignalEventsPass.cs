@@ -15,12 +15,18 @@ namespace QtSharp
     {
         private bool eventAdded;
         private readonly HashSet<Event> events = new HashSet<Event>();
+        private Generator generator;
+
+        public GenerateSignalEventsPass(Generator generator)
+        {
+            this.generator = generator;
+        }
 
         public override bool VisitTranslationUnit(TranslationUnit unit)
         {
             if (!this.eventAdded)
             {
-                this.Driver.Generator.OnUnitGenerated += this.OnUnitGenerated;
+                this.generator.OnUnitGenerated += this.OnUnitGenerated;
                 this.eventAdded = true;
             }
             return base.VisitTranslationUnit(unit);
@@ -115,7 +121,7 @@ namespace QtSharp
             var qtMetacall = (
                 from template in generatorOutput.Templates
                 from block in template.FindBlocks(CSharpBlockKind.Method)
-                where block.Declaration != null && block.Declaration.Name == "Qt_metacall" &&
+                where block.Declaration != null && block.Declaration.Name == "QtMetacall" &&
                       block.Declaration.Namespace.Name == "QObject"
                 select block).FirstOrDefault();
             if (qtMetacall != null)
@@ -147,7 +153,7 @@ namespace QtSharp
             var qtMetaCall = @class.FindMethod("qt_metacall");
             if (qtMetaCall != null)
             {
-                this.Driver.Options.ExplicitlyPatchedVirtualFunctions.Add(qtMetaCall.QualifiedOriginalName);
+                this.Context.Options.ExplicitlyPatchedVirtualFunctions.Add(qtMetaCall.QualifiedOriginalName);
             }
             return true;
         }

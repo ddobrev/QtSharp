@@ -11,11 +11,16 @@ namespace QtSharp
 {
     public class GenerateEventEventsPass : TranslationUnitPass
     {
+        public GenerateEventEventsPass(Generator generator)
+        {
+            this.generator = generator;
+        }
+
         public override bool VisitTranslationUnit(TranslationUnit unit)
         {
             if (!this.eventAdded)
             {
-                this.Driver.Generator.OnUnitGenerated += this.OnUnitGenerated;
+                this.generator.OnUnitGenerated += this.OnUnitGenerated;
                 this.eventAdded = true;
             }
             return base.VisitTranslationUnit(unit);
@@ -78,7 +83,7 @@ namespace QtSharp
                         baseMethod.IsPure)
                     {
                         this.events.Add(method);
-                        this.Driver.Options.ExplicitlyPatchedVirtualFunctions.Add(method.QualifiedOriginalName);
+                        this.Context.Options.ExplicitlyPatchedVirtualFunctions.Add(method.QualifiedOriginalName);
                     }
                 }
             }
@@ -87,5 +92,6 @@ namespace QtSharp
 
         private bool eventAdded;
         private readonly HashSet<Method> events = new HashSet<Method>();
+        private Generator generator;
     }
 }

@@ -24,7 +24,7 @@ namespace QtSharp
             return this.CSharpSignatureType(ctx).ToString();
         }
 
-        public override void CSharpMarshalToNative(MarshalContext ctx)
+        public override void CSharpMarshalToNative(CSharpMarshalContext ctx)
         {
             if (ctx.Parameter.Type.Desugar().IsAddress())
                 ctx.Return.Write("new global::System.IntPtr(&{0})", ctx.Parameter.Name);
@@ -32,7 +32,7 @@ namespace QtSharp
                 ctx.Return.Write(ctx.Parameter.Name);
         }
 
-        public override void CSharpMarshalToManaged(MarshalContext ctx)
+        public override void CSharpMarshalToManaged(CSharpMarshalContext ctx)
         {
             if (ctx.ReturnType.Type.Desugar().IsAddress())
             {

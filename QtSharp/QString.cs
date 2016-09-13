@@ -1,6 +1,5 @@
 ﻿using CppSharp.AST;
 using CppSharp.AST.Extensions;
-using CppSharp.Generators;
 using CppSharp.Generators.CSharp;
 using CppSharp.Types;
 
@@ -13,12 +12,12 @@ namespace QtSharp
         {
             if (ctx.CSharpKind == CSharpTypePrinterContextKind.Native)
             {
-                return ctx.Type.IsAddress() ? "QtCore.QString.Internal*" : "QtCore.QString.Internal";
+                return string.Format("QtCore.QString.{0}{1}", Helpers.InternalStruct, ctx.Type.IsAddress() ? "*" : string.Empty);
             }
             return "string";
         }
 
-        public override void CSharpMarshalToNative(MarshalContext ctx)
+        public override void CSharpMarshalToNative(CSharpMarshalContext ctx)
         {
             ctx.SupportBefore.WriteLine("var __stringPtr{0} = ReferenceEquals({1}, null) ? null : (ushort*) Marshal.StringToHGlobalUni({1}).ToPointer();",
                                         ctx.ParameterIndex, ctx.Parameter.Name);
@@ -37,13 +36,13 @@ namespace QtSharp
             {
                 this.Type.TryGetClass(out @class);
             }
-            this.typePrinter = this.typePrinter ?? (this.typePrinter = new CSharpTypePrinter(ctx.Driver));
+            this.typePrinter = this.typePrinter ?? (this.typePrinter = new CSharpTypePrinter(ctx.Context));
             var qualifiedIdentifier = (@class.OriginalClass ?? @class).Visit(this.typePrinter);
-            ctx.Return.Write("ReferenceEquals(__qstring{0}, null) ? new {1}.Internal() : *({1}.Internal*) (__qstring{0}.{2})",
-                             ctx.ParameterIndex, qualifiedIdentifier, Helpers.InstanceIdentifier);
+            ctx.Return.Write("ReferenceEquals(__qstring{0}, null) ? new {1}.{2}() : *({1}.{2}*) (__qstring{0}.{3})",
+                             ctx.ParameterIndex, qualifiedIdentifier, Helpers.InternalStruct, Helpers.InstanceIdentifier);
         }
 
-        public override void CSharpMarshalToManaged(MarshalContext ctx)
+        public override void CSharpMarshalToManaged(CSharpMarshalContext ctx)
         {
             ctx.Return.Write("Marshal.PtrToStringUni(new IntPtr(QtCore.QString.{0}({1}).Utf16))",
                 Helpers.CreateInstanceIdentifier, ctx.ReturnVarName);

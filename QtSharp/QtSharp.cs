@@ -33,13 +33,19 @@ namespace QtSharp
 
         public void Preprocess(Driver driver, ASTContext lib)
         {
-            foreach (var unit in lib.TranslationUnits.Where(u => u.FilePath != "<invalid>"))
+            foreach (var unit in lib.TranslationUnits.Where(u => u.IsValid))
             {
-                IgnorePrivateDeclarations(unit);
+                // HACK: work around https://github.com/mono/CppSharp/issues/677
+                if (unit.FileName == "locale_classes.tcc")
+                {
+                    unit.ExplicitlyIgnore();
+                }
+                else
+                {
+                    IgnorePrivateDeclarations(unit);
+                }
             }
             lib.SetClassAsValueType("QByteArray");
-            lib.SetClassAsValueType("QListData");
-            lib.SetClassAsValueType("QListData::Data");
             lib.SetClassAsValueType("QLocale");
             lib.SetClassAsValueType("QModelIndex");
             lib.SetClassAsValueType("QPoint");
@@ -51,8 +57,6 @@ namespace QtSharp
             lib.SetClassAsValueType("QGenericArgument");
             lib.SetClassAsValueType("QGenericReturnArgument");
             lib.SetClassAsValueType("QVariant");
-            lib.IgnoreClassMethodWithName("QString", "fromStdWString");
-            lib.IgnoreClassMethodWithName("QString", "toStdWString");
 
             // QString is type-mapped to string so we only need two methods for the conversion
             var qString = lib.FindCompleteClass("QString");
@@ -133,6 +137,34 @@ namespace QtSharp
             {
                 enumeration.Name = "TypeEnum";
             }
+
+            // HACK: work around https://github.com/mono/CppSharp/issues/692
+            foreach (var name in new[] { "QImage", "QPixmap" })
+            {
+                var @class = lib.FindCompleteClass(name);
+                var ctorWithArray = @class.Constructors.FirstOrDefault(
+                    c => c.Parameters.Count == 1 && c.Parameters[0].Type.Desugar() is ArrayType);
+                if (ctorWithArray != null)
+                {
+                    ctorWithArray.ExplicitlyIgnore();
+                }
+            }
+            foreach (var name in new[] { "QGraphicsScene", "QGraphicsView" })
+            {
+                var @class = lib.FindCompleteClass(name);
+                 var drawItems = @class.Methods.FirstOrDefault(m => m.OriginalName == "drawItems");
+                if (drawItems != null)
+                {
+                    drawItems.ExplicitlyIgnore();
+                }
+            }
+            lib.FindCompleteClass("QAbstractPlanarVideoBuffer").ExplicitlyIgnore();
+            var qAbstractVideoBuffer = lib.FindCompleteClass("QAbstractVideoBuffer");
+            var mapPlanes = qAbstractVideoBuffer.Methods.FirstOrDefault(m => m.OriginalName == "mapPlanes");
+            if (mapPlanes != null)
+            {
+                mapPlanes.ExplicitlyIgnore();
+            }
         }
 
         private static void IgnorePrivateDeclarations(DeclarationContext unit)
@@ -163,15 +195,15 @@ namespace QtSharp
 
         public void Postprocess(Driver driver, ASTContext lib)
         {
-            new ClearCommentsPass().VisitLibrary(driver.ASTContext);
+            new ClearCommentsPass().VisitLibrary(driver.Context.ASTContext);
             var modules = this.qtInfo.LibFiles.Select(l => GetModuleNameFromLibFile(l));
             var s = System.Diagnostics.Stopwatch.StartNew();
-            new GetCommentsFromQtDocsPass(this.qtInfo.Docs, modules).VisitLibrary(driver.ASTContext);
+            new GetCommentsFromQtDocsPass(this.qtInfo.Docs, modules).VisitLibrary(driver.Context.ASTContext);
             System.Console.WriteLine("Documentation done in: {0}", s.Elapsed);
             new CaseRenamePass(
                 RenameTargets.Function | RenameTargets.Method | RenameTargets.Property | RenameTargets.Delegate |
                 RenameTargets.Field | RenameTargets.Variable,
-                RenameCasePattern.UpperCamelCase).VisitLibrary(driver.ASTContext);
+                RenameCasePattern.UpperCamelCase).VisitLibrary(driver.Context.ASTContext);
 
             var qChar = lib.FindCompleteClass("QChar");
             var op = qChar.FindOperator(CXXOperatorKind.ExplicitConversion)
@@ -203,18 +235,18 @@ namespace QtSharp
 
         public void Setup(Driver driver)
         {
+            driver.ParserOptions.MicrosoftMode = false;
+            driver.ParserOptions.NoBuiltinIncludes = true;
+            driver.ParserOptions.TargetTriple = this.qtInfo.Target;
+            driver.ParserOptions.Abi = CppAbi.Itanium;
+            driver.ParserOptions.Verbose = true;
+            driver.ParserOptions.addDefines("__float128=void");
             driver.Options.GeneratorKind = GeneratorKind.CSharp;
-            driver.Options.MicrosoftMode = false;
-            driver.Options.NoBuiltinIncludes = true;
-            driver.Options.TargetTriple = this.qtInfo.Target;
-            driver.Options.Abi = CppAbi.Itanium;
-            driver.Options.Verbose = true;
             driver.Options.GenerateInterfacesForMultipleInheritance = true;
             driver.Options.GeneratePropertiesAdvanced = true;
             driver.Options.UnityBuild = true;
             driver.Options.IgnoreParseWarnings = true;
             driver.Options.CheckSymbols = true;
-            driver.Options.GenerateSingleCSharpFile = true;
             driver.Options.GenerateInlines = true;
             driver.Options.CompileCode = true;
             driver.Options.GenerateDefaultValuesForArguments = true;
@@ -266,25 +298,27 @@ namespace QtSharp
                     module.CodeFiles.Add(Path.Combine(dir, "QObject.cs"));
                     module.CodeFiles.Add(Path.Combine(dir, "QChar.cs"));
                     module.CodeFiles.Add(Path.Combine(dir, "QEvent.cs"));
-                    module.CodeFiles.Add(Path.Combine(dir, "_iobuf.cs"));
                 }
 
                 driver.Options.Modules.Add(module);
             }
 
             foreach (var systemIncludeDir in this.qtInfo.SystemIncludeDirs)
-                driver.Options.addSystemIncludeDirs(systemIncludeDir);
+                driver.ParserOptions.addSystemIncludeDirs(systemIncludeDir);
             
             if (Platform.IsMacOS)
             {
                 foreach (var frameworkDir in this.qtInfo.FrameworkDirs)
-                    driver.Options.addArguments(string.Format("-F{0}", frameworkDir));
-                driver.Options.addArguments(string.Format("-F{0}", qtInfo.Libs));
+                    driver.ParserOptions.addArguments(string.Format("-F{0}", frameworkDir));
+                driver.ParserOptions.addArguments(string.Format("-F{0}", qtInfo.Libs));
             }
 
-            driver.Options.addIncludeDirs(qtInfo.Headers);
-            
-            driver.Options.addLibraryDirs(Platform.IsWindows ? qtInfo.Bins : qtInfo.Libs);
+            driver.ParserOptions.addIncludeDirs(qtInfo.Headers);
+
+            driver.ParserOptions.addLibraryDirs(Platform.IsWindows ? qtInfo.Bins : qtInfo.Libs);
+
+            // Qt defines its own GUID with the same header guard as the system GUID, so ensure the system GUID is read first
+            driver.Project.AddFile("guiddef.h");
         }
 
         public static string GetModuleNameFromLibFile(string libFile)
@@ -299,10 +333,10 @@ namespace QtSharp
 
         public void SetupPasses(Driver driver)
         {
-            driver.TranslationUnitPasses.AddPass(new CompileInlinesPass(this.qtInfo.QMake, this.qtInfo.Make));
-            driver.TranslationUnitPasses.AddPass(new GenerateSignalEventsPass());
-            driver.TranslationUnitPasses.AddPass(new GenerateEventEventsPass());
-            driver.TranslationUnitPasses.AddPass(new RemoveQObjectMembersPass());
+            driver.Context.TranslationUnitPasses.AddPass(new CompileInlinesPass(this.qtInfo.QMake, this.qtInfo.Make));
+            driver.Context.TranslationUnitPasses.AddPass(new GenerateSignalEventsPass(driver.Generator));
+            driver.Context.TranslationUnitPasses.AddPass(new GenerateEventEventsPass(driver.Generator));
+            driver.Context.TranslationUnitPasses.AddPass(new RemoveQObjectMembersPass());
         }
 
         private readonly QtInfo qtInfo;

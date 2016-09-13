@@ -11,12 +11,12 @@ namespace QtSharp
         public GetCommentsFromQtDocsPass(string docsPath, IEnumerable<string> modules)
         {
             this.documentation = new Documentation(docsPath, modules);
-            this.Options.VisitFunctionReturnType = false;
-            this.Options.VisitFunctionParameters = false;
-            this.Options.VisitEventParameters = false;
-            this.Options.VisitClassBases = false;
-            this.Options.VisitTemplateArguments = false;
-            this.Options.VisitClassFields = false;
+            this.VisitOptions.VisitFunctionReturnType = false;
+            this.VisitOptions.VisitFunctionParameters = false;
+            this.VisitOptions.VisitEventParameters = false;
+            this.VisitOptions.VisitClassBases = false;
+            this.VisitOptions.VisitTemplateArguments = false;
+            this.VisitOptions.VisitClassFields = false;
         }
 
         public override bool VisitLibrary(ASTContext context)
