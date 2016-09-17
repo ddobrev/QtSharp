@@ -22,27 +22,26 @@ namespace QtSharp
 
         public override bool VisitLibrary(ASTContext context)
         {
+            string error;
+            const string qtVersionVariable = "QT_VERSION";
+            var qtVersion = ProcessHelper.Run(this.qmake, string.Format("-query {0}", qtVersionVariable), out error);
+            var qtVersionFile = Path.Combine(this.Context.Options.OutputDir, qtVersionVariable);
+            var qtVersionFileInfo = new FileInfo(qtVersionFile);
+            var text = string.Empty;
+            if (!qtVersionFileInfo.Exists || (text = File.ReadAllText(qtVersionFile)) != qtVersion)
+            {
+                File.WriteAllText(qtVersionFile, qtVersion);
+                qtVersionFileInfo = new FileInfo(qtVersionFile);
+            }
+            var dir = Platform.IsMacOS ? this.Context.Options.OutputDir : Path.Combine(this.Context.Options.OutputDir, "release");
             foreach (var module in this.Context.Options.Modules)
             {
-                string error;
-                const string qtVersionVariable = "QT_VERSION";
-                var qtVersion = ProcessHelper.Run(this.qmake, string.Format("-query {0}", qtVersionVariable), out error);
-                var qtVersionFile = Path.Combine(this.Context.Options.OutputDir, qtVersionVariable);
-                var dir = Platform.IsMacOS ? this.Context.Options.OutputDir : Path.Combine(this.Context.Options.OutputDir, "release");
                 var inlines = Path.GetFileName(string.Format("{0}{1}.{2}", Platform.IsWindows ? string.Empty : "lib",
                     module.InlinesLibraryName, Platform.IsMacOS ? "dylib" : "dll"));
                 var libFile = Path.Combine(dir, inlines);
-                var qtVersionFileInfo = new FileInfo(qtVersionFile);
                 var inlinesFileInfo = new FileInfo(libFile);
-                string text = string.Empty;
-                if (!qtVersionFileInfo.Exists || (text = File.ReadAllText(qtVersionFile)) != qtVersion ||
-                    !inlinesFileInfo.Exists || qtVersionFileInfo.CreationTimeUtc > inlinesFileInfo.CreationTimeUtc ||
-                    qtVersionFileInfo.LastWriteTimeUtc > inlinesFileInfo.LastWriteTimeUtc)
+                if (!inlinesFileInfo.Exists || qtVersionFileInfo.LastWriteTimeUtc > inlinesFileInfo.LastWriteTimeUtc)
                 {
-                    if (text != qtVersion)
-                    {
-                        File.WriteAllText(qtVersionFile, qtVersion);
-                    }
                     if (!this.CompileInlines(module))
                     {
                         continue;

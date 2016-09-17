@@ -45,18 +45,6 @@ namespace QtSharp
                     IgnorePrivateDeclarations(unit);
                 }
             }
-            lib.SetClassAsValueType("QByteArray");
-            lib.SetClassAsValueType("QLocale");
-            lib.SetClassAsValueType("QModelIndex");
-            lib.SetClassAsValueType("QPoint");
-            lib.SetClassAsValueType("QPointF");
-            lib.SetClassAsValueType("QSize");
-            lib.SetClassAsValueType("QSizeF");
-            lib.SetClassAsValueType("QRect");
-            lib.SetClassAsValueType("QRectF");
-            lib.SetClassAsValueType("QGenericArgument");
-            lib.SetClassAsValueType("QGenericReturnArgument");
-            lib.SetClassAsValueType("QVariant");
 
             // QString is type-mapped to string so we only need two methods for the conversion
             var qString = lib.FindCompleteClass("QString");

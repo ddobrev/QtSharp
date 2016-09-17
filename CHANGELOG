@@ -1,3 +1,7 @@
+0.6.1 - 17.9.2016
+Fixed:
+- Removed all mappings to C# structures because their empty constructors are not correctly wrapped yet.
+
 0.6.0 - 14.9.2016
 BREAKING: The bindings are now named according to the pattern:
   Qt<module>.Sharp
