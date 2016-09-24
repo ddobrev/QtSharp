@@ -17,6 +17,18 @@ In the future a GUI client, constructed with Qt# itself, is planned as well.
 The are binary releases for Windows and Qt MinGW at https://github.com/ddobrev/QtSharp/releases. They are in an alpha stage.
 As they get more stable, binaries for other operating systems will be added as well.
 
+## Getting started
+
+You need to deploy Qt itself by following http://doc.qt.io/qt-5/windows-deployment.html#application-dependencies .
+In addition, for each Qt module you use you also need Qt<module>-inlines.dll deployed alongside your executable.
+You can use QtSharp with any C# IDE, including Visual Studio, but make sure your executable is 32-bit by either using the
+x86 configuration or AnyCPU with "Prefer 32-bit" checked.
+
+## Examples
+
+You can find examples at https://github.com/dsoronda/QtSharpDemos and https://github.com/grbd/QtSharp.TestApps .
+Thanks to https://github.com/dsoronda and https://github.com/grbd.
+
 ## Documentation
 
 1. [Building - QtSharp](https://github.com/ddobrev/QtSharp/blob/master/Docs/1.%20Building%20-%20QtSharp.md)
