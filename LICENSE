@@ -4,7 +4,8 @@ IMPORTANT: The Apache License below does not include the
 following bindings:
 - QtCharts.Sharp;
 - QtDataVisualization.Sharp;
-They are licensed under GPLv3 instead as they link GPLv3 code.
+along with Qt-GPL-inlines. These are licensed under GPLv3 instead
+as they link GPLv3 code.
 You may obtain a copy of GPLv3 at
 
     https://www.gnu.org/licenses/gpl-3.0.en.html

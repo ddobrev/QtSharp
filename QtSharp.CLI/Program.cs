@@ -241,6 +241,8 @@ namespace QtSharp.CLI
                     var extension = Platform.IsWindows ? "dll" : Platform.IsMacOS ? "dylib" : "so";
                     var inlines = string.Format("Qt-inlines.{0}", extension);
                     zipArchive.CreateEntryFromFile(string.Format("release/{0}", inlines), inlines);
+                    var gplInlines = string.Format("Qt-GPL-inlines.{0}", extension);
+                    zipArchive.CreateEntryFromFile(string.Format("release/{0}", gplInlines), gplInlines);
                 }
             }
             Console.WriteLine("Done in: " + s.Elapsed);
