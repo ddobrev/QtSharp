@@ -408,7 +408,7 @@ namespace QtSharp.DocGeneration
 
             var properties = expansions.Where(e => e.Text.Contains("Q_PROPERTY") || e.Text.Contains("QDOC_PROPERTY"));
             string alternativeName = property.Name.Length == 1 ? property.Name :
-                                     "is" + StringHelpers.UppercaseFirst(property.Name);
+                                     "is" + StringHelpers.Capitalize(property.Name);
 	        foreach (var macroExpansion in properties)
 	        {
 		        var name = macroExpansion.Text.Split(' ')[1];

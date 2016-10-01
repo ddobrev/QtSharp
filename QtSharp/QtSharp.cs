@@ -249,7 +249,7 @@ namespace QtSharp
                 module.Headers.Add(qtModule);
                 var moduleName = qtModule.Substring(qt.Length);
                 // some Qt modules have their own name-spaces
-                if (moduleName == "Charts" || moduleName == "QtDataVisualization" ||
+                if (moduleName == "Charts" || moduleName == "DataVisualization" ||
                     moduleName.StartsWith("3D", System.StringComparison.Ordinal))
                 {
                     module.OutputNamespace = string.Empty;
