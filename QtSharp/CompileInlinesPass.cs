@@ -34,62 +34,51 @@ namespace QtSharp
                 qtVersionFileInfo = new FileInfo(qtVersionFile);
             }
             var dir = Platform.IsMacOS ? this.Context.Options.OutputDir : Path.Combine(this.Context.Options.OutputDir, "release");
-            foreach (var module in this.Context.Options.Modules)
+            var inlines = Path.GetFileName(string.Format("{0}Qt-inlines.{1}", Platform.IsWindows ? string.Empty : "lib",
+                Platform.IsWindows ? "dll" : Platform.IsMacOS ? "dylib" : "so"));
+            var libFile = Path.Combine(dir, inlines);
+            var inlinesFileInfo = new FileInfo(libFile);
+            if (!inlinesFileInfo.Exists || qtVersionFileInfo.LastWriteTimeUtc > inlinesFileInfo.LastWriteTimeUtc)
             {
-                var inlines = Path.GetFileName(string.Format("{0}{1}.{2}", Platform.IsWindows ? string.Empty : "lib",
-                    module.InlinesLibraryName, Platform.IsMacOS ? "dylib" : "dll"));
-                var libFile = Path.Combine(dir, inlines);
-                var inlinesFileInfo = new FileInfo(libFile);
-                if (!inlinesFileInfo.Exists || qtVersionFileInfo.LastWriteTimeUtc > inlinesFileInfo.LastWriteTimeUtc)
+                if (!this.CompileInlines())
                 {
-                    if (!this.CompileInlines(module))
-                    {
-                        continue;
-                    }
+                    return false;
                 }
-                var parserOptions = new ParserOptions();
-                parserOptions.addLibraryDirs(dir);
-                parserOptions.LibraryFile = inlines;
-                using (var parserResult = CppSharp.Parser.ClangParser.ParseLibrary(parserOptions))
+            }
+            var parserOptions = new ParserOptions();
+            parserOptions.addLibraryDirs(dir);
+            parserOptions.LibraryFile = inlines;
+            using (var parserResult = CppSharp.Parser.ClangParser.ParseLibrary(parserOptions))
+            {
+                if (parserResult.Kind == ParserResultKind.Success)
                 {
-                    if (parserResult.Kind == ParserResultKind.Success)
-                    {
-                        var nativeLibrary = CppSharp.ClangParser.ConvertLibrary(parserResult.Library);
-                        this.Context.Symbols.Libraries.Add(nativeLibrary);
-                        this.Context.Symbols.IndexSymbols();
-                        parserResult.Library.Dispose();
-                    }
+                    var nativeLibrary = CppSharp.ClangParser.ConvertLibrary(parserResult.Library);
+                    this.Context.Symbols.Libraries.Add(nativeLibrary);
+                    this.Context.Symbols.IndexSymbols();
+                    parserResult.Library.Dispose();
                 }
             }
             return true;
         }
 
-        private bool CompileInlines(Module module)
+        private bool CompileInlines()
         {
-            var pro = string.Format("{0}.pro", module.InlinesLibraryName);
+            var pro = string.Format("Qt-inlines.pro");
             var path = Path.Combine(this.Context.Options.OutputDir, pro);
             var proBuilder = new StringBuilder();
-            var qtModules = string.Join(" ", from header in module.Headers
+            var qtModules = string.Join(" ", from module in this.Context.Options.Modules
+                                             from header in module.Headers
                                              where !header.EndsWith(".h", StringComparison.Ordinal)
                                              select header.Substring("Qt".Length).ToLowerInvariant());
-            switch (qtModules)
-            {
-                // QtTest is only library which has a "lib" suffix to its module alias for qmake
-                case "test":
-                    qtModules += "lib";
-                    break;
-                // HACK: work around https://bugreports.qt.io/browse/QTBUG-54030
-                case "bluetooth":
-                    qtModules += " network";
-                    break;
-            }
+            // QtTest is only library which has a "lib" suffix to its module alias for qmake
+            qtModules = qtModules.Replace(" test ", " testlib ");
 
             proBuilder.AppendFormat("QT += {0}\n", qtModules);
             proBuilder.Append("CONFIG += c++11\n");
             proBuilder.Append("QMAKE_CXXFLAGS += -fkeep-inline-functions\n");
-            proBuilder.AppendFormat("TARGET = {0}\n", module.InlinesLibraryName);
+            proBuilder.AppendFormat("TARGET = Qt-inlines\n");
             proBuilder.Append("TEMPLATE = lib\n");
-            proBuilder.AppendFormat("SOURCES += {0}\n", Path.ChangeExtension(pro, "cpp"));
+            proBuilder.AppendFormat("SOURCES += {0}\n", string.Join(" ", this.Context.Options.Modules.Select(m => m.InlinesLibraryName + ".cpp")));
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
                 proBuilder.Append("LIBS += -loleaut32 -lole32");
