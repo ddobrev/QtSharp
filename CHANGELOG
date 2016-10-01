@@ -1,10 +1,3 @@
-0.6.2 - 1.10.2016
-BREAKING: The helping libraries with inlines are no longer separated per module.
-Instead, there are just two of them, Qt-inlines for the LGPL modules and Qt-GPL-inlines for the rest.
-Fixed:
-- Removed all sealed overrides in the bindings;
-- Removed the double name-space from QtDataVisualization.
-
 0.6.1 - 17.9.2016
 Fixed:
 - Removed all mappings to C# structures because their empty constructors are not correctly wrapped yet.

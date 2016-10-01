@@ -18,12 +18,12 @@ namespace QtSharp
             this.qtInfo = qtInfo;
         }
 
-        public ICollection<string> GetVerifiedWrappedModules()
+        public ICollection<KeyValuePair<string, string>> GetVerifiedWrappedModules()
         {
             for (int i = this.wrappedModules.Count - 1; i >= 0; i--)
             {
                 var wrappedModule = this.wrappedModules[i];
-                if (!File.Exists(wrappedModule))
+                if (!File.Exists(wrappedModule.Key) || !File.Exists(wrappedModule.Value))
                 {
                     this.wrappedModules.RemoveAt(i);
                 }
@@ -215,7 +215,9 @@ namespace QtSharp
             {
                 var prefix = Platform.IsWindows ? string.Empty : "lib";
                 var extension = Platform.IsWindows ? ".dll" : Platform.IsMacOS ? ".dylib" : ".so";
-                this.wrappedModules.Add(module.LibraryName + ".dll");
+                var inlinesLibraryFile = string.Format("{0}{1}{2}", prefix, module.InlinesLibraryName, extension);
+                var inlinesLibraryPath = Path.Combine(driver.Options.OutputDir, Platform.IsWindows ? "release" : string.Empty, inlinesLibraryFile);
+                this.wrappedModules.Add(new KeyValuePair<string, string>(module.LibraryName + ".dll", inlinesLibraryPath));
             }
         }
 
@@ -337,6 +339,6 @@ namespace QtSharp
         }
 
         private readonly QtInfo qtInfo;
-        private List<string> wrappedModules = new List<string>();
+        private List<KeyValuePair<string, string>> wrappedModules = new List<KeyValuePair<string, string>>();
     }
 }

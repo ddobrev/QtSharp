@@ -6,7 +6,6 @@ using CppSharp.AST;
 using CppSharp.Passes;
 using CppSharp;
 using CppSharp.Parser;
-using System.Collections.Generic;
 
 namespace QtSharp
 {
@@ -34,79 +33,63 @@ namespace QtSharp
                 File.WriteAllText(qtVersionFile, qtVersion);
                 qtVersionFileInfo = new FileInfo(qtVersionFile);
             }
-            return CompileInlines(qtVersionFileInfo, "Qt-inlines") && CompileInlines(qtVersionFileInfo, "Qt-GPL-inlines", true);
-        }
-
-        private bool CompileInlines(FileInfo qtVersionFileInfo, string qtInlines, bool isGpl = false)
-        {
             var dir = Platform.IsMacOS ? this.Context.Options.OutputDir : Path.Combine(this.Context.Options.OutputDir, "release");
-            var inlines = Path.GetFileName(string.Format("{0}{2}.{1}", Platform.IsWindows ? string.Empty : "lib",
-                                                         Platform.IsWindows ? "dll" : Platform.IsMacOS ? "dylib" : "so", qtInlines));
-            var libFile = Path.Combine(dir, inlines);
-            var inlinesFileInfo = new FileInfo(libFile);
-            if (!inlinesFileInfo.Exists || qtVersionFileInfo.LastWriteTimeUtc > inlinesFileInfo.LastWriteTimeUtc)
+            foreach (var module in this.Context.Options.Modules)
             {
-                if (!this.CompileInlines(qtInlines, isGpl))
+                var inlines = Path.GetFileName(string.Format("{0}{1}.{2}", Platform.IsWindows ? string.Empty : "lib",
+                    module.InlinesLibraryName, Platform.IsMacOS ? "dylib" : "dll"));
+                var libFile = Path.Combine(dir, inlines);
+                var inlinesFileInfo = new FileInfo(libFile);
+                if (!inlinesFileInfo.Exists || qtVersionFileInfo.LastWriteTimeUtc > inlinesFileInfo.LastWriteTimeUtc)
                 {
-                    return false;
+                    if (!this.CompileInlines(module))
+                    {
+                        continue;
+                    }
                 }
-            }
-            var parserOptions = new ParserOptions();
-            parserOptions.addLibraryDirs(dir);
-            parserOptions.LibraryFile = inlines;
-            using (var parserResult = CppSharp.Parser.ClangParser.ParseLibrary(parserOptions))
-            {
-                if (parserResult.Kind == ParserResultKind.Success)
+                var parserOptions = new ParserOptions();
+                parserOptions.addLibraryDirs(dir);
+                parserOptions.LibraryFile = inlines;
+                using (var parserResult = CppSharp.Parser.ClangParser.ParseLibrary(parserOptions))
                 {
-                    var nativeLibrary = CppSharp.ClangParser.ConvertLibrary(parserResult.Library);
-                    this.Context.Symbols.Libraries.Add(nativeLibrary);
-                    this.Context.Symbols.IndexSymbols();
-                    parserResult.Library.Dispose();
+                    if (parserResult.Kind == ParserResultKind.Success)
+                    {
+                        var nativeLibrary = CppSharp.ClangParser.ConvertLibrary(parserResult.Library);
+                        this.Context.Symbols.Libraries.Add(nativeLibrary);
+                        this.Context.Symbols.IndexSymbols();
+                        parserResult.Library.Dispose();
+                    }
                 }
             }
             return true;
         }
 
-        private bool CompileInlines(string qtInlines, bool isGpl = false)
+        private bool CompileInlines(Module module)
         {
-            var pro = string.Format("{0}.pro", qtInlines);
+            var pro = string.Format("{0}.pro", module.InlinesLibraryName);
             var path = Path.Combine(this.Context.Options.OutputDir, pro);
             var proBuilder = new StringBuilder();
-            string qtModules;
-            if (isGpl)
-            {
-                qtModules = "charts datavisualization";
-            }
-            else
-            {
-                qtModules = string.Join(" ", from module in this.Context.Options.Modules
-                                             from header in module.Headers
-                                             where header != "QtCharts" && header != "QtDataVisualization" &&
-                                                   !header.EndsWith(".h", StringComparison.Ordinal)
+            var qtModules = string.Join(" ", from header in module.Headers
+                                             where !header.EndsWith(".h", StringComparison.Ordinal)
                                              select header.Substring("Qt".Length).ToLowerInvariant());
+            switch (qtModules)
+            {
+                // QtTest is only library which has a "lib" suffix to its module alias for qmake
+                case "test":
+                    qtModules += "lib";
+                    break;
+                // HACK: work around https://bugreports.qt.io/browse/QTBUG-54030
+                case "bluetooth":
+                    qtModules += " network";
+                    break;
             }
-            // QtTest is only library which has a "lib" suffix to its module alias for qmake
-            qtModules = qtModules.Replace(" test ", " testlib ");
 
             proBuilder.AppendFormat("QT += {0}\n", qtModules);
             proBuilder.Append("CONFIG += c++11\n");
             proBuilder.Append("QMAKE_CXXFLAGS += -fkeep-inline-functions\n");
-            proBuilder.AppendFormat("TARGET = {0}\n", qtInlines);
+            proBuilder.AppendFormat("TARGET = {0}\n", module.InlinesLibraryName);
             proBuilder.Append("TEMPLATE = lib\n");
-            IEnumerable<string> sources;
-            if (isGpl)
-            {
-                sources = from module in this.Context.Options.Modules
-                          where module.Headers.Contains("QtCharts") || module.Headers.Contains("QtDataVisualization")
-                          select module.InlinesLibraryName + ".cpp";
-            }
-            else
-            {
-                sources = from module in this.Context.Options.Modules
-                          where !module.Headers.Contains("QtCharts") && ! module.Headers.Contains("QtDataVisualization")
-                          select module.InlinesLibraryName + ".cpp";
-            }
-            proBuilder.AppendFormat("SOURCES += {0}\n", string.Join(" ", sources));
+            proBuilder.AppendFormat("SOURCES += {0}\n", Path.ChangeExtension(pro, "cpp"));
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
                 proBuilder.Append("LIBS += -loleaut32 -lole32");

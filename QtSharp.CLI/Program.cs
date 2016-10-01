@@ -153,12 +153,12 @@ namespace QtSharp.CLI
         {
             if (!Platform.IsWindows)
                 return;
-
+            
 #if DEBUG
-            if (File.Exists("../../../QtSharp.Tests/bin/Debug/Qt-inlines.dll"))
-                File.Delete("../../../QtSharp.Tests/bin/Debug/Qt-inlines.dll");
+            if (File.Exists("../../../QtSharp.Tests/bin/Debug/QtCore-inlines.dll"))
+                File.Delete("../../../QtSharp.Tests/bin/Debug/QtCore-inlines.dll");
 
-            File.Copy("release/Qt-inlines.dll", "../../../QtSharp.Tests/bin/Debug/Qt-inlines.dll");
+            File.Copy("release/QtCore-inlines.dll", "../../../QtSharp.Tests/bin/Debug/QtCore-inlines.dll");
 #else
             if (File.Exists("../../../QtSharp.Tests/bin/Release/QtCore-inlines.dll"))
                 File.Delete("../../../QtSharp.Tests/bin/Release/QtCore-inlines.dll");
@@ -233,16 +233,12 @@ namespace QtSharp.CLI
                 {
                     foreach (var wrappedModule in wrappedModules)
                     {
-                        zipArchive.CreateEntryFromFile(wrappedModule, wrappedModule);
-                        var documentation = Path.ChangeExtension(wrappedModule, "xml");
+                        zipArchive.CreateEntryFromFile(wrappedModule.Key, wrappedModule.Key);
+                        var documentation = Path.ChangeExtension(wrappedModule.Key, "xml");
                         zipArchive.CreateEntryFromFile(documentation, documentation);
+                        zipArchive.CreateEntryFromFile(wrappedModule.Value, Path.GetFileName(wrappedModule.Value));
                     }
                     zipArchive.CreateEntryFromFile("CppSharp.Runtime.dll", "CppSharp.Runtime.dll");
-                    var extension = Platform.IsWindows ? "dll" : Platform.IsMacOS ? "dylib" : "so";
-                    var inlines = string.Format("Qt-inlines.{0}", extension);
-                    zipArchive.CreateEntryFromFile(string.Format("release/{0}", inlines), inlines);
-                    var gplInlines = string.Format("Qt-GPL-inlines.{0}", extension);
-                    zipArchive.CreateEntryFromFile(string.Format("release/{0}", gplInlines), gplInlines);
                 }
             }
             Console.WriteLine("Done in: " + s.Elapsed);

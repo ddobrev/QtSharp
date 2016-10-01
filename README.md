@@ -14,14 +14,13 @@ Qt for OS X and Linux are planned, Qt for VC++ has not been planned for now.
 The source code is separated into a library that contains the settings and passes the generator needs, and a command-line client.
 In the future a GUI client, constructed with Qt# itself, is planned as well.
 
-There are binary releases for Windows and Qt MinGW at https://github.com/ddobrev/QtSharp/releases. They are in an alpha stage.
+The are binary releases for Windows and Qt MinGW at https://github.com/ddobrev/QtSharp/releases. They are in an alpha stage.
 As they get more stable, binaries for other operating systems will be added as well.
 
 ## Getting started
 
 You need to deploy Qt itself by following http://doc.qt.io/qt-5/windows-deployment.html#application-dependencies .
-In addition, you need to deploy Qt-inlines alongside your executable. If you use QtCharts or QtDataVisualization,
-you also need Qt-GPL-inlines.
+In addition, for each Qt module you use you also need Qt<module>-inlines.dll deployed alongside your executable.
 You can use QtSharp with any C# IDE, including Visual Studio, but make sure your executable is 32-bit by either using the
 x86 configuration or AnyCPU with "Prefer 32-bit" checked.
 
