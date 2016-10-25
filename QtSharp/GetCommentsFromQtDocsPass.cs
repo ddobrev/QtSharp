@@ -19,9 +19,9 @@ namespace QtSharp
             this.VisitOptions.VisitClassFields = false;
         }
 
-        public override bool VisitLibrary(ASTContext context)
+        public override bool VisitASTContext(ASTContext context)
         {
-            return this.documentation.Exists && base.VisitLibrary(context);
+            return this.documentation.Exists && base.VisitASTContext(context);
         }
 
         public override bool VisitTranslationUnit(TranslationUnit unit)

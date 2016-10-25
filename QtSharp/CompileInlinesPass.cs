@@ -20,7 +20,7 @@ namespace QtSharp
             this.make = make;
         }
 
-        public override bool VisitLibrary(ASTContext context)
+        public override bool VisitASTContext(ASTContext context)
         {
             string error;
             const string qtVersionVariable = "QT_VERSION";

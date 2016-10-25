@@ -183,15 +183,15 @@ namespace QtSharp
 
         public void Postprocess(Driver driver, ASTContext lib)
         {
-            new ClearCommentsPass().VisitLibrary(driver.Context.ASTContext);
+            new ClearCommentsPass().VisitASTContext(driver.Context.ASTContext);
             var modules = this.qtInfo.LibFiles.Select(l => GetModuleNameFromLibFile(l));
             var s = System.Diagnostics.Stopwatch.StartNew();
-            new GetCommentsFromQtDocsPass(this.qtInfo.Docs, modules).VisitLibrary(driver.Context.ASTContext);
+            new GetCommentsFromQtDocsPass(this.qtInfo.Docs, modules).VisitASTContext(driver.Context.ASTContext);
             System.Console.WriteLine("Documentation done in: {0}", s.Elapsed);
             new CaseRenamePass(
                 RenameTargets.Function | RenameTargets.Method | RenameTargets.Property | RenameTargets.Delegate |
                 RenameTargets.Field | RenameTargets.Variable,
-                RenameCasePattern.UpperCamelCase).VisitLibrary(driver.Context.ASTContext);
+                RenameCasePattern.UpperCamelCase).VisitASTContext(driver.Context.ASTContext);
 
             var qChar = lib.FindCompleteClass("QChar");
             var op = qChar.FindOperator(CXXOperatorKind.ExplicitConversion)
@@ -230,7 +230,6 @@ namespace QtSharp
             driver.ParserOptions.Verbose = true;
             driver.ParserOptions.addDefines("__float128=void");
             driver.Options.GeneratorKind = GeneratorKind.CSharp;
-            driver.Options.GenerateInterfacesForMultipleInheritance = true;
             driver.Options.GeneratePropertiesAdvanced = true;
             driver.Options.UnityBuild = true;
             driver.Options.IgnoreParseWarnings = true;
