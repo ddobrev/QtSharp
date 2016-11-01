@@ -48,7 +48,7 @@ namespace QtSharp
                     }
                 }
                 var parserOptions = new ParserOptions();
-                parserOptions.addLibraryDirs(dir);
+                parserOptions.AddLibraryDirs(dir);
                 parserOptions.LibraryFile = inlines;
                 using (var parserResult = CppSharp.Parser.ClangParser.ParseLibrary(parserOptions))
                 {

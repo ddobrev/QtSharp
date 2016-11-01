@@ -228,16 +228,13 @@ namespace QtSharp
             driver.ParserOptions.TargetTriple = this.qtInfo.Target;
             driver.ParserOptions.Abi = CppAbi.Itanium;
             driver.ParserOptions.Verbose = true;
-            driver.ParserOptions.addDefines("__float128=void");
+            driver.ParserOptions.AddDefines("__float128=void");
             driver.Options.GeneratorKind = GeneratorKind.CSharp;
-            driver.Options.GeneratePropertiesAdvanced = true;
             driver.Options.UnityBuild = true;
             driver.Options.IgnoreParseWarnings = true;
             driver.Options.CheckSymbols = true;
-            driver.Options.GenerateInlines = true;
             driver.Options.CompileCode = true;
             driver.Options.GenerateDefaultValuesForArguments = true;
-            driver.Options.GenerateConversionOperators = true;
             driver.Options.MarshalCharAsManagedChar = true;
 
             string dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -302,18 +299,18 @@ namespace QtSharp
             }
 
             foreach (var systemIncludeDir in this.qtInfo.SystemIncludeDirs)
-                driver.ParserOptions.addSystemIncludeDirs(systemIncludeDir);
+                driver.ParserOptions.AddSystemIncludeDirs(systemIncludeDir);
             
             if (Platform.IsMacOS)
             {
                 foreach (var frameworkDir in this.qtInfo.FrameworkDirs)
-                    driver.ParserOptions.addArguments(string.Format("-F{0}", frameworkDir));
-                driver.ParserOptions.addArguments(string.Format("-F{0}", qtInfo.Libs));
+                    driver.ParserOptions.AddArguments(string.Format("-F{0}", frameworkDir));
+                driver.ParserOptions.AddArguments(string.Format("-F{0}", qtInfo.Libs));
             }
 
-            driver.ParserOptions.addIncludeDirs(qtInfo.Headers);
+            driver.ParserOptions.AddIncludeDirs(qtInfo.Headers);
 
-            driver.ParserOptions.addLibraryDirs(Platform.IsWindows ? qtInfo.Bins : qtInfo.Libs);
+            driver.ParserOptions.AddLibraryDirs(Platform.IsWindows ? qtInfo.Bins : qtInfo.Libs);
 
             // Qt defines its own GUID with the same header guard as the system GUID, so ensure the system GUID is read first
             driver.Project.AddFile("guiddef.h");
