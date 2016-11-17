@@ -57,54 +57,6 @@ namespace QtSharp
                 method.ExplicitlyIgnore();
             }
 
-            // HACK: work around https://github.com/mono/CppSharp/issues/657
-            var qSignalMapper = lib.FindCompleteClass("QSignalMapper");
-            for (int i = qSignalMapper.Methods.Count - 1; i >= 0; i--)
-            {
-                Class @class;
-                var method = qSignalMapper.Methods[i];
-                if (method.Parameters.Count > 0)
-                {
-                    var type = method.Parameters.Last().Type;
-                    var finalType = type.GetFinalPointee() ?? type;
-                    if (finalType.TryGetClass(out @class) &&
-                        @class.TranslationUnit.Module.OutputNamespace == "QtWidgets")
-                    {
-                        if (method.Name == "mapped")
-                        {
-                            qSignalMapper.Methods.RemoveAt(i);
-                        }
-                        else
-                        {
-                            method.ExplicitlyIgnore();
-                        }
-                    }
-                }
-            }
-            var qActionEvent = lib.FindCompleteClass("QActionEvent");
-            foreach (var method in qActionEvent.Methods)
-            {
-                if ((method.Name == "QActionEvent" && method.Parameters.Count == 3) ||
-                    method.Name == "action" || method.Name == "before")
-                {
-                    method.ExplicitlyIgnore();
-                }
-            }
-            var qCamera = lib.FindClass("QCamera").FirstOrDefault(c => !c.IsIncomplete &&
-                c.TranslationUnit.Module.OutputNamespace == "QtMultimedia");
-            var qMediaPlayer = lib.FindCompleteClass("QMediaPlayer");
-            foreach (var method in qCamera.Methods.Union(qMediaPlayer.Methods).Where(m => m.Parameters.Any()))
-            {
-                Class @class;
-                var type = method.Parameters.Last().Type;
-                var finalType = type.GetFinalPointee() ?? type;
-                if (finalType.TryGetClass(out @class) &&
-                    @class.TranslationUnit.Module.OutputNamespace == "QtMultimediaWidgets")
-                {
-                    method.ExplicitlyIgnore();
-                }
-            }
-
             // HACK: work around https://github.com/mono/CppSharp/issues/594
             lib.FindCompleteClass("QGraphicsItem").FindEnum("Extension").Access = AccessSpecifier.Public;
             lib.FindCompleteClass("QAbstractSlider").FindEnum("SliderChange").Access = AccessSpecifier.Public;
@@ -140,7 +92,7 @@ namespace QtSharp
             foreach (var name in new[] { "QGraphicsScene", "QGraphicsView" })
             {
                 var @class = lib.FindCompleteClass(name);
-                 var drawItems = @class.Methods.FirstOrDefault(m => m.OriginalName == "drawItems");
+                var drawItems = @class.Methods.FirstOrDefault(m => m.OriginalName == "drawItems");
                 if (drawItems != null)
                 {
                     drawItems.ExplicitlyIgnore();

@@ -144,9 +144,10 @@ namespace QtSharp
             {
                 return false;
             }
-            foreach (var method in from method in @class.Methods
-                                   where method.Access != AccessSpecifier.Private
-                                   select method)
+            Declaration decl;
+            foreach (var method in @class.Methods.Where(m => m.IsGenerated ||
+                (m.Parameters.Any() && m.Parameters.Last().Type.Desugar().TryGetDeclaration(out decl) &&
+                 decl.OriginalName == "QPrivateSignal")))
             {
                 this.HandleQSignal(@class, method);
             }
@@ -170,7 +171,7 @@ namespace QtSharp
                     if (method.Parameters.Any())
                     {
                         Class decl;
-                        if (method.Parameters.Last().Type.TryGetClass(out decl) && decl.Name == "QPrivateSignal")
+                        if (method.Parameters.Last().Type.Desugar().TryGetClass(out decl) && decl.Name == "QPrivateSignal")
                         {
                             method.Parameters.RemoveAt(method.Parameters.Count - 1);
                         }
