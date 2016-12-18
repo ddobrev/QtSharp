@@ -129,7 +129,7 @@ namespace QtSharp.CLI
 
             string emptyFile = Platform.IsWindows ? "NUL" : "/dev/null";
             string output;
-            ProcessHelper.Run("gcc", string.Format("-v -E -x c++ {0}", emptyFile), out output, waitForExit: !Platform.IsWindows);
+            ProcessHelper.Run("gcc", string.Format("-v -E -x c++ {0}", emptyFile), out output);
             qt.Target = Regex.Match(output, @"Target:\s*(?<target>[^\r\n]+)").Groups["target"].Value;
 
             const string includeDirsRegex = @"#include <\.\.\.> search starts here:(?<includes>.+)End of search list";
