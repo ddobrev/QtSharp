@@ -5,32 +5,46 @@ namespace QtSharp
 {
     public class ProcessHelper
     {
-        public static string Run(string path, string args, out string error, bool readOutputByLines = false, bool waitForExit = true)
+        public static string Run(string path, string args, out string error, bool readOutputByLines = false)
         {
             try
             {
                 using (Process process = new Process())
                 {
+                    Console.WriteLine("Run: " + path);
+                    Console.WriteLine("Args: " + args);
                     process.StartInfo.FileName = path;
                     process.StartInfo.Arguments = args;
                     process.StartInfo.UseShellExecute = false;
                     process.StartInfo.RedirectStandardOutput = true;
                     process.StartInfo.RedirectStandardError = true;
+
+                    var reterror = "";
+                    var retout = "";
+                    process.OutputDataReceived += (sender, outargs) =>
+                    {
+                        if (retout != "" && outargs.Data != "") retout += "\r\n";
+                        retout += outargs.Data;
+                        Console.WriteLine("stdout: {0}", retout);
+                    };
+                    process.ErrorDataReceived += (sender, errargs) =>
+                    {
+                        if (reterror != "" && errargs.Data != "") reterror += "\r\n";
+                        reterror += errargs.Data;
+                        Console.WriteLine("stderr: {0}", reterror);
+                    };
+
                     process.Start();
-                    if (waitForExit)
-                    {
-                        process.WaitForExit();
-                    }
-                    while (readOutputByLines && !process.StandardOutput.EndOfStream)
-                    {
-                        Console.WriteLine(process.StandardOutput.ReadLine());
-                    }
-                    error = process.StandardError.ReadToEnd();
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
+                    process.WaitForExit();
+                    process.CancelOutputRead();
+                    process.CancelErrorRead();
+
+                    error = reterror;
                     if (process.ExitCode != 0)
-                    {
-                        return string.Empty;
-                    }
-                    return readOutputByLines ? string.Empty : process.StandardOutput.ReadToEnd().Trim().Replace(@"\\", @"\");
+                        throw new Exception("Exit Code is not 0");
+                    return readOutputByLines ? string.Empty : retout.Trim().Replace(@"\\", @"\");
                 }
             }
             catch (Exception exception)
