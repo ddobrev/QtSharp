@@ -407,14 +407,14 @@ namespace QtSharp.DocGeneration
             var expansions = property.Namespace.PreprocessedEntities.OfType<MacroExpansion>();
 
             var properties = expansions.Where(e => e.Text.Contains("Q_PROPERTY") || e.Text.Contains("QDOC_PROPERTY"));
-            string alternativeName = property.Name.Length == 1 ? property.Name :
-                                     "is" + StringHelpers.Capitalize(property.Name);
+            string alternativeName = property.OriginalName.Length == 1 ? property.OriginalName :
+                                     "is" + StringHelpers.Capitalize(property.OriginalName);
 	        foreach (var macroExpansion in properties)
 	        {
 		        var name = macroExpansion.Text.Split(' ')[1];
-		        if (name == property.Name || name == alternativeName)
+		        if (name == property.OriginalName || name == alternativeName)
 		        {
-                    property.Name = name;
+                    property.OriginalName = name;
 					this.DocumentQtProperty(property);
 					return;
 		        }
@@ -469,12 +469,12 @@ namespace QtSharp.DocGeneration
 
         private void DocumentQtProperty(Declaration property)
         {
-            if (!this.propertyNodes.ContainsKey(property.Name))
+            if (!this.propertyNodes.ContainsKey(property.OriginalName))
             {
                 return;
             }
             var qualifiedName = property.GetQualifiedName(decl => decl.OriginalName, decl => decl.Namespace);
-            var node = this.propertyNodes[property.Name].Find(c => c.FullName == qualifiedName);
+            var node = this.propertyNodes[property.OriginalName].Find(c => c.FullName == qualifiedName);
 	        if (node != null && node.HRef != null)
 			{
 				var link = node.HRef.Split('#');
@@ -482,11 +482,11 @@ namespace QtSharp.DocGeneration
 		        if (this.membersDocumentation.ContainsKey(file))
 		        {
 		            var typeDocs = this.membersDocumentation[file];
-                    var key = string.Format("{0}-prop", property.Name);
+                    var key = string.Format("{0}-prop", property.OriginalName);
 		            var containsKey = typeDocs.ContainsKey(key);
 		            if (!containsKey)
 		            {
-		                key = property.Name;
+		                key = property.OriginalName;
 		                containsKey = typeDocs.ContainsKey(key);
 		            }
                     if (containsKey)

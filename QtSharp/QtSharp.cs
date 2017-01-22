@@ -140,10 +140,6 @@ namespace QtSharp
             var s = System.Diagnostics.Stopwatch.StartNew();
             new GetCommentsFromQtDocsPass(this.qtInfo.Docs, modules).VisitASTContext(driver.Context.ASTContext);
             System.Console.WriteLine("Documentation done in: {0}", s.Elapsed);
-            new CaseRenamePass(
-                RenameTargets.Function | RenameTargets.Method | RenameTargets.Property | RenameTargets.Delegate |
-                RenameTargets.Field | RenameTargets.Variable,
-                RenameCasePattern.UpperCamelCase).VisitASTContext(driver.Context.ASTContext);
 
             var qChar = lib.FindCompleteClass("QChar");
             var op = qChar.FindOperator(CXXOperatorKind.ExplicitConversion)
@@ -179,11 +175,9 @@ namespace QtSharp
             driver.ParserOptions.NoBuiltinIncludes = true;
             driver.ParserOptions.TargetTriple = this.qtInfo.Target;
             driver.ParserOptions.Abi = CppAbi.Itanium;
-            driver.ParserOptions.Verbose = true;
             driver.ParserOptions.AddDefines("__float128=void");
             driver.Options.GeneratorKind = GeneratorKind.CSharp;
             driver.Options.UnityBuild = true;
-            driver.Options.IgnoreParseWarnings = true;
             driver.Options.CheckSymbols = true;
             driver.Options.CompileCode = true;
             driver.Options.GenerateDefaultValuesForArguments = true;
@@ -246,6 +240,9 @@ namespace QtSharp
                     module.CodeFiles.Add(Path.Combine(dir, "QChar.cs"));
                     module.CodeFiles.Add(Path.Combine(dir, "QEvent.cs"));
                 }
+                var moduleInitializer = Path.GetTempFileName();
+                File.WriteAllText(moduleInitializer, "internal class ModuleInitializer { internal static void Run() {} }");
+                module.CodeFiles.Add(moduleInitializer);
 
                 driver.Options.Modules.Add(module);
             }
