@@ -35,15 +35,7 @@ namespace QtSharp
         {
             foreach (var unit in lib.TranslationUnits.Where(u => u.IsValid))
             {
-                // HACK: work around https://github.com/mono/CppSharp/issues/677
-                if (unit.FileName == "locale_classes.tcc" || unit.FileName == "locale_facets.tcc")
-                {
-                    unit.ExplicitlyIgnore();
-                }
-                else
-                {
-                    IgnorePrivateDeclarations(unit);
-                }
+                IgnorePrivateDeclarations(unit);
             }
 
             // QString is type-mapped to string so we only need two methods for the conversion
@@ -240,9 +232,6 @@ namespace QtSharp
                     module.CodeFiles.Add(Path.Combine(dir, "QChar.cs"));
                     module.CodeFiles.Add(Path.Combine(dir, "QEvent.cs"));
                 }
-                var moduleInitializer = Path.GetTempFileName();
-                File.WriteAllText(moduleInitializer, "internal class ModuleInitializer { internal static void Run() {} }");
-                module.CodeFiles.Add(moduleInitializer);
 
                 driver.Options.Modules.Add(module);
             }
