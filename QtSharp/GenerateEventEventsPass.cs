@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CppSharp;
 using CppSharp.AST;
 using CppSharp.AST.Extensions;
 using CppSharp.Generators;
@@ -30,11 +31,11 @@ namespace QtSharp
         {
             var blocks = (from template in generatorOutput.Templates
                           from block in template.FindBlocks(CSharpBlockKind.Method)
-                          where this.events.Contains(block.Declaration)
+                          where this.events.Contains(block.Object)
                           select block).ToList();
             foreach (var block in blocks)
             {
-                var method = (Function) block.Declaration;
+                var method = (Function) block.Object;
                 string @event;
                 if (((Class) method.Namespace).Methods.Any(m => m != method && m.OriginalName == method.OriginalName))
                 {
@@ -81,17 +82,22 @@ namespace QtSharp
                 var type = method.Parameters[0].Type;
                 type = type.GetFinalPointee() ?? type;
                 Class @class;
-                if (type.TryGetClass(out @class) && @class.Name.EndsWith("Event", StringComparison.Ordinal))
+                if (type.TryGetClass(out @class))
                 {
-                    var name = char.ToUpperInvariant(method.Name[0]) + method.Name.Substring(1);
-                    method.Name = "on" + name;
-                    Method baseMethod;
-                    if (!method.IsOverride ||
-                        (baseMethod = ((Class) method.Namespace).GetBaseMethod(method, true, true)) == null ||
-                        baseMethod.IsPure)
+                    while (@class.BaseClass != null)
+                        @class = @class.BaseClass;
+                    if (@class.OriginalName == "QEvent")
                     {
-                        this.events.Add(method);
-                        this.Context.Options.ExplicitlyPatchedVirtualFunctions.Add(method.QualifiedOriginalName);
+                        var name = char.ToUpperInvariant(method.Name[0]) + method.Name.Substring(1);
+                        method.Name = "on" + name;
+                        Method baseMethod;
+                        if (!method.IsOverride ||
+                            (baseMethod = ((Class) method.Namespace).GetBaseMethod(method, true, true)) == null ||
+                            baseMethod.IsPure)
+                        {
+                            this.events.Add(method);
+                            this.Context.Options.ExplicitlyPatchedVirtualFunctions.Add(method.QualifiedOriginalName);
+                        }
                     }
                 }
             }

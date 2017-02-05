@@ -39,14 +39,14 @@ namespace QtSharp
 
         private static void RemoveMethodOverloads(Class @class, string originalName)
         {
-            var overloads = @class.FindMethodByOriginalName(originalName).ToList();
+            var overloads = @class.Methods.Where(m => m.OriginalName == originalName).ToList();
             foreach (var method in overloads)
                 @class.Methods.Remove(method);
         }
 
         private static void RemoveVariables(Class @class, string originalName)
         {
-            var variables = @class.FindVariableByOriginalName(originalName).ToList();
+            var variables = @class.Variables.Where(v => v.OriginalName == originalName).ToList();
             foreach (var variable in variables)
                 variable.ExplicitlyIgnore();
         }

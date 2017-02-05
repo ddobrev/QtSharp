@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using CppSharp;
 
@@ -138,7 +139,7 @@ namespace QtSharp.CLI
                 .Select(s => s.Trim()).ToList();
 
             const string frameworkDirectory = "(framework directory)";
-
+            includeDirs.Insert(0, Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "include"));
             qt.SystemIncludeDirs = includeDirs.Where(s => !s.Contains(frameworkDirectory))
                 .Select(Path.GetFullPath);
 

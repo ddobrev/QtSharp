@@ -39,11 +39,11 @@ namespace QtSharp
 
         private void GenerateSignalEvents(GeneratorOutput generatorOutput)
         {
-            foreach (Block block in from template in generatorOutput.Templates
-                                    from block in template.FindBlocks(CSharpBlockKind.Event)
-                                    select block)
+            foreach (var block in from template in generatorOutput.Templates
+                                  from block in template.FindBlocks(CSharpBlockKind.Event)
+                                  select block)
             {
-                Event @event = (Event) block.Declaration;
+                Event @event = (Event) block.Object;
                 if (this.events.Contains(@event))
                 {
                     block.Text.StringBuilder.Clear();
@@ -121,8 +121,9 @@ namespace QtSharp
             var qtMetacall = (
                 from template in generatorOutput.Templates
                 from block in template.FindBlocks(CSharpBlockKind.Method)
-                where block.Declaration != null && block.Declaration.Name == "QtMetacall" &&
-                      block.Declaration.Namespace.Name == "QObject"
+                let declaration = block.Object as Declaration
+                where declaration != null && declaration.Name == "QtMetacall" &&
+                      declaration.Namespace.Name == "QObject"
                 select block).FirstOrDefault();
             if (qtMetacall != null)
             {
@@ -176,7 +177,6 @@ namespace QtSharp
                             method.Parameters.RemoveAt(method.Parameters.Count - 1);
                         }
                     }
-                    var functionType = method.GetFunctionType();
 
                     var @event = new Event
                     {
@@ -184,7 +184,7 @@ namespace QtSharp
                         Name = method.Name,
                         OriginalName = method.OriginalName,
                         Namespace = method.Namespace,
-                        QualifiedType = new QualifiedType(functionType),
+                        QualifiedType = new QualifiedType(method.FunctionType.Type),
                         Parameters = method.Parameters
                     };
                     if (method.IsGenerated)
