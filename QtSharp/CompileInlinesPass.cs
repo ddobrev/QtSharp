@@ -6,6 +6,7 @@ using CppSharp.AST;
 using CppSharp.Passes;
 using CppSharp;
 using CppSharp.Parser;
+using System.Threading;
 
 namespace QtSharp
 {
@@ -22,49 +23,20 @@ namespace QtSharp
 
         public override bool VisitASTContext(ASTContext context)
         {
-            string error;
-            const string qtVersionVariable = "QT_VERSION";
-            var qtVersion = ProcessHelper.Run(this.qmake, string.Format("-query {0}", qtVersionVariable), out error);
-            var qtVersionFile = Path.Combine(this.Context.Options.OutputDir, qtVersionVariable);
-            var qtVersionFileInfo = new FileInfo(qtVersionFile);
-            var text = string.Empty;
-            if (!qtVersionFileInfo.Exists || (text = File.ReadAllText(qtVersionFile)) != qtVersion)
-            {
-                File.WriteAllText(qtVersionFile, qtVersion);
-                qtVersionFileInfo = new FileInfo(qtVersionFile);
-            }
             var dir = Platform.IsMacOS ? this.Context.Options.OutputDir : Path.Combine(this.Context.Options.OutputDir, "release");
+            var findSymbolsPass = this.Context.TranslationUnitPasses.FindPass<FindSymbolsPass>();
+            findSymbolsPass.Wait = true;
+            remainingCompilationTasks = this.Context.Options.Modules.Count;
             foreach (var module in this.Context.Options.Modules)
             {
                 var inlines = Path.GetFileName(string.Format("{0}{1}.{2}", Platform.IsWindows ? string.Empty : "lib",
                     module.InlinesLibraryName, Platform.IsMacOS ? "dylib" : "dll"));
-                var libFile = Path.Combine(dir, inlines);
-                var inlinesFileInfo = new FileInfo(libFile);
-                if (!inlinesFileInfo.Exists || qtVersionFileInfo.LastWriteTimeUtc > inlinesFileInfo.LastWriteTimeUtc)
-                {
-                    if (!this.CompileInlines(module))
-                    {
-                        continue;
-                    }
-                }
-                var parserOptions = new ParserOptions();
-                parserOptions.AddLibraryDirs(dir);
-                parserOptions.LibraryFile = inlines;
-                using (var parserResult = CppSharp.Parser.ClangParser.ParseLibrary(parserOptions))
-                {
-                    if (parserResult.Kind == ParserResultKind.Success)
-                    {
-                        var nativeLibrary = CppSharp.ClangParser.ConvertLibrary(parserResult.Library);
-                        this.Context.Symbols.Libraries.Add(nativeLibrary);
-                        this.Context.Symbols.IndexSymbols();
-                        parserResult.Library.Dispose();
-                    }
-                }
+                this.CompileInlines(module, dir, inlines);
             }
             return true;
         }
 
-        private bool CompileInlines(Module module)
+        private void CompileInlines(Module module, string dir, string inlines)
         {
             var pro = string.Format("{0}.pro", module.InlinesLibraryName);
             var path = Path.Combine(this.Context.Options.OutputDir, pro);
@@ -72,21 +44,14 @@ namespace QtSharp
             var qtModules = string.Join(" ", from header in module.Headers
                                              where !header.EndsWith(".h", StringComparison.Ordinal)
                                              select header.Substring("Qt".Length).ToLowerInvariant());
-            switch (qtModules)
+            // QtTest is only library which has a "lib" suffix to its module alias for qmake
+            if (qtModules == "test")
             {
-                // QtTest is only library which has a "lib" suffix to its module alias for qmake
-                case "test":
-                    qtModules += "lib";
-                    break;
-                // HACK: work around https://bugreports.qt.io/browse/QTBUG-54030
-                case "bluetooth":
-                    qtModules += " network";
-                    break;
+                qtModules += "lib";
             }
 
             proBuilder.AppendFormat("QT += {0}\n", qtModules);
             proBuilder.Append("CONFIG += c++11\n");
-            proBuilder.Append("QMAKE_CXXFLAGS += -fkeep-inline-functions\n");
             proBuilder.AppendFormat("TARGET = {0}\n", module.InlinesLibraryName);
             proBuilder.Append("TEMPLATE = lib\n");
             proBuilder.AppendFormat("SOURCES += {0}\n", Path.ChangeExtension(pro, "cpp"));
@@ -95,32 +60,92 @@ namespace QtSharp
                 proBuilder.Append("LIBS += -loleaut32 -lole32");
             }
             File.WriteAllText(path, proBuilder.ToString());
+            // HACK: work around https://bugreports.qt.io/browse/QTBUG-55952
+            if (module.LibraryName == "Qt3DRender.Sharp")
+            {
+                var cpp = Path.ChangeExtension(pro, "cpp");
+                var unlinkable = new[]
+                                 {
+                                     "&Qt3DRender::QSortCriterion::tr;",
+                                     "&Qt3DRender::QSortCriterion::trUtf8;",
+                                     "&Qt3DRender::qt_getEnumMetaObject;"
+                                 };
+                var linkable = (from line in File.ReadLines(cpp)
+                                where unlinkable.All(ul => !line.EndsWith(ul, StringComparison.Ordinal))
+                                select line).ToList();
+                File.WriteAllLines(cpp, linkable);
+            }
             string error;
-            // HACK: Clang does not support -fkeep-inline-functions so force compilation with (the real) GCC on OS X
-            ProcessHelper.Run(this.qmake, string.Format("{0}\"{1}\"", Platform.IsMacOS ? "-spec macx-g++ " : string.Empty, path), out error);
+            ProcessHelper.Run(this.qmake, $"\"{path}\"", out error);
             if (!string.IsNullOrEmpty(error))
             {
                 Console.WriteLine(error);
-                return false;
+                return;
             }
             var makefile = File.Exists(Path.Combine(this.Context.Options.OutputDir, "Makefile.Release")) ? "Makefile.Release" : "Makefile";
-            if (Platform.IsMacOS)
-            {
-                // HACK: Clang does not support -fkeep-inline-functions so force compilation with (the real) GCC on OS X
-                var makefilePath = Path.Combine(this.Context.Options.OutputDir, makefile);
-                var script = new StringBuilder(File.ReadAllText(makefilePath));
-                var xcodePath = XcodeToolchain.GetXcodePath();
-                script.Replace(Path.Combine(xcodePath, "Contents", "Developer", "usr", "bin", "gcc"), "/usr/local/bin/gcc");
-                script.Replace(Path.Combine(xcodePath, "Contents", "Developer", "usr", "bin", "g++"), "/usr/local/bin/g++");
-                File.WriteAllText(makefilePath, script.ToString());
-            }
-            ProcessHelper.Run(this.make, string.Format("-j{0} -f {1}", Environment.ProcessorCount + 1, makefile), out error, true);
-            if (!string.IsNullOrEmpty(error))
-            {
-                Console.WriteLine(error);
-                return false;
-            }
-            return true;
+            InvokeCompiler(dir, inlines, makefile);
         }
+
+        private void InvokeCompiler(string dir, string inlines, string makefile)
+        {
+            new Thread(() =>
+            {
+                try
+                {
+                    string error;
+                    ProcessHelper.Run(this.make, string.Format("-j{0} -f {1}", Environment.ProcessorCount + 1, makefile), out error, true);
+                    if (string.IsNullOrEmpty(error))
+                    {
+                        var parserOptions = new ParserOptions();
+                        parserOptions.AddLibraryDirs(dir);
+                        parserOptions.LibraryFile = inlines;
+                        using (var parserResult = CppSharp.Parser.ClangParser.ParseLibrary(parserOptions))
+                        {
+                            if (parserResult.Kind == ParserResultKind.Success)
+                            {
+                                var nativeLibrary = CppSharp.ClangParser.ConvertLibrary(parserResult.Library);
+                                lock (@lock)
+                                {
+                                    this.Context.Symbols.Libraries.Add(nativeLibrary);
+                                    this.Context.Symbols.IndexSymbols();
+                                }
+                                parserResult.Library.Dispose();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine(error);
+                    }
+                }
+                finally
+                {
+                    RemainingCompilationTasks--;
+                }
+            }).Start();
+        }
+
+        private int RemainingCompilationTasks
+        {
+            get
+            {
+                return remainingCompilationTasks;
+            }
+            set
+            {
+                if (remainingCompilationTasks != value)
+                {
+                    remainingCompilationTasks = value;
+                    if (remainingCompilationTasks == 0)
+                    {
+                        var findSymbolsPass = this.Context.TranslationUnitPasses.FindPass<FindSymbolsPass>();
+                        findSymbolsPass.Wait = false;
+                    }
+                }
+            }
+        }
+
+        private int remainingCompilationTasks;
+        private static readonly object @lock = new object();
     }
 }

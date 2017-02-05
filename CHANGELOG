@@ -1,3 +1,9 @@
+0.7.0 - 5.2.2017
+Added:
+- Bindings for Qt 5.8.
+Fixed:
+- Decreased the size of inlines 24 times, from 60 to 2,5 total size.
+
 0.6.1 - 17.9.2016
 Fixed:
 - Removed all mappings to C# structures because their empty constructors are not correctly wrapped yet.
