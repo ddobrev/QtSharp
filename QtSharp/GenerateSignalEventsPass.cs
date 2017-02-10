@@ -39,8 +39,8 @@ namespace QtSharp
 
         private void GenerateSignalEvents(GeneratorOutput generatorOutput)
         {
-            foreach (var block in from template in generatorOutput.Templates
-                                  from block in template.FindBlocks(CSharpBlockKind.Event)
+            foreach (var block in from output in generatorOutput.Outputs
+                                  from block in output.FindBlocks(CSharpBlockKind.Event)
                                   select block)
             {
                 Event @event = (Event) block.Object;
@@ -118,13 +118,12 @@ namespace QtSharp
 }}", fullNameBuilder, finalName, signature));
                 }
             }
-            var qtMetacall = (
-                from template in generatorOutput.Templates
-                from block in template.FindBlocks(CSharpBlockKind.Method)
-                let declaration = block.Object as Declaration
-                where declaration != null && declaration.Name == "QtMetacall" &&
-                      declaration.Namespace.Name == "QObject"
-                select block).FirstOrDefault();
+            var qtMetacall = (from output in generatorOutput.Outputs
+                              from block in output.FindBlocks(CSharpBlockKind.Method)
+                              let declaration = block.Object as Declaration
+                              where declaration != null && declaration.Name == "QtMetacall" &&
+                                    declaration.Namespace.Name == "QObject"
+                              select block).FirstOrDefault();
             if (qtMetacall != null)
             {
                 qtMetacall.Text.StringBuilder.Replace("return __ret;", "return HandleQtMetacall(__ret, _0, _2);");

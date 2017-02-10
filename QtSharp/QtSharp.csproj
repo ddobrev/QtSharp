@@ -38,27 +38,27 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CppSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CppSharp.0.8.3\lib\CppSharp.dll</HintPath>
+      <HintPath>..\packages\CppSharp.0.8.4\lib\CppSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="CppSharp.AST, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CppSharp.0.8.3\lib\CppSharp.AST.dll</HintPath>
+      <HintPath>..\packages\CppSharp.0.8.4\lib\CppSharp.AST.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="CppSharp.Generator, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CppSharp.0.8.3\lib\CppSharp.Generator.dll</HintPath>
+      <HintPath>..\packages\CppSharp.0.8.4\lib\CppSharp.Generator.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="CppSharp.Parser, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CppSharp.0.8.3\lib\CppSharp.Parser.dll</HintPath>
+      <HintPath>..\packages\CppSharp.0.8.4\lib\CppSharp.Parser.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="CppSharp.Parser.CLI, Version=0.0.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\CppSharp.0.8.3\lib\CppSharp.Parser.CLI.dll</HintPath>
+      <HintPath>..\packages\CppSharp.0.8.4\lib\CppSharp.Parser.CLI.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="CppSharp.Runtime, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CppSharp.0.8.3\lib\CppSharp.Runtime.dll</HintPath>
+      <HintPath>..\packages\CppSharp.0.8.4\lib\CppSharp.Runtime.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="HtmlAgilityPack, Version=1.4.9.5, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">

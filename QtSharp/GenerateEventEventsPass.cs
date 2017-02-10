@@ -29,8 +29,8 @@ namespace QtSharp
 
         private void OnUnitGenerated(GeneratorOutput generatorOutput)
         {
-            var blocks = (from template in generatorOutput.Templates
-                          from block in template.FindBlocks(CSharpBlockKind.Method)
+            var blocks = (from output in generatorOutput.Outputs
+                          from block in output.FindBlocks(CSharpBlockKind.Method)
                           where this.events.Contains(block.Object)
                           select block).ToList();
             foreach (var block in blocks)
