@@ -203,8 +203,6 @@ namespace QtSharp.CLI
                 var libFile = qt.LibFiles[i];
                 var libFileName = Path.GetFileNameWithoutExtension(libFile);
                 if (Path.GetExtension(libFile) == ".exe" ||
-                    // QtDeclarative is obsolete and at the same time its headers cause conflicts with its successor of QtQuick
-                    libFileName == "QtDeclarative" || libFileName == "Qt5Declarative" ||
                     // QtQuickTest is a QML module but has 3 main C++ functions and is not auto-ignored
                     libFileName == "QtQuickTest" || libFileName == "Qt5QuickTest")
                 {

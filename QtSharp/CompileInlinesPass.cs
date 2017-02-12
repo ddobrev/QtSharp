@@ -93,7 +93,7 @@ namespace QtSharp
                 try
                 {
                     string error;
-                    ProcessHelper.Run(this.make, string.Format("-j{0} -f {1}", Environment.ProcessorCount + 1, makefile), out error, true);
+                    ProcessHelper.Run(this.make, $"-f {makefile}", out error);
                     if (string.IsNullOrEmpty(error))
                     {
                         var parserOptions = new ParserOptions();

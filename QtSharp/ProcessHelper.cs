@@ -1,56 +1,57 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Text;
 
 namespace QtSharp
 {
     public class ProcessHelper
     {
-        public static string Run(string path, string args, out string error, bool readOutputByLines = false)
+        public static string Run(string path, string args, out string error)
         {
-            try
+            using (Process process = new Process())
             {
-                using (Process process = new Process())
-                {
-                    Console.WriteLine("Run: " + path);
-                    Console.WriteLine("Args: " + args);
-                    process.StartInfo.FileName = path;
-                    process.StartInfo.Arguments = args;
-                    process.StartInfo.UseShellExecute = false;
-                    process.StartInfo.RedirectStandardOutput = true;
-                    process.StartInfo.RedirectStandardError = true;
+                Console.WriteLine("Run: " + path);
+                Console.WriteLine("Args: " + args);
+                process.StartInfo.FileName = path;
+                process.StartInfo.Arguments = args;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true;
 
-                    var reterror = "";
-                    var retout = "";
-                    process.OutputDataReceived += (sender, outargs) =>
+                var reterror = new StringBuilder();
+                var retout = new StringBuilder();
+                process.OutputDataReceived += (sender, outargs) =>
                     {
-                        if (retout != "" && outargs.Data != "") retout += "\r\n";
-                        retout += outargs.Data;
-                        Console.WriteLine("stdout: {0}", retout);
+                        if (!string.IsNullOrEmpty(outargs.Data))
+                        {
+                            if (retout.Length > 0)
+                                retout.AppendLine();
+                            retout.Append(outargs.Data);
+                            Console.WriteLine("stdout: {0}", outargs.Data);
+                        }
                     };
-                    process.ErrorDataReceived += (sender, errargs) =>
+                process.ErrorDataReceived += (sender, errargs) =>
                     {
-                        if (reterror != "" && errargs.Data != "") reterror += "\r\n";
-                        reterror += errargs.Data;
-                        Console.WriteLine("stderr: {0}", reterror);
+                        if (!string.IsNullOrEmpty(errargs.Data))
+                        {
+                            if (reterror.Length > 0)
+                                reterror.AppendLine();
+                            reterror.Append(errargs.Data);
+                            Console.WriteLine("stderr: {0}", errargs.Data);
+                        }
                     };
 
-                    process.Start();
-                    process.BeginOutputReadLine();
-                    process.BeginErrorReadLine();
-                    process.WaitForExit();
-                    process.CancelOutputRead();
-                    process.CancelErrorRead();
+                process.Start();
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+                process.WaitForExit();
+                process.CancelOutputRead();
+                process.CancelErrorRead();
 
-                    error = reterror;
-                    if (process.ExitCode != 0)
-                        throw new Exception("Exit Code is not 0");
-                    return readOutputByLines ? string.Empty : retout.Trim().Replace(@"\\", @"\");
-                }
-            }
-            catch (Exception exception)
-            {
-                error = string.Format("Calling {0} caused an exception: {1}.", path, exception.Message);
-                return string.Empty;
+                error = reterror.ToString();
+                if (process.ExitCode != 0)
+                    Console.WriteLine($"Error. Process exited with code {process.ExitCode}.");
+                return retout.ToString();
             }
         }
     }
