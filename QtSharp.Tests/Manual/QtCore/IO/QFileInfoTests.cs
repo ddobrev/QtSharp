@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
 using QtCore;
 
@@ -8,11 +9,20 @@ namespace QtSharp.Tests.Manual.QtCore.IO
     [TestFixture]
     public class QFileInfoTests
     {
-        private readonly FileInfo _testFilePath1 = new FileInfo("./TestData/TextFile1.txt");
-        private readonly FileInfo _testFilePath2 = new FileInfo("./TestData/TextFile2_1000words.txt");
-        private readonly FileInfo _testFilePath3 = new FileInfo("./TestData/TextFile3_50bytes.txt");
-        private readonly FileInfo _testFilePath4 = new FileInfo("./TestData/DoubleExtension.ext.txt");
+        private readonly FileInfo _testFilePath1;
+        private readonly FileInfo _testFilePath2;
+        private readonly FileInfo _testFilePath3;
+        private readonly FileInfo _testFilePath4;
 
+        public QFileInfoTests()
+        {
+            var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            Directory.SetCurrentDirectory(dir);
+            _testFilePath1 = new FileInfo($"./TestData/TextFile1.txt");
+            _testFilePath2 = new FileInfo($"./TestData/TextFile2_1000words.txt");
+            _testFilePath3 = new FileInfo($"./TestData/TextFile3_50bytes.txt");
+            _testFilePath4 = new FileInfo($"./TestData/DoubleExtension.ext.txt");
+        }
 
         private QFileInfo _fileInfo;
 

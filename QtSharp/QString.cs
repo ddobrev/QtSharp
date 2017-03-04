@@ -1,5 +1,6 @@
 ﻿using CppSharp.AST;
 using CppSharp.AST.Extensions;
+using CppSharp.Generators;
 using CppSharp.Generators.CSharp;
 using CppSharp.Types;
 
@@ -10,7 +11,7 @@ namespace QtSharp
     {
         public override string CSharpSignature(CSharpTypePrinterContext ctx)
         {
-            if (ctx.CSharpKind == CSharpTypePrinterContextKind.Native)
+            if (ctx.CSharpKind == TypePrinterContextKind.Native)
             {
                 return string.Format("QtCore.QString.{0}{1}", Helpers.InternalStruct, ctx.Type.IsAddress() ? "*" : string.Empty);
             }

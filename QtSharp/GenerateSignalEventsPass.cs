@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Web.Util;
+using CppSharp;
 using CppSharp.AST;
 using CppSharp.AST.Extensions;
 using CppSharp.Generators;
@@ -40,7 +41,7 @@ namespace QtSharp
         private void GenerateSignalEvents(GeneratorOutput generatorOutput)
         {
             foreach (var block in from output in generatorOutput.Outputs
-                                  from block in output.FindBlocks(CSharpBlockKind.Event)
+                                  from block in output.FindBlocks(BlockKind.Event)
                                   select block)
             {
                 Event @event = (Event) block.Object;
@@ -119,7 +120,7 @@ namespace QtSharp
                 }
             }
             var qtMetacall = (from output in generatorOutput.Outputs
-                              from block in output.FindBlocks(CSharpBlockKind.Method)
+                              from block in output.FindBlocks(BlockKind.Method)
                               let declaration = block.Object as Declaration
                               where declaration != null && declaration.Name == "QtMetacall" &&
                                     declaration.Namespace.Name == "QObject"

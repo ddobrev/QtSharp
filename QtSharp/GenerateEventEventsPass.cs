@@ -30,7 +30,7 @@ namespace QtSharp
         private void OnUnitGenerated(GeneratorOutput generatorOutput)
         {
             var blocks = (from output in generatorOutput.Outputs
-                          from block in output.FindBlocks(CSharpBlockKind.Method)
+                          from block in output.FindBlocks(BlockKind.Method)
                           where this.events.Contains(block.Object)
                           select block).ToList();
             foreach (var block in blocks)
@@ -46,7 +46,7 @@ namespace QtSharp
                     @event = char.ToUpperInvariant(method.OriginalName[0]) + method.OriginalName.Substring(1);
                 }
                 var blockIndex = block.Parent.Blocks.IndexOf(block);
-                var eventBlock = new Block(CSharpBlockKind.Event);
+                var eventBlock = new Block(BlockKind.Event);
                 eventBlock.WriteLine("public event global::System.Action<object, {0}> {1};",
                                      method.Parameters[0].Type, @event);
                 eventBlock.NewLine();

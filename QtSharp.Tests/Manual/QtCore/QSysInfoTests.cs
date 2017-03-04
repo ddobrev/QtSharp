@@ -11,20 +11,18 @@ namespace QtSharp.Tests.Manual.QtCore
         [Test]
         public void TestWinVersion()
         {
-            var s = QSysInfo.WindowsVersion;
+            var s = QSysInfo.windowsVersion;
 
-            Assert.IsNotNullOrEmpty(s.ToString());
+            Assert.That(s.ToString(), Is.Not.Null.Or.Empty);
         }
 
         [Platform(Exclude = "Win,Linux")]
         [Test]
         public void TestMacintoshVersion()
         {
-            throw new NotImplementedException("Add in QtCore");
+            var s = QSysInfo.macVersion;
 
-            //var s = QSysInfo.MacintoshVersion;
-
-            //Assert.IsNotNullOrEmpty(s.ToString());
+            Assert.That(s.ToString(), Is.Not.Null.Or.Empty);
         }
     }
 }

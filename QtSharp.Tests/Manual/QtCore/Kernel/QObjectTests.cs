@@ -247,7 +247,7 @@ namespace QtSharp.Tests.Manual.QtCore.Kernel
         {
             var isW = _qObject.ObjectName;
 
-            Assert.IsNullOrEmpty(isW);
+            Assert.That(isW, Is.Not.Null.Or.Empty);
 
             _qObject.ObjectName = "MyObject";
 

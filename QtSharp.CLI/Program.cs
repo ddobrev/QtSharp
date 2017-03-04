@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using CppSharp;
+using CppSharp.Utils;
 
 namespace QtSharp.CLI
 {
@@ -88,18 +89,19 @@ namespace QtSharp.CLI
             path = Path.GetDirectoryName(qt.Make) + Path.PathSeparator + path;
             Environment.SetEnvironmentVariable("Path", path, EnvironmentVariableTarget.Process);
 
-            string error;
-            qt.Bins = ProcessHelper.Run(qt.QMake, "-query QT_INSTALL_BINS", out error);
-            if (!string.IsNullOrEmpty(error))
+            int error;
+            string errorMessage;
+            qt.Bins = ProcessHelper.Run(qt.QMake, "-query QT_INSTALL_BINS", out error, out errorMessage);
+            if (!string.IsNullOrEmpty(errorMessage))
             {
-                Console.WriteLine(error);
+                Console.WriteLine(errorMessage);
                 return false;
             }
 
-            qt.Libs = ProcessHelper.Run(qt.QMake, "-query QT_INSTALL_LIBS", out error);
-            if (!string.IsNullOrEmpty(error))
+            qt.Libs = ProcessHelper.Run(qt.QMake, "-query QT_INSTALL_LIBS", out error, out errorMessage);
+            if (!string.IsNullOrEmpty(errorMessage))
             {
-                Console.WriteLine(error);
+                Console.WriteLine(errorMessage);
                 return false;
             }
 
@@ -112,10 +114,10 @@ namespace QtSharp.CLI
                 return false;
             }
             qt.LibFiles = GetLibFiles(libsInfo, debug);
-            qt.Headers = ProcessHelper.Run(qt.QMake, "-query QT_INSTALL_HEADERS", out error);
-            if (!string.IsNullOrEmpty(error))
+            qt.Headers = ProcessHelper.Run(qt.QMake, "-query QT_INSTALL_HEADERS", out error, out errorMessage);
+            if (!string.IsNullOrEmpty(errorMessage))
             {
-                Console.WriteLine(error);
+                Console.WriteLine(errorMessage);
                 return false;
             }
             DirectoryInfo headersInfo = new DirectoryInfo(qt.Headers);
@@ -126,11 +128,11 @@ namespace QtSharp.CLI
                     headersInfo.Name);
                 return false;
             }
-            qt.Docs = ProcessHelper.Run(qt.QMake, "-query QT_INSTALL_DOCS", out error);
+            qt.Docs = ProcessHelper.Run(qt.QMake, "-query QT_INSTALL_DOCS", out error, out errorMessage);
 
             string emptyFile = Platform.IsWindows ? "NUL" : "/dev/null";
             string output;
-            ProcessHelper.Run("gcc", string.Format("-v -E -x c++ {0}", emptyFile), out output);
+            ProcessHelper.Run("gcc", $"-v -E -x c++ {emptyFile}", out error, out output);
             qt.Target = Regex.Match(output, @"Target:\s*(?<target>[^\r\n]+)").Groups["target"].Value;
 
             const string includeDirsRegex = @"#include <\.\.\.> search starts here:(?<includes>.+)End of search list";
@@ -148,24 +150,6 @@ namespace QtSharp.CLI
                     .Select(s => s.Replace(frameworkDirectory, string.Empty).Trim()).Select(Path.GetFullPath);
 
             return true;
-        }
-
-        static void ProcessGeneratedInlines ()
-        {
-            if (!Platform.IsWindows)
-                return;
-            
-#if DEBUG
-            if (File.Exists("../../../QtSharp.Tests/bin/Debug/QtCore-inlines.dll"))
-                File.Delete("../../../QtSharp.Tests/bin/Debug/QtCore-inlines.dll");
-
-            File.Copy("release/QtCore-inlines.dll", "../../../QtSharp.Tests/bin/Debug/QtCore-inlines.dll");
-#else
-            if (File.Exists("../../../QtSharp.Tests/bin/Release/QtCore-inlines.dll"))
-                File.Delete("../../../QtSharp.Tests/bin/Release/QtCore-inlines.dll");
-
-            File.Copy ("release/QtCore-inlines.dll", "../../../QtSharp.Tests/bin/Release/QtCore-inlines.dll");
-#endif
         }
 
         public static int Main(string[] args)
@@ -212,8 +196,6 @@ namespace QtSharp.CLI
             var qtSharp = new QtSharp(qt);
             ConsoleDriver.Run(qtSharp);
             var wrappedModules = qtSharp.GetVerifiedWrappedModules();
-
-            ProcessGeneratedInlines();
 
             if (wrappedModules.Count == 0)
             {

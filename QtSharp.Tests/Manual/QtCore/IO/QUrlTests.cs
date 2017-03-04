@@ -79,7 +79,7 @@ namespace QtSharp.Tests.Manual.QtCore.IO
                 QUrl.ComponentFormattingOption formatting in Enum.GetValues(typeof(QUrl.ComponentFormattingOption)))
             {
                 var s = this.qUrl.Authority(formatting);
-                Assert.IsNotNullOrEmpty(s, "Problem in enum: " + formatting.ToString());
+                Assert.That(s, Is.Not.Null.Or.Empty, "Problem in enum: " + formatting.ToString());
             }
         }
 
@@ -95,7 +95,7 @@ namespace QtSharp.Tests.Manual.QtCore.IO
         {
             var s = this.qUrl.Fragment();
 
-            Assert.IsNotNullOrEmpty(s);
+            Assert.That(s, Is.Not.Null.Or.Empty);
         }
 
         [Test]

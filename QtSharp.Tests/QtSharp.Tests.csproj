@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -9,123 +9,135 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>QtSharp.Tests</RootNamespace>
     <AssemblyName>QtSharp.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
+    <BaseIntermediateOutputPath>..\..\..\build\vs2015\obj\Debug_x32\x32\Debug\QtSharp.Tests\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
+    <DefineConstants>WINDOWS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\build\vs2015\lib\Debug_x64\</OutputPath>
+    <BaseIntermediateOutputPath>..\..\..\build\vs2015\obj\Debug_x64\x64\Debug\QtSharp.Tests\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
+    <DefineConstants>WINDOWS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\build\vs2015\lib\Release_x32\</OutputPath>
+    <BaseIntermediateOutputPath>..\..\..\build\vs2015\obj\Release_x32\x32\Release\QtSharp.Tests\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
+    <DefineConstants>WINDOWS</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\build\vs2015\lib\Release_x64\</OutputPath>
+    <BaseIntermediateOutputPath>..\..\..\build\vs2015\obj\Release_x64\x64\Release\QtSharp.Tests\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
+    <DefineConstants>WINDOWS</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CppSharp.Runtime">
-      <HintPath>..\References\CppSharp.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.core, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnitTestAdapter.WithFramework.2.0.0\lib\nunit.core.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="nunit.core.interfaces, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnitTestAdapter.WithFramework.2.0.0\lib\nunit.core.interfaces.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnitTestAdapter.WithFramework.2.0.0\lib\nunit.framework.dll</HintPath>
+    <Reference Include="nunit.framework, Version=3.6.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.3.6.0\lib\net45\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="nunit.util, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnitTestAdapter.WithFramework.2.0.0\lib\nunit.util.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="NUnit.VisualStudio.TestAdapter, Version=2.0.0.0, Culture=neutral, PublicKeyToken=4cb40d35494691ac, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnitTestAdapter.WithFramework.2.0.0\lib\NUnit.VisualStudio.TestAdapter.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="QtCoreSharp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\QtSharp.CLI\bin\Debug\QtCoreSharp.dll</HintPath>
+    <Reference Include="QtCore.Sharp">
+      <HintPath>..\QtSharp.CLI\bin\Debug\QtCore.Sharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Auto\Generator.cs" />
+    <Compile Include="Helper.cs" />
     <Compile Include="Manual\QtCore\Animation\QAbstractAnimationTests.cs" />
     <Compile Include="Manual\QtCore\Animation\QAnimationGroupTests.cs" />
     <Compile Include="Manual\QtCore\Animation\QParallelAnimationGroupTests.cs" />
     <Compile Include="Manual\QtCore\IO\QDirTests.cs" />
+    <Compile Include="Manual\QtCore\IO\QFileInfoTests.cs" />
     <Compile Include="Manual\QtCore\IO\QIODeviceTests.cs" />
+    <Compile Include="Manual\QtCore\IO\QUrlTests.cs" />
     <Compile Include="Manual\QtCore\Json\QtJsonTests.cs" />
     <Compile Include="Manual\QtCore\Kernel\QAbstractEventDispatcherTests.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Helper.cs" />
-    <Compile Include="Manual\QtCore\Thread\QAtomicIntegerTests.cs" />
+    <Compile Include="Manual\QtCore\Kernel\QCoreApplicationTests.cs" />
+    <Compile Include="Manual\QtCore\Kernel\QObjectTests.cs" />
+    <Compile Include="Manual\QtCore\Plugin\QUuidTests.cs" />
     <Compile Include="Manual\QtCore\QBasicTimerTests.cs" />
     <Compile Include="Manual\QtCore\QCommandLineOptionTests.cs" />
-    <Compile Include="Manual\QtCore\Kernel\QCoreApplicationTests.cs" />
-    <Compile Include="Manual\QtCore\Tools\QDateTests.cs" />
-    <Compile Include="Manual\QtCore\IO\QFileInfoTests.cs" />
     <Compile Include="Manual\QtCore\QFlagTests.cs" />
+    <Compile Include="Manual\QtCore\QSysInfoTests.cs" />
+    <Compile Include="Manual\QtCore\Thread\QAtomicIntegerTests.cs" />
+    <Compile Include="Manual\QtCore\Tools\QDateTests.cs" />
     <Compile Include="Manual\QtCore\Tools\QLineFTests.cs" />
     <Compile Include="Manual\QtCore\Tools\QLineTests.cs" />
     <Compile Include="Manual\QtCore\Tools\QMarginsFTests.cs" />
     <Compile Include="Manual\QtCore\Tools\QMarginsTests.cs" />
-    <Compile Include="Manual\QtCore\Kernel\QObjectTests.cs" />
     <Compile Include="Manual\QtCore\Tools\QPointFTests.cs" />
     <Compile Include="Manual\QtCore\Tools\QPointTests.cs" />
-    <Compile Include="Manual\QtCore\Tools\QRectTests.cs" />
     <Compile Include="Manual\QtCore\Tools\QRectFTests.cs" />
+    <Compile Include="Manual\QtCore\Tools\QRectTests.cs" />
     <Compile Include="Manual\QtCore\Tools\QSizeFTests.cs" />
     <Compile Include="Manual\QtCore\Tools\QSizeTests.cs" />
     <Compile Include="Manual\QtCore\Tools\QStringRefTests.cs" />
-    <Compile Include="Manual\QtCore\QSysInfoTests.cs" />
-    <Compile Include="Manual\QtCore\IO\QUrlTests.cs" />
-    <Compile Include="Manual\QtCore\Plugin\QUuidTests.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Core\CppSharp.csproj">
+      <Project>{C600C309-B2CD-1D15-DBE6-0BBDC71253A3}</Project>
+      <Name>CppSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\src\AST\CppSharp.AST.csproj">
+      <Project>{BC4C5C41-A8AF-EBE5-5135-249C3D77B768}</Project>
+      <Name>CppSharp.AST</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\src\Generator\CppSharp.Generator.csproj">
+      <Project>{1BD1FEC4-07B5-BF1A-7015-BA6D5C18AA9C}</Project>
+      <Name>CppSharp.Generator</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestData\DoubleExtension.ext.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\TextFile1.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\TextFile2_1000words.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\TextFile3_50bytes.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Content Include="ToDo.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Manual\QtCore\Json\bom.json" />
@@ -144,25 +156,10 @@
     <Folder Include="Manual\QtCore\ItemModels\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="TestData\DoubleExtension.ext.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="TestData\TextFile3_50bytes.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="TestData\TextFile2_1000words.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="TestData\TextFile1.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <Content Include="ToDo.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

@@ -1,12 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using CppSharp;
 using CppSharp.AST;
 using CppSharp.AST.Extensions;
 using CppSharp.Generators;
 using CppSharp.Passes;
+using CppSharp.Utils;
 using CppAbi = CppSharp.Parser.AST.CppAbi;
 
 namespace QtSharp
@@ -99,32 +102,6 @@ namespace QtSharp
             }
         }
 
-        private static void IgnorePrivateDeclarations(DeclarationContext unit)
-        {
-            foreach (var declaration in unit.Declarations)
-            {
-                IgnorePrivateDeclaration(declaration);
-            }
-        }
-
-        private static void IgnorePrivateDeclaration(Declaration declaration)
-        {
-            if (declaration.Name != null &&
-                (declaration.Name.StartsWith("Private", System.StringComparison.Ordinal) ||
-                 declaration.Name.EndsWith("Private", System.StringComparison.Ordinal)))
-            {
-                declaration.ExplicitlyIgnore();
-            }
-            else
-            {
-                DeclarationContext declarationContext = declaration as DeclarationContext;
-                if (declarationContext != null)
-                {
-                    IgnorePrivateDeclarations(declarationContext);
-                }
-            }
-        }
-
         public void Postprocess(Driver driver, ASTContext lib)
         {
             new ClearCommentsPass().VisitASTContext(driver.Context.ASTContext);
@@ -174,23 +151,23 @@ namespace QtSharp
             driver.Options.CompileCode = true;
             driver.Options.GenerateDefaultValuesForArguments = true;
             driver.Options.MarshalCharAsManagedChar = true;
+            driver.Options.CommentKind = CommentKind.BCPLSlash;
 
             string dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             const string qt = "Qt";
             foreach (var libFile in this.qtInfo.LibFiles)
             {
                 string qtModule = GetModuleNameFromLibFile(libFile);
-                var module = new CppSharp.AST.Module();
-                module.LibraryName = string.Format("{0}.Sharp", qtModule);
+                var module = driver.Options.AddModule($"{qtModule}.Sharp");
                 module.Headers.Add(qtModule);
                 var moduleName = qtModule.Substring(qt.Length);
                 // some Qt modules have their own name-spaces
                 if (moduleName == "Charts" || moduleName == "DataVisualization" ||
-                    moduleName.StartsWith("3D", System.StringComparison.Ordinal))
+                    moduleName.StartsWith("3D", StringComparison.Ordinal))
                 {
                     module.OutputNamespace = string.Empty;
-                    module.InlinesLibraryName = string.Format("{0}-inlines", qtModule);
-                    module.TemplatesLibraryName = string.Format("{0}-templates", qtModule);
+                    module.InlinesLibraryName = $"{qtModule}-inlines";
+                    module.TemplatesLibraryName = $"{qtModule}-templates";
                 }
                 else
                 {
@@ -198,12 +175,12 @@ namespace QtSharp
                 }
                 if (Platform.IsMacOS)
                 {
-                    var framework = string.Format("{0}.framework", qtModule);
+                    var framework = $"{qtModule}.framework";
                     module.IncludeDirs.Add(Path.Combine(this.qtInfo.Libs, framework));
                     module.IncludeDirs.Add(Path.Combine(this.qtInfo.Libs, framework, "Headers"));
                     if (moduleName == "UiPlugin")
                     {
-                        var qtUiPlugin = string.Format("Qt{0}.framework", moduleName);
+                        var qtUiPlugin = $"Qt{moduleName}.framework";
                         module.IncludeDirs.Add(Path.Combine(this.qtInfo.Libs, qtUiPlugin));
                         module.IncludeDirs.Add(Path.Combine(this.qtInfo.Libs, qtUiPlugin, "Headers"));
                     }
@@ -232,8 +209,6 @@ namespace QtSharp
                     module.CodeFiles.Add(Path.Combine(dir, "QChar.cs"));
                     module.CodeFiles.Add(Path.Combine(dir, "QEvent.cs"));
                 }
-
-                driver.Options.Modules.Add(module);
             }
 
             foreach (var systemIncludeDir in this.qtInfo.SystemIncludeDirs)
@@ -242,8 +217,8 @@ namespace QtSharp
             if (Platform.IsMacOS)
             {
                 foreach (var frameworkDir in this.qtInfo.FrameworkDirs)
-                    driver.ParserOptions.AddArguments(string.Format("-F{0}", frameworkDir));
-                driver.ParserOptions.AddArguments(string.Format("-F{0}", qtInfo.Libs));
+                    driver.ParserOptions.AddArguments($"-F{frameworkDir}");
+                driver.ParserOptions.AddArguments($"-F{qtInfo.Libs}");
             }
 
             driver.ParserOptions.AddIncludeDirs(qtInfo.Headers);
@@ -266,10 +241,95 @@ namespace QtSharp
 
         public void SetupPasses(Driver driver)
         {
-            driver.Context.TranslationUnitPasses.AddPass(new CompileInlinesPass(this.qtInfo.QMake, this.qtInfo.Make));
             driver.Context.TranslationUnitPasses.AddPass(new GenerateSignalEventsPass(driver.Generator));
             driver.Context.TranslationUnitPasses.AddPass(new GenerateEventEventsPass(driver.Generator));
             driver.Context.TranslationUnitPasses.AddPass(new RemoveQObjectMembersPass());
+
+            var generateInlinesPass = driver.Context.TranslationUnitPasses.FindPass<GenerateInlinesPass>();
+            generateInlinesPass.InlinesCodeGenerated += (sender, e) =>
+                                                        {
+                                                            e.OutputDir = driver.Context.Options.OutputDir;
+                                                            this.CompileMakefile(e);
+                                                        };
+        }
+
+        private static void IgnorePrivateDeclarations(DeclarationContext unit)
+        {
+            foreach (var declaration in unit.Declarations)
+            {
+                IgnorePrivateDeclaration(declaration);
+            }
+        }
+
+        private static void IgnorePrivateDeclaration(Declaration declaration)
+        {
+            if (declaration.Name != null &&
+                (declaration.Name.StartsWith("Private", StringComparison.Ordinal) ||
+                 declaration.Name.EndsWith("Private", StringComparison.Ordinal)))
+            {
+                declaration.ExplicitlyIgnore();
+            }
+            else
+            {
+                DeclarationContext declarationContext = declaration as DeclarationContext;
+                if (declarationContext != null)
+                {
+                    IgnorePrivateDeclarations(declarationContext);
+                }
+            }
+        }
+
+        private void CompileMakefile(GenerateInlinesPass.InlinesCodeEventArgs e)
+        {
+            var pro = $"{e.Module.InlinesLibraryName}.pro";
+            var path = Path.Combine(e.OutputDir, pro);
+            var proBuilder = new StringBuilder();
+            var qtModules = string.Join(" ", from header in e.Module.Headers
+                                             where !header.EndsWith(".h", StringComparison.Ordinal)
+                                             select header.Substring("Qt".Length).ToLowerInvariant());
+            // QtTest is only library which has a "lib" suffix to its module alias for qmake
+            if (qtModules == "test")
+            {
+                qtModules += "lib";
+            }
+
+            proBuilder.Append($"QT += {qtModules}\n");
+            proBuilder.Append("CONFIG += c++11\n");
+            proBuilder.Append($"TARGET = {e.Module.InlinesLibraryName}\n");
+            proBuilder.Append("TEMPLATE = lib\n");
+            proBuilder.Append($"SOURCES += {Path.ChangeExtension(pro, "cpp")}\n");
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                proBuilder.Append("LIBS += -loleaut32 -lole32");
+            }
+            File.WriteAllText(path, proBuilder.ToString());
+            // HACK: work around https://bugreports.qt.io/browse/QTBUG-55952
+            if (e.Module.LibraryName == "Qt3DRender.Sharp")
+            {
+                var cpp = Path.ChangeExtension(pro, "cpp");
+                var unlinkable = new[]
+                                 {
+                                     "&Qt3DRender::QSortCriterion::tr;",
+                                     "&Qt3DRender::QSortCriterion::trUtf8;",
+                                     "&Qt3DRender::qt_getEnumMetaObject;"
+                                 };
+                var linkable = (from line in File.ReadLines(cpp)
+                                where unlinkable.All(ul => !line.EndsWith(ul, StringComparison.Ordinal))
+                                select line).ToList();
+                File.WriteAllLines(cpp, linkable);
+            }
+            int error;
+            string errorMessage;
+            ProcessHelper.Run(this.qtInfo.QMake, $"\"{path}\"", out error, out errorMessage);
+            if (!string.IsNullOrEmpty(errorMessage))
+            {
+                Console.WriteLine(errorMessage);
+                return;
+            }
+            var makefile = File.Exists(Path.Combine(e.OutputDir, "Makefile.Release")) ? "Makefile.Release" : "Makefile";
+            e.CustomCompiler = this.qtInfo.Make;
+            e.CompilerArguments = $"-f {makefile}";
+            e.OutputDir = Platform.IsMacOS ? e.OutputDir : Path.Combine(e.OutputDir, "release");
         }
 
         private readonly QtInfo qtInfo;

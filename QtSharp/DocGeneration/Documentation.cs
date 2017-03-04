@@ -49,7 +49,7 @@ namespace QtSharp.DocGeneration
             var xmlReaderSettings = new XmlReaderSettings();
             xmlReaderSettings.DtdProcessing = DtdProcessing.Parse;
             var file = module.ToLowerInvariant();
-            using (var stream = new FileStream(Path.Combine(docsPath, file, string.Format("{0}.index", file)), FileMode.Open))
+            using (var stream = new FileStream(Path.Combine(docsPath, file, $"{file}.index"), FileMode.Open))
             {
                 using (var xmlReader = XmlReader.Create(stream, xmlReaderSettings))
                 {
@@ -294,7 +294,6 @@ namespace QtSharp.DocGeneration
                 }
                 else
                 {
-                    Generator.CurrentOutputNamespace = unit.Module.OutputNamespace;
                     var paramTypes = @params.Select(p => p.Type.ToString()).ToList();
                     node = nodes.Find(
                         f => f.ParametersModifiers.SequenceEqual(paramTypes, new TypeInIndexEqualityComparer()));
@@ -324,7 +323,7 @@ namespace QtSharp.DocGeneration
                             // variadic and void "parameters" are invalid
                             if (function.IsVariadic && @params.Count == i || match.Groups[1].Value == "void")
                                 break;
-                            @params[i++].Name = Helpers.SafeIdentifier(match.Groups[1].Value);
+                            @params[i++].Name = csharpSources.SafeIdentifier(match.Groups[1].Value);
                         }
                         // TODO: create links in the "See Also" section
                         function.Comment = new RawComment
@@ -482,7 +481,7 @@ namespace QtSharp.DocGeneration
 		        if (this.membersDocumentation.ContainsKey(file))
 		        {
 		            var typeDocs = this.membersDocumentation[file];
-                    var key = string.Format("{0}-prop", property.OriginalName);
+                    var key = $"{property.OriginalName}-prop";
 		            var containsKey = typeDocs.ContainsKey(key);
 		            if (!containsKey)
 		            {
@@ -656,7 +655,7 @@ namespace QtSharp.DocGeneration
 
         private static IDictionary<string, string> GetFromHtml(string docsPath, string module)
         {
-            string docs = Path.Combine(docsPath, string.Format("qt{0}", module.ToLowerInvariant()));
+            string docs = Path.Combine(docsPath, $"qt{module.ToLowerInvariant()}");
             if (!Directory.Exists(docs))
             {
                 return new Dictionary<string, string>();
@@ -666,7 +665,7 @@ namespace QtSharp.DocGeneration
 
         private static IDictionary<string, string> GetFromQch(string docsPath, string module)
         {
-            var dataSource = Path.Combine(docsPath, string.Format("{0}.qch", module.ToLowerInvariant()));
+            var dataSource = Path.Combine(docsPath, $"{module.ToLowerInvariant()}.qch");
             if (!File.Exists(dataSource))
             {
                 return new Dictionary<string, string>();
@@ -786,10 +785,10 @@ namespace QtSharp.DocGeneration
             obsoleteMessageBuilder.Append(HtmlEncoder.HtmlDecode(HtmlEncoder.HtmlEncode(function.Comment.BriefText).Split(
                 Environment.NewLine.ToCharArray()).FirstOrDefault(line => line.Contains("instead") || line.Contains("deprecated"))));
             function.Attributes.Add(new Attribute
-            {
-                Type = typeof(ObsoleteAttribute),
-                Value = string.Format("\"{0}\"", obsoleteMessageBuilder)
-            });
+                                    {
+                                        Type = typeof(ObsoleteAttribute),
+                                        Value = $"\"{obsoleteMessageBuilder}\""
+                                    });
         }
 
         private readonly Dictionary<string, List<DocumentationNode>> typesDocumentation = new Dictionary<string, List<DocumentationNode>>();
@@ -815,5 +814,7 @@ namespace QtSharp.DocGeneration
                 return obj.GetHashCode();
             }
         }
+
+        private CSharpSources csharpSources = new CSharpSources(null, new List<TranslationUnit>());
     }
 }
