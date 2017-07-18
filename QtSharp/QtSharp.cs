@@ -41,6 +41,9 @@ namespace QtSharp
                 IgnorePrivateDeclarations(unit);
             }
 
+            lib.FindFunction("QtSharedPointer::weakPointerFromVariant_internal").First().ExplicitlyIgnore();
+            lib.FindFunction("QtSharedPointer::sharedPointerFromVariant_internal").First().ExplicitlyIgnore();
+
             // QString is type-mapped to string so we only need two methods for the conversion
             var qString = lib.FindCompleteClass("QString");
             foreach (var @class in qString.Declarations)
@@ -50,6 +53,23 @@ namespace QtSharp
             foreach (var method in qString.Methods.Where(m => m.OriginalName != "utf16" && m.OriginalName != "fromUtf16"))
             {
                 method.ExplicitlyIgnore();
+            }
+
+            foreach (var template in lib.FindDecl<ClassTemplate>("QList"))
+            {
+                var qListQVariant = template.Specializations.FirstOrDefault(
+                    s =>
+                    {
+                        var type = s.Arguments[0].Type.Type;
+                        if (type == null)
+                            return false;
+                        Class @class;
+                        return s.Arguments[0].Type.Type.TryGetClass(out @class) && @class.Name == "QVariant";
+                    });
+                if (qListQVariant != null)
+                {
+                    qListQVariant.Methods.First(m => m.OriginalName == "toSet").ExplicitlyIgnore();
+                }
             }
 
             // HACK: work around https://github.com/mono/CppSharp/issues/594
@@ -132,7 +152,7 @@ namespace QtSharp
             {
                 var prefix = Platform.IsWindows ? string.Empty : "lib";
                 var extension = Platform.IsWindows ? ".dll" : Platform.IsMacOS ? ".dylib" : ".so";
-                var inlinesLibraryFile = string.Format("{0}{1}{2}", prefix, module.InlinesLibraryName, extension);
+                var inlinesLibraryFile = $"{prefix}{module.SymbolsLibraryName}{extension}";
                 var inlinesLibraryPath = Path.Combine(driver.Options.OutputDir, Platform.IsWindows ? "release" : string.Empty, inlinesLibraryFile);
                 this.wrappedModules.Add(new KeyValuePair<string, string>(module.LibraryName + ".dll", inlinesLibraryPath));
             }
@@ -166,8 +186,7 @@ namespace QtSharp
                     moduleName.StartsWith("3D", StringComparison.Ordinal))
                 {
                     module.OutputNamespace = string.Empty;
-                    module.InlinesLibraryName = $"{qtModule}-inlines";
-                    module.TemplatesLibraryName = $"{qtModule}-templates";
+                    module.SymbolsLibraryName = $"{qtModule}-symbols";
                 }
                 else
                 {
@@ -245,8 +264,8 @@ namespace QtSharp
             driver.Context.TranslationUnitPasses.AddPass(new GenerateEventEventsPass(driver.Generator));
             driver.Context.TranslationUnitPasses.AddPass(new RemoveQObjectMembersPass());
 
-            var generateInlinesPass = driver.Context.TranslationUnitPasses.FindPass<GenerateInlinesPass>();
-            generateInlinesPass.InlinesCodeGenerated += (sender, e) =>
+            var generateSymbolsPass = driver.Context.TranslationUnitPasses.FindPass<GenerateSymbolsPass>();
+            generateSymbolsPass.SymbolsCodeGenerated += (sender, e) =>
                                                         {
                                                             e.OutputDir = driver.Context.Options.OutputDir;
                                                             this.CompileMakefile(e);
@@ -279,9 +298,9 @@ namespace QtSharp
             }
         }
 
-        private void CompileMakefile(GenerateInlinesPass.InlinesCodeEventArgs e)
+        private void CompileMakefile(GenerateSymbolsPass.SymbolsCodeEventArgs e)
         {
-            var pro = $"{e.Module.InlinesLibraryName}.pro";
+            var pro = $"{e.Module.SymbolsLibraryName}.pro";
             var path = Path.Combine(e.OutputDir, pro);
             var proBuilder = new StringBuilder();
             var qtModules = string.Join(" ", from header in e.Module.Headers
@@ -295,7 +314,7 @@ namespace QtSharp
 
             proBuilder.Append($"QT += {qtModules}\n");
             proBuilder.Append("CONFIG += c++11\n");
-            proBuilder.Append($"TARGET = {e.Module.InlinesLibraryName}\n");
+            proBuilder.Append($"TARGET = {e.Module.SymbolsLibraryName}\n");
             proBuilder.Append("TEMPLATE = lib\n");
             proBuilder.Append($"SOURCES += {Path.ChangeExtension(pro, "cpp")}\n");
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)

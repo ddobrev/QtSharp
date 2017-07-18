@@ -70,7 +70,7 @@ namespace QtSharp
                         string.Join(", ",
                             from e in @event.Parameters
                             select GetOriginalParameterType(e)));
-                    Event existing = @class.Events.FirstOrDefault(e => e.Name == @event.Name);
+                    Event existing = @class.Events.FirstOrDefault(e => e.OriginalName == @event.OriginalName);
                     if (existing != null && existing != @event)
                     {
                         if (@event.Parameters.Count > 0)
@@ -85,8 +85,8 @@ namespace QtSharp
                     else
                     {
                         if (@event.Parameters.Count > 0 &&
-                            (@class.Methods.Any(m => m.IsGenerated && m.OriginalName == @event.Name) ||
-                             @class.Properties.Any(p => p.IsGenerated && p.OriginalName == @event.Name)))
+                            (@class.Methods.Any(m => m.IsGenerated && m.OriginalName == @event.OriginalName) ||
+                             @class.Properties.Any(p => p.IsGenerated && p.OriginalName == @event.OriginalName)))
                         {
                             @event.Name += GetSignalEventSuffix(@event);
                         }

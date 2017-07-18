@@ -323,7 +323,17 @@ namespace QtSharp.DocGeneration
                             // variadic and void "parameters" are invalid
                             if (function.IsVariadic && @params.Count == i || match.Groups[1].Value == "void")
                                 break;
-                            @params[i++].Name = csharpSources.SafeIdentifier(match.Groups[1].Value);
+                            var param = csharpSources.SafeIdentifier(match.Groups[1].Value);
+                            @params[i].Name = param;
+                            if (function.IsDependent && function is Method && function.Namespace.IsDependent)
+                            {
+                                foreach (var specialization in ((Class) function.Namespace).Specializations)
+                                {
+                                    var specializedFunction = specialization.Methods.First(m => m.InstantiatedFrom == function);
+                                    specializedFunction.Parameters.Where(p => p.Kind == ParameterKind.Regular).ElementAt(i).Name = param;
+                                }
+                            }
+                            i++;
                         }
                         // TODO: create links in the "See Also" section
                         function.Comment = new RawComment
@@ -574,7 +584,7 @@ namespace QtSharp.DocGeneration
                         var enumPrefix = @enum.Namespace is TranslationUnit ? "" : (@enum.Namespace.Name + "::");
                         foreach (var item in @enum.Items)
                         {
-                            var itemQualifiedName = enumPrefix + item.Name;
+                            var itemQualifiedName = enumPrefix + item.OriginalName;
                             var enumMemberDocs = (from member in enumMembersDocs
                                                   from code in member.Codes
                                                   where code.InnerText == itemQualifiedName

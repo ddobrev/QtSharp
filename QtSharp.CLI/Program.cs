@@ -141,7 +141,6 @@ namespace QtSharp.CLI
                 .Select(s => s.Trim()).ToList();
 
             const string frameworkDirectory = "(framework directory)";
-            includeDirs.Insert(0, Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "include"));
             qt.SystemIncludeDirs = includeDirs.Where(s => !s.Contains(frameworkDirectory))
                 .Select(Path.GetFullPath);
 

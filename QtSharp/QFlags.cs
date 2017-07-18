@@ -1,6 +1,6 @@
-﻿using CppSharp.AST;
+﻿using System.Linq;
+using CppSharp.AST;
 using CppSharp.AST.Extensions;
-using CppSharp.Generators;
 using CppSharp.Generators.CSharp;
 using CppSharp.Types;
 
@@ -9,18 +9,22 @@ namespace QtSharp
     [TypeMap("QFlags")]
     public class QFlags : TypeMap
     {
-        public override string CSharpConstruct()
-        {
-            return string.Empty;
-        }
+        public override string CSharpConstruct() => string.Empty;
 
-        public override Type CSharpSignatureType(CSharpTypePrinterContext ctx)
+        public override Type CSharpSignatureType(TypePrinterContext ctx)
         {
             return GetEnumType(ctx.Type);
         }
 
-        public override string CSharpSignature(CSharpTypePrinterContext ctx)
+        public override string CSharpSignature(TypePrinterContext ctx)
         {
+            var enumType = GetEnumType(ctx.Type);
+            if (enumType == null)
+            {
+                var specializationType = (TemplateSpecializationType) ctx.Type;
+                return $@"{specializationType.Template.Name}<{
+                           string.Join(", ", specializationType.Arguments.Select(a => a.Type.Type))}>";
+            }
             return this.CSharpSignatureType(ctx).ToString();
         }
 
@@ -55,6 +59,10 @@ namespace QtSharp
                 classTemplateSpecialization = templateSpecializationType.GetClassTemplateSpecialization();
             else
                 classTemplateSpecialization = (ClassTemplateSpecialization) ((TagType) type).Declaration;
+            if (classTemplateSpecialization == null)
+            {
+                return null;
+            }
             return classTemplateSpecialization.Arguments[0].Type.Type;
         }
     }

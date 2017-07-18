@@ -9,9 +9,9 @@ namespace QtSharp
     [TypeMap("QString")]
     public class QString : TypeMap
     {
-        public override string CSharpSignature(CSharpTypePrinterContext ctx)
+        public override string CSharpSignature(TypePrinterContext ctx)
         {
-            if (ctx.CSharpKind == TypePrinterContextKind.Native)
+            if (ctx.Kind == TypePrinterContextKind.Native)
             {
                 return string.Format("QtCore.QString.{0}{1}", Helpers.InternalStruct, ctx.Type.IsAddress() ? "*" : string.Empty);
             }
@@ -20,11 +20,23 @@ namespace QtSharp
 
         public override void CSharpMarshalToNative(CSharpMarshalContext ctx)
         {
-            ctx.SupportBefore.WriteLine("var __stringPtr{0} = ReferenceEquals({1}, null) ? null : (ushort*) Marshal.StringToHGlobalUni({1}).ToPointer();",
-                                        ctx.ParameterIndex, ctx.Parameter.Name);
-            ctx.SupportBefore.WriteLine("var __qstring{0} = __stringPtr{0} == null ? null : QtCore.QString.FromUtf16(ref *__stringPtr{0}, {1}.Length);",
-                                        ctx.ParameterIndex, ctx.Parameter.Name);
             var type = ctx.Parameter.Type.Desugar();
+            var finalType = (type.GetFinalPointee() ?? type).Desugar();
+            var substitution = finalType as TemplateParameterSubstitutionType;
+            string param;
+            if (substitution != null)
+            {
+                param = Generator.GeneratedIdentifier(ctx.Parameter.Name.Trim('@'));
+                ctx.Before.WriteLine($"var {param} = (string) (object) {ctx.Parameter.Name};");
+            }
+            else
+            {
+                param = ctx.Parameter.Name;
+            }
+            ctx.Before.WriteLine("var __stringPtr{0} = ReferenceEquals({1}, null) ? null : (ushort*) Marshal.StringToHGlobalUni({1}).ToPointer();",
+                                 ctx.ParameterIndex, param);
+            ctx.Before.WriteLine("var __qstring{0} = __stringPtr{0} == null ? null : QtCore.QString.FromUtf16(ref *__stringPtr{0}, {1}.Length);",
+                                 ctx.ParameterIndex, param);
             if (type.IsAddress())
             {
                 ctx.Return.Write("ReferenceEquals(__qstring{0}, null) ? global::System.IntPtr.Zero : __qstring{0}.{1}",
@@ -45,8 +57,16 @@ namespace QtSharp
 
         public override void CSharpMarshalToManaged(CSharpMarshalContext ctx)
         {
-            ctx.Return.Write("Marshal.PtrToStringUni(new IntPtr(QtCore.QString.{0}({1}).Utf16))",
-                Helpers.CreateInstanceIdentifier, ctx.ReturnVarName);
+            var type = ctx.ReturnType.Type.Desugar();
+            var finalType = (type.GetFinalPointee() ?? type).Desugar();
+            var substitution = finalType as TemplateParameterSubstitutionType;
+            string cast = string.Empty;
+            if (substitution != null)
+            {
+                cast = $"({substitution.ReplacedParameter.Parameter.Name}) (object) ";
+            }
+            ctx.Return.Write($@"{cast}Marshal.PtrToStringUni(new IntPtr(QtCore.QString.{
+                                Helpers.CreateInstanceIdentifier}({ctx.ReturnVarName}).Utf16))");
         }
 
         private CSharpTypePrinter typePrinter;
