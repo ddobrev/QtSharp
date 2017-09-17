@@ -50,6 +50,8 @@ namespace QtSharp
             }
         }
 
+        public override bool IsIgnored => Type != null ? Type.IsDependent : Declaration.IsDependent;
+
         private static Type GetEnumType(Type mappedType)
         {
             var type = mappedType.Desugar();

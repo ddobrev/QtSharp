@@ -92,34 +92,6 @@ namespace QtSharp
             {
                 enumeration.Name = "TypeEnum";
             }
-
-            // HACK: work around https://github.com/mono/CppSharp/issues/692
-            foreach (var name in new[] { "QImage", "QPixmap" })
-            {
-                var @class = lib.FindCompleteClass(name);
-                var ctorWithArray = @class.Constructors.FirstOrDefault(
-                    c => c.Parameters.Count == 1 && c.Parameters[0].Type.Desugar() is ArrayType);
-                if (ctorWithArray != null)
-                {
-                    ctorWithArray.ExplicitlyIgnore();
-                }
-            }
-            foreach (var name in new[] { "QGraphicsScene", "QGraphicsView" })
-            {
-                var @class = lib.FindCompleteClass(name);
-                var drawItems = @class.Methods.FirstOrDefault(m => m.OriginalName == "drawItems");
-                if (drawItems != null)
-                {
-                    drawItems.ExplicitlyIgnore();
-                }
-            }
-            lib.FindCompleteClass("QAbstractPlanarVideoBuffer").ExplicitlyIgnore();
-            var qAbstractVideoBuffer = lib.FindCompleteClass("QAbstractVideoBuffer");
-            var mapPlanes = qAbstractVideoBuffer.Methods.FirstOrDefault(m => m.OriginalName == "mapPlanes");
-            if (mapPlanes != null)
-            {
-                mapPlanes.ExplicitlyIgnore();
-            }
         }
 
         public void Postprocess(Driver driver, ASTContext lib)
@@ -224,6 +196,7 @@ namespace QtSharp
                 module.Libraries.Add(libFile);
                 if (moduleName == "Core")
                 {
+                    module.Headers.Insert(0, "guiddef.h");
                     module.CodeFiles.Add(Path.Combine(dir, "QObject.cs"));
                     module.CodeFiles.Add(Path.Combine(dir, "QChar.cs"));
                     module.CodeFiles.Add(Path.Combine(dir, "QEvent.cs"));
@@ -243,9 +216,6 @@ namespace QtSharp
             driver.ParserOptions.AddIncludeDirs(qtInfo.Headers);
 
             driver.ParserOptions.AddLibraryDirs(Platform.IsWindows ? qtInfo.Bins : qtInfo.Libs);
-
-            // Qt defines its own GUID with the same header guard as the system GUID, so ensure the system GUID is read first
-            driver.Project.AddFile("guiddef.h");
         }
 
         public static string GetModuleNameFromLibFile(string libFile)
@@ -322,21 +292,7 @@ namespace QtSharp
                 proBuilder.Append("LIBS += -loleaut32 -lole32");
             }
             File.WriteAllText(path, proBuilder.ToString());
-            // HACK: work around https://bugreports.qt.io/browse/QTBUG-55952
-            if (e.Module.LibraryName == "Qt3DRender.Sharp")
-            {
-                var cpp = Path.ChangeExtension(pro, "cpp");
-                var unlinkable = new[]
-                                 {
-                                     "&Qt3DRender::QSortCriterion::tr;",
-                                     "&Qt3DRender::QSortCriterion::trUtf8;",
-                                     "&Qt3DRender::qt_getEnumMetaObject;"
-                                 };
-                var linkable = (from line in File.ReadLines(cpp)
-                                where unlinkable.All(ul => !line.EndsWith(ul, StringComparison.Ordinal))
-                                select line).ToList();
-                File.WriteAllLines(cpp, linkable);
-            }
+
             int error;
             string errorMessage;
             ProcessHelper.Run(this.qtInfo.QMake, $"\"{path}\"", out error, out errorMessage);

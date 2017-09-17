@@ -13,15 +13,15 @@ namespace QtSharp
         {
             if (ctx.Kind == TypePrinterContextKind.Native)
             {
-                return string.Format("QtCore.QString.{0}{1}", Helpers.InternalStruct, ctx.Type.IsAddress() ? "*" : string.Empty);
+                return $"QtCore.QString.{Helpers.InternalStruct}{(ctx.Type.IsAddress() ? "*" : string.Empty)}";
             }
             return "string";
         }
 
         public override void CSharpMarshalToNative(CSharpMarshalContext ctx)
         {
-            var type = ctx.Parameter.Type.Desugar();
-            var finalType = (type.GetFinalPointee() ?? type).Desugar();
+            var type = ctx.Parameter.Type.Desugar(false);
+            var finalType = (type.GetFinalPointee() ?? type).Desugar(false);
             var substitution = finalType as TemplateParameterSubstitutionType;
             string param;
             if (substitution != null)
@@ -57,13 +57,13 @@ namespace QtSharp
 
         public override void CSharpMarshalToManaged(CSharpMarshalContext ctx)
         {
-            var type = ctx.ReturnType.Type.Desugar();
-            var finalType = (type.GetFinalPointee() ?? type).Desugar();
-            var substitution = finalType as TemplateParameterSubstitutionType;
+            var type = ctx.ReturnType.Type.Desugar(false);
+            var finalType = (type.GetFinalPointee() ?? type).Desugar(false);
+            var templateParameter = finalType as TemplateParameterType;
             string cast = string.Empty;
-            if (substitution != null)
+            if (templateParameter != null)
             {
-                cast = $"({substitution.ReplacedParameter.Parameter.Name}) (object) ";
+                cast = $"({templateParameter.Parameter.Name}) (object) ";
             }
             ctx.Return.Write($@"{cast}Marshal.PtrToStringUni(new IntPtr(QtCore.QString.{
                                 Helpers.CreateInstanceIdentifier}({ctx.ReturnVarName}).Utf16))");

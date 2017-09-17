@@ -108,14 +108,14 @@ namespace QtSharp
                     }
                     block.WriteLine(string.Format(@"public event {0} {1}
 {{
-	add
-	{{
+    add
+    {{
         ConnectDynamicSlot(this, ""{2}"", value);
-	}}
-	remove
-	{{
+    }}
+    remove
+    {{
         DisconnectDynamicSlot(this, ""{2}"", value);
-	}}
+    }}
 }}", fullNameBuilder, finalName, signature));
                 }
             }
@@ -184,9 +184,10 @@ namespace QtSharp
                         Name = method.Name,
                         OriginalName = method.OriginalName,
                         Namespace = method.Namespace,
-                        QualifiedType = new QualifiedType(method.FunctionType.Type),
-                        Parameters = method.Parameters
+                        QualifiedType = new QualifiedType(method.FunctionType.Type)
                     };
+                    @event.Parameters.AddRange(method.Parameters.Select(
+                        p => new Parameter(p) { Namespace = @event }));
                     if (method.IsGenerated)
                     {
                         method.ExplicitlyIgnore();

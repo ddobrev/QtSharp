@@ -90,10 +90,7 @@ namespace QtSharp
                     {
                         var name = char.ToUpperInvariant(method.Name[0]) + method.Name.Substring(1);
                         method.Name = "on" + name;
-                        Method baseMethod;
-                        if (!method.IsOverride ||
-                            (baseMethod = ((Class) method.Namespace).GetBaseMethod(method, true, true)) == null ||
-                            baseMethod.IsPure)
+                        if (!method.IsOverride || method.BaseMethod.IsPure)
                         {
                             this.events.Add(method);
                             this.Context.Options.ExplicitlyPatchedVirtualFunctions.Add(method.QualifiedOriginalName);

@@ -1,3 +1,8 @@
+0.7.2 - 18.9.2017
+Added:
+- Bindings for the constructors of QImage and QPixmap taking arrays;
+- Bindings for QGraphicsScene::drawItems, QGraphicsView::drawItems and QAbstractVideoBuffer::mapPlanes.
+
 0.7.1 - 10.2.2017
 Fixed:
 - Crashes when calling certain constructors and destructors.

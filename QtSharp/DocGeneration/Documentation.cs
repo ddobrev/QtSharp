@@ -252,14 +252,19 @@ namespace QtSharp.DocGeneration
 
         public void DocumentFunction(Function function)
         {
-            if (!this.functionNodes.ContainsKey(function.OriginalName))
+            var nodeKey = function.OriginalName;
+            if (function.IsDependent && !function.IsOperator && nodeKey.Contains('<'))
+            {
+                nodeKey = nodeKey.Substring(0, nodeKey.IndexOf('<'));
+            }
+            if (!this.functionNodes.ContainsKey(nodeKey))
             {
                 return;
             }
 
             var lineStart = function.LineNumberStart;
             var lineEnd = function.LineNumberEnd;
-            var functions = this.functionNodes[function.OriginalName];
+            var functions = this.functionNodes[nodeKey];
             var unit = function.OriginalNamespace.TranslationUnit;
             var location = unit.FileName;
             FunctionDocIndexNode node = null;
@@ -313,8 +318,7 @@ namespace QtSharp.DocGeneration
                         var i = 0;
                         // HACK: work around https://bugreports.qt.io/browse/QTBUG-53941
                         if (function.Namespace.Name == "QByteArray" &&
-                            ((function.OriginalName == "qCompress" && @params.Count == 2) ||
-                            (function.OriginalName == "qUncompress" && @params.Count == 1)))
+                            function.OriginalName == "qCompress" && @params.Count == 2)
                         {
                             docs = this.membersDocumentation[file][key + "-hack"];
                         }
@@ -343,6 +347,14 @@ namespace QtSharp.DocGeneration
                         if (node.IsObsolete)
                         {
                             AddObsoleteAttribute(function);
+                        }
+                        var @event = function.Namespace.Events.FirstOrDefault(e => e.OriginalDeclaration == function);
+                        if (@event != null)
+                        {
+                            for (i = 0; i < function.Parameters.Count; i++)
+                            {
+                                @event.Parameters[i].Name = function.Parameters[i].Name;
+                            }
                         }
                     }
                 }
@@ -451,7 +463,11 @@ namespace QtSharp.DocGeneration
                     {
                         if (property.IsOverride)
                         {
-                            comment.BriefText = ((Class) property.Namespace).GetBaseProperty(property).Comment.BriefText;
+                            Property baseProperty = ((Class) property.Namespace).GetBaseProperty(property);
+                            if (baseProperty.Comment != null)
+                            {
+                                comment.BriefText = baseProperty.Comment.BriefText;
+                            }
                         }
                         if (string.IsNullOrEmpty(comment.BriefText))
                         {
@@ -545,7 +561,7 @@ namespace QtSharp.DocGeneration
                     summary.Content.Add(new TextComment { Text = briefText });
                     type.Comment.FullComment.Blocks.Add(summary);
                     var remarks = new ParagraphComment();
-                    remarks.Content.AddRange(text.Split('\n').Select(t => new TextComment { Text = t }));
+                    remarks.Content.AddRange(text.Split('\n').Select(t => new TextComment { Text = t, HasTrailingNewline = true }));
                     type.Comment.FullComment.Blocks.Add(remarks);
                 }
             }
