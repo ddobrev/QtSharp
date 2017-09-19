@@ -1,3 +1,7 @@
+0.7.3 - 19.9.2017
+Fixed:
+- Crash when creating an object while handling a Qt meta-call.
+
 0.7.2 - 18.9.2017
 Added:
 - Bindings for the constructors of QImage and QPixmap taking arrays;

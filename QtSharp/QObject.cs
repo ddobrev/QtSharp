@@ -72,7 +72,12 @@ namespace QtCore
                 case TypeCode.Empty:
                     return null;
                 case TypeCode.Object:
-                    return Activator.CreateInstance(type, arg);
+                    var constructor = type.GetMethod("__CreateInstance",
+                                                     global::System.Reflection.BindingFlags.NonPublic |
+                                                     global::System.Reflection.BindingFlags.Static |
+                                                     global::System.Reflection.BindingFlags.FlattenHierarchy,
+                                                     null, new[] { typeof(IntPtr), typeof(bool) }, null);
+                    return constructor.Invoke(null, new object[] { arg, false });
                 case TypeCode.DBNull:
                     return DBNull.Value;
                 case TypeCode.Boolean:
