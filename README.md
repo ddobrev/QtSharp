@@ -1,3 +1,7 @@
+This repository is obsolete. For new code and binary releases please visit https://gitlab.com/ddobrev/QtSharp.
+=======
+
+
 QtSharp
 =======
 
